@@ -161,7 +161,7 @@
                 <i data-lucide="home" class="w-5 h-5"></i><span class="text-[9px] font-bold uppercase tracking-wider">Home</span>
             </button>
             <button onclick="showView('fridge')" id="nav-fridge" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
-                <i data-lucide="refrigerator" class="w-5 h-5"></i><span class="text-[9px] font-bold uppercase tracking-wider">Inhalt</span>
+                <i data-lucide="fridge" class="w-5 h-5"></i><span class="text-[9px] font-bold uppercase tracking-wider">Inhalt</span>
             </button>
             <button onclick="showView('recipes')" id="nav-recipes" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
                 <i data-lucide="chef-hat" class="w-5 h-5"></i><span class="text-[9px] font-bold uppercase tracking-wider">Rezepte</span>
@@ -190,7 +190,6 @@
             initData();
             setGreeting();
             updateUI();
-            lucide.createIcons(); // Initiale statische Icons laden
         };
  
         function setGreeting() {
@@ -199,13 +198,9 @@
         }
  
         function initData() {
-            inventory = JSON.parse(localStorage.getItem('rfw_inv')) || [
-                { id: 1, name: "Frischer Spinat", daysLeft: 1, tag: "spinat" },
-                { id: 2, name: "Naturjoghurt", daysLeft: 2, tag: "joghurt" },
-                { id: 3, name: "Bio-Eier", daysLeft: 5, tag: "eier" },
-                { id: 4, name: "Rispentomaten", daysLeft: 7, tag: "tomaten" }
-            ];
-            stats = JSON.parse(localStorage.getItem('rfw_stats')) || { weightSaved: 1.5, mealsCount: 4 };
+            // Standardmäßig ist das Array [] jetzt leer, falls kein LocalStorage vorhanden ist
+            inventory = JSON.parse(localStorage.getItem('rfw_inv')) || [];
+            stats = JSON.parse(localStorage.getItem('rfw_stats')) || { weightSaved: 0.0, mealsCount: 0 };
         }
  
         function saveData() {
@@ -221,6 +216,7 @@
             renderLists();
             renderRecipes();
             updateStatsAndGamification();
+            lucide.createIcons();
         }
  
         function getTheme(days) {
@@ -244,7 +240,7 @@
         function renderLists() {
             const dashList = document.getElementById('dashboard-urgent-list');
             const fridgeList = document.getElementById('full-fridge-list');
-            const searchQuery = document.getElementById('fridge-search').value.toLowerCase();
+            const searchQuery = document.getElementById('fridge-search').value.toLowerCase().trim();
             
             dashList.innerHTML = ''; 
             fridgeList.innerHTML = '';
@@ -261,13 +257,11 @@
                 const theme = getTheme(item.daysLeft);
                 const html = createItemHTML(item, theme);
 
-                // Dashboard: Zeige nur die Top 3 dringenden Items an
                 if (urgentCount < 3 && item.daysLeft <= 3) {
                     dashList.innerHTML += html;
                     urgentCount++;
                 }
 
-                // Kühlschrank-Inhalt (mit optionaler Suchfilterung)
                 if (item.name.toLowerCase().includes(searchQuery)) {
                     fridgeList.innerHTML += html;
                 }
