@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -8,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;600;700;800&display=swap');
@@ -139,9 +141,20 @@
         </div>
  
         <div id="bottom-sheet-overlay" class="fixed inset-0 bg-black/40 z-50 hidden" onclick="closeBottomSheet()"></div>
-        <div id="bottom-sheet" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white rounded-t-3xl z-50 transform translate-y-full transition-transform duration-300 p-5 pb-8">
+        <div id="bottom-sheet" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white rounded-t-3xl z-50 transform translate-y-full transition-transform duration-300 p-5 pb-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-4"></div>
-            <h3 class="text-base font-bold text-gray-900 mb-4">Neues Lebensmittel eintragen</h3>
+            
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold text-gray-900">Lebensmittel hinzufügen</h3>
+                <button onclick="toggleScanner()" id="scanner-btn" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1">
+                    <i data-lucide="scan-barcode" class="w-4 h-4"></i> Scanner starten
+                </button>
+            </div>
+
+            <div id="scanner-container" class="hidden w-full overflow-hidden rounded-xl bg-black mb-4 aspect-video relative">
+                <div id="interactive" class="w-full h-full"></div>
+            </div>
+
             <div class="space-y-3">
                 <input id="input-name" type="text" placeholder="Name (z.B. Milch, Spinat)" class="w-full p-3 bg-gray-50 border rounded-xl text-xs font-semibold focus:outline-[#4D805E]">
                 <div class="flex items-center justify-between p-2 bg-gray-50 border rounded-xl">
@@ -185,6 +198,7 @@
         let stats = { weightSaved: 0.0, mealsCount: 0 };
         let activeItemId = null;
         let currentDaysInput = 3;
+        let html5QrcodeScanner = null;
  
         window.onload = () => {
             initData();
@@ -198,7 +212,6 @@
         }
  
         function initData() {
-            // Standardmäßig ist das Array [] jetzt leer, falls kein LocalStorage vorhanden ist
             inventory = JSON.parse(localStorage.getItem('rfw_inv')) || [];
             stats = JSON.parse(localStorage.getItem('rfw_stats')) || { weightSaved: 0.0, mealsCount: 0 };
         }
@@ -240,7 +253,9 @@
         function renderLists() {
             const dashList = document.getElementById('dashboard-urgent-list');
             const fridgeList = document.getElementById('full-fridge-list');
-            const searchQuery = document.getElementById('fridge-search').value.toLowerCase().trim();
+            
+            const searchInput = document.getElementById('fridge-search');
+            const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
             
             dashList.innerHTML = ''; 
             fridgeList.innerHTML = '';
@@ -361,6 +376,7 @@
         }
  
         function closeBottomSheet() {
+            stopScanner();
             document.getElementById('bottom-sheet-overlay').classList.add('hidden');
             document.getElementById('bottom-sheet').classList.add('translate-y-full');
         }
@@ -369,10 +385,102 @@
             currentDaysInput = Math.max(1, currentDaysInput + amount);
             document.getElementById('input-days-display').innerText = currentDaysInput;
         }
+
+        // --- SCHÄTZUNGS-DATENBANK FÜR MHD ---
+        function estimateDaysLeft(productName) {
+            const name = productName.toLowerCase();
+            
+            if (name.includes("h-milch") || name.includes("konserve") || name.includes("nudeln")) return 30;
+            if (name.includes("joghurt") || name.includes("quark") || name.includes("käse") || name.includes("cheese")) return 14;
+            if (name.includes("milch") || name.includes("butter") || name.includes("ei")) return 7;
+            if (name.includes("fleisch") || name.includes("fisch") || name.includes("geflügel") || name.includes("hack")) return 2;
+            if (name.includes("salat") || name.includes("spinat") || name.includes("beeren") || name.includes("erdbeer")) return 3;
+            if (name.includes("tomat") || name.includes("gurke") || name.includes("paprika") || name.includes("gemüse")) return 5;
+            if (name.includes("apfel") || name.includes("karotte") || name.includes("zwiebel") || name.includes("brot")) return 10;
+            
+            return 4; // Standardwert für Unbekanntes
+        }
+
+        // --- BARCODE SCANNER LOGIK ---
+        function toggleScanner() {
+            const container = document.getElementById('scanner-container');
+            const btn = document.getElementById('scanner-btn');
+
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                btn.innerHTML = `<i data-lucide="stop-circle" class="w-4 h-4"></i> Stoppen`;
+                lucide.createIcons();
+                startScanner();
+            } else {
+                stopScanner();
+            }
+        }
+
+        function startScanner() {
+            html5QrcodeScanner = new Html5Qrcode("interactive");
+            const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+
+            html5QrcodeScanner.start(
+                { facingMode: "environment" }, 
+                config,
+                onScanSuccess
+            ).catch(err => {
+                alert("Kamera-Fehler: Bitte Kamerarechte erlauben.");
+                stopScanner();
+            });
+        }
+
+        function stopScanner() {
+            const container = document.getElementById('scanner-container');
+            const btn = document.getElementById('scanner-btn');
+            
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    html5QrcodeScanner = null;
+                }).catch(() => {});
+            }
+            
+            container.classList.add('hidden');
+            if(btn) {
+                btn.innerHTML = `<i data-lucide="scan-barcode" class="w-4 h-4"></i> Scanner starten`;
+                lucide.createIcons();
+            }
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if (navigator.vibrate) navigator.vibrate(100);
+            stopScanner();
+            
+            const nameInput = document.getElementById('input-name');
+            nameInput.value = "Suche Produkt...";
+
+            // API Anfrage an OpenFoodFacts
+            fetch(`https://world.openfoodfacts.org/api/v2/product/${decodedText}.json`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 1 && data.product) {
+                        const productName = data.product.product_name_de || data.product.product_name || "Unbekanntes Produkt";
+                        nameInput.value = productName;
+                        
+                        // MHD-Tage berechnen & UI updaten
+                        const calculatedDays = estimateDaysLeft(productName);
+                        currentDaysInput = calculatedDays;
+                        document.getElementById('input-days-display').innerText = currentDaysInput;
+                        
+                    } else {
+                        nameInput.value = "";
+                        alert("Produkt nicht gefunden! Bitte per Hand benennen.");
+                    }
+                })
+                .catch(err => {
+                    nameInput.value = "";
+                    alert("Netzwerkfehler beim Suchen des Barcodes.");
+                });
+        }
  
         function submitManualItem() {
             const name = document.getElementById('input-name').value.trim();
-            if (!name) return alert("Bitte gib einen Produktnamen ein!");
+            if (!name || name === "Suche Produkt...") return alert("Bitte gib einen Produktnamen ein!");
  
             const tag = name.toLowerCase().includes("spinat") ? "spinat" : 
                         name.toLowerCase().includes("joghurt") ? "joghurt" :
