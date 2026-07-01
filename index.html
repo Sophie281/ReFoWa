@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reduce Food Waste - Ultimate Enterprise Edition</title>
+    <title>Reduce Food Waste - Ultimate Fix Pro Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -18,6 +18,15 @@
         .custom-scrollbar::-webkit-scrollbar { display: none; }
         .page-view { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .scanner-laser {
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
     </style>
 </head>
 <body class="text-[#2C2520] min-h-screen antialiased">
@@ -30,9 +39,9 @@
             </button>
             <div class="flex flex-col items-center justify-center flex-1 mx-4">
                 <div class="font-black text-emerald-800 tracking-tight text-xs uppercase flex items-center gap-1.5">
-                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> smart waste manager
+                    <i data-lucide="barcode" class="w-4 h-4"></i> smart scan & save
                 </div>
-                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">Enterprise v3.5</div>
+                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">Enterprise v4.0</div>
             </div>
             <div class="flex items-center gap-2">
                 <div class="flex items-center gap-1 bg-amber-50 border border-amber-200/60 px-2 py-1 rounded-xl text-xs font-black text-amber-700 shadow-2xs">
@@ -51,12 +60,20 @@
                 <div class="flex justify-between items-center pt-1">
                     <div class="space-y-0.5">
                         <h1 class="text-3xl font-black tracking-tight text-black leading-none">Guten Tag!</h1>
-                        <p class="text-xs font-semibold text-gray-500">Deine Küche ist heute perfekt optimiert.</p>
+                        <p class="text-xs font-semibold text-gray-500">Scanne Produkte, um sie direkt zu erfassen.</p>
                     </div>
-                    <div class="w-12 h-12 bg-emerald-800 text-white rounded-xl flex items-center justify-center text-xl shadow-md font-bold" id="dashboard-avatar-preview">
+                    <div class="w-12 h-12 bg-emerald-800 text-white rounded-xl flex items-center justify-center text-2xl shadow-md font-bold select-none" id="dashboard-avatar-preview">
                         🧑‍🍳
                     </div>
                 </div>
+
+                <button onclick="AppEngine.openScanModal()" class="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-3 shadow-md transition-all active:scale-[0.99]">
+                    <i data-lucide="scan-line" class="w-5 h-5"></i>
+                    <div class="text-left">
+                        <p class="font-extrabold text-sm">Lebensmittel scannen</p>
+                        <p class="text-[10px] text-emerald-200 font-medium">Per Barcode blitzschnell hinzufügen</p>
+                    </div>
+                </button>
  
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
@@ -89,17 +106,6 @@
                     </div>
                     <div id="dashboard-shopping-list" class="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar"></div>
                 </div>
-
-                <div onclick="AppEngine.switchView('profile')" class="bg-gradient-to-r from-[#E4EFE3] to-[#DCECE9] p-4 rounded-2xl flex justify-between items-center cursor-pointer hover:opacity-90 transition border border-[#CCE2CA] shadow-2xs">
-                    <div class="flex items-center gap-3.5">
-                        <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-xl shadow-3xs">🌳</div>
-                        <div>
-                            <h4 class="font-bold text-xs text-[#2D5A27]">Nachhaltigkeits-Bilanz</h4>
-                            <p class="text-[11px] text-gray-600 font-medium mt-0.5">Du hast bereits <span id="banner-weight" class="font-black text-[#2D5A27]">0,0 kg</span> Müll vermieden.</p>
-                        </div>
-                    </div>
-                    <i data-lucide="arrow-right" class="w-4 h-4 text-[#2D5A27]"></i>
-                </div>
             </div>
  
             <div id="view-fridge" class="page-view hidden space-y-4">
@@ -108,9 +114,14 @@
                         <h2 class="text-2xl font-black text-black tracking-tight">Kühlschrank-Inventar</h2>
                         <p class="text-xs text-gray-400 font-medium">Lagerung kontrollieren & Haltbarkeit sichern.</p>
                     </div>
-                    <button onclick="AppEngine.openAddModal()" class="bg-[#2D5A27] text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md hover:bg-emerald-800 transition">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Zutat buchen
-                    </button>
+                    <div class="flex gap-1.5">
+                        <button onclick="AppEngine.openScanModal()" class="bg-emerald-800 text-white p-2 rounded-xl text-xs font-bold shadow-md hover:bg-emerald-950 transition flex items-center justify-center">
+                            <i data-lucide="barcode" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="AppEngine.openAddModal()" class="bg-[#2D5A27] text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md hover:bg-emerald-800 transition">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Manuell
+                        </button>
+                    </div>
                 </div>
 
                 <div class="bg-white p-2.5 rounded-2xl border border-gray-100 shadow-3xs flex gap-2">
@@ -121,7 +132,6 @@
                     <select id="fridge-sort" onchange="AppEngine.renderFridgeTab()" class="bg-gray-50 border border-gray-100 rounded-xl px-2.5 text-xs font-bold text-gray-600 focus:outline-none">
                         <option value="days">Haltbarkeit</option>
                         <option value="alpha">A - Z</option>
-                        <option value="cat">Kategorie</option>
                     </select>
                 </div>
 
@@ -143,30 +153,30 @@
                 </div>
  
                 <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-2xs space-y-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-20 h-20 bg-[#E4EFE3] rounded-2xl flex flex-col items-center justify-center shadow-inner relative select-none overflow-hidden border border-emerald-100 pt-2 flex-shrink-0">
-                            <div class="relative flex flex-col items-center justify-center z-10">
-                                <span id="layer-hair" class="absolute -top-[14px] text-2xl z-20"></span>
-                                <span id="layer-face" class="text-2xl z-10">👦</span>
-                                <span id="layer-eyes" class="absolute top-[6px] text-[8px] z-20 font-bold tracking-widest text-center w-full"></span>
-                                <span id="layer-glasses" class="absolute top-[2px] text-xs z-30"></span>
+                    <div class="flex items-center gap-5">
+                        
+                        <div class="w-20 h-20 bg-[#E4EFE3] rounded-2xl relative select-none overflow-hidden border border-emerald-100 flex flex-col items-center justify-center flex-shrink-0">
+                            <div class="text-center flex flex-col items-center justify-center leading-none mt-2 relative z-10">
+                                <span id="layer-hair" class="text-xl block h-4 -mb-1 z-20"></span>
+                                <span id="layer-face" class="text-3xl block z-10">🧑</span>
                             </div>
-                            <div class="relative flex items-center justify-center -mt-1 z-0 w-full h-8">
-                                <span id="layer-body" class="text-3xl absolute text-orange-200">🧎</span>
-                                <span id="layer-clothing" class="absolute text-2xl z-10">👕</span>
+                            <div class="w-full text-center leading-none -mt-1 z-0">
+                                <span id="layer-clothing" class="text-3xl inline-block">👕</span>
                             </div>
                         </div>
 
-                        <div class="flex-1 space-y-1">
+                        <div class="flex-1 space-y-2">
                             <div class="flex items-center gap-2">
                                 <h3 class="text-base font-black text-gray-900 leading-none">Level <span id="profile-level">1</span></h3>
                                 <span id="current-title-badge" class="text-[8px] bg-emerald-800 text-white font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Hobbykoch</span>
                             </div>
-                            <div id="medals-display" class="flex gap-1 text-sm pt-0.5"></div>
+                            <div id="medals-display" class="flex gap-1 text-sm"></div>
                             
-                            <button onclick="AppEngine.openAvatarModal()" class="text-[10px] font-bold text-[#2D5A27] bg-[#2D5A27]/10 px-2.5 py-1.5 rounded-xl flex items-center gap-1 hover:bg-[#2D5A27]/20 transition">
-                                <i data-lucide="sliders" class="w-3 h-3"></i> Charakter designen
-                            </button>
+                            <div class="flex gap-1 pt-0.5">
+                                <button onclick="AppEngine.cycleAvatarFeature('hair')" class="text-[9px] font-bold bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded-md">💇 Haare</button>
+                                <button onclick="AppEngine.cycleAvatarFeature('face')" class="text-[9px] font-bold bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded-md">🎨 Haut</button>
+                                <button onclick="AppEngine.cycleAvatarFeature('clothing')" class="text-[9px] font-bold bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded-md">👕 Style</button>
+                            </div>
                         </div>
                     </div>
  
@@ -197,52 +207,40 @@
                     </h4>
                     <div id="activity-log" class="space-y-1.5 max-h-28 overflow-y-auto custom-scrollbar text-[11px] font-semibold text-gray-600"></div>
                 </div>
-
-                <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-3xs space-y-2">
-                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <i data-lucide="award" class="w-4 h-4 text-amber-500"></i> Freischaltbare Meilensteine
-                    </h4>
-                    <div id="rewards-timeline" class="space-y-1 text-[11px] font-semibold"></div>
-                </div>
             </div>
         </main>
  
-        <div id="avatar-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
-            <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl max-h-[70vh] flex flex-col animate-fadeIn">
-                <div class="flex justify-between items-center flex-shrink-0">
-                    <h3 class="text-base font-black text-black">Avatar Studio 🎨</h3>
-                    <button onclick="AppEngine.closeAvatarModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <div id="scan-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-5">
+            <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl animate-fadeIn">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-base font-black text-black flex items-center gap-2">
+                        <i data-lucide="scan" class="w-5 h-5 text-emerald-800"></i> Barcode-Erfassung
+                    </h3>
+                    <button onclick="AppEngine.closeScanModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
-                <div class="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-1">
-                    <div>
-                        <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1 tracking-wider">Frisuren & Haarstruktur</label>
-                        <div class="grid grid-cols-3 gap-1.5">
-                            <button onclick="AppEngine.changeAvatarFeature('hair', '')" class="p-2 bg-gray-50 border rounded-xl text-xs font-bold hover:bg-gray-100">🧑‍🦲 Kahlschlag</button>
-                            <button onclick="AppEngine.changeAvatarFeature('hair', '👱')" class="p-2 bg-gray-50 border rounded-xl text-xl hover:bg-gray-100">👱</button>
-                            <button onclick="AppEngine.changeAvatarFeature('hair', '👨‍🦰')" class="p-2 bg-gray-50 border rounded-xl text-xl hover:bg-gray-100">👨‍🦰</button>
-                            <button onclick="AppEngine.changeAvatarFeature('hair', '👨‍🦱')" class="p-2 bg-gray-50 border rounded-xl text-xl hover:bg-gray-100">👨‍🦱</button>
-                            <button onclick="AppEngine.changeAvatarFeature('hair', '👩‍🦳')" class="p-2 bg-gray-50 border rounded-xl text-xl hover:bg-gray-100">👩‍🦳</button>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1 tracking-wider">Hauttyp / Kontur</label>
-                        <div class="flex gap-1.5">
-                            <button onclick="AppEngine.changeAvatarFeature('face', '👦')" class="p-2.5 bg-gray-50 border rounded-xl text-xl hover:bg-gray-100">👦</button>
-                            <button onclick="AppEngine.changeAvatarFeature('face', '👧')" class="p-2.5 bg-gray-50 border rounded-xl text-xl hover:bg-gray-100">👧</button>
-                            <button onclick="AppEngine.changeAvatarFeature('face', '👨')" class="p-2.5 bg-gray-50 border rounded-xl text-xl hover:bg-gray-100">👨</button>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1 tracking-wider">Visuelle Accessoires</label>
-                        <div class="flex gap-1.5">
-                            <button onclick="AppEngine.changeAvatarFeature('glasses', '')" class="px-3 py-1.5 bg-gray-50 border rounded-xl text-xs font-bold hover:bg-gray-100">Keine</button>
-                            <button onclick="AppEngine.changeAvatarFeature('glasses', '👓')" class="p-2 bg-gray-50 border rounded-xl text-lg hover:bg-gray-100">👓</button>
-                            <button onclick="AppEngine.changeAvatarFeature('glasses', '🕶️')" class="p-2 bg-gray-50 border rounded-xl text-lg hover:bg-gray-100">🕶️</button>
-                        </div>
+
+                <div class="w-full h-40 bg-zinc-900 rounded-2xl relative overflow-hidden flex flex-col items-center justify-center text-center p-4 border-2 border-emerald-800">
+                    <div class="absolute inset-x-0 h-0.5 bg-red-500 shadow-[0_0_8px_#ef4444] scanner-laser top-0"></div>
+                    <i data-lucide="barcode" class="w-16 h-16 text-zinc-600 mb-2"></i>
+                    <p class="text-[11px] text-zinc-400 font-bold">Kamera-Simulation aktiv...</p>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">EAN-Code eingeben oder generieren</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="scan-ean-input" placeholder="z.B. 40012345" class="flex-1 p-3 bg-gray-50 border rounded-xl text-xs font-bold tracking-widest text-center focus:outline-none focus:border-emerald-800">
+                        <button onclick="AppEngine.generateRandomEan()" class="bg-gray-100 hover:bg-gray-200 px-3 rounded-xl text-xs font-bold transition">🎲</button>
                     </div>
                 </div>
-                <button onclick="AppEngine.closeAvatarModal(); AppEngine.zeigeToast('Avatar-DNA überschrieben!', 'success')" class="w-full bg-[#2D5A27] text-white p-3 rounded-xl font-bold text-xs shadow-md">
-                    Konfiguration speichern
+
+                <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-[10px] font-semibold text-gray-500 space-y-1">
+                    <p>• <span class="font-bold text-emerald-800">40012345</span> : Frischer Spinat 🥦</p>
+                    <p>• <span class="font-bold text-emerald-800">40056789</span> : Bio-Milch 🥛</p>
+                    <p>• <span class="font-bold text-emerald-800">42011223</span> : Weizenbrot 🍞</p>
+                </div>
+
+                <button onclick="AppEngine.processScannedBarcode()" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-900 transition flex items-center justify-center gap-2">
+                    <i data-lucide="search-code" class="w-4 h-4"></i> Code decodieren
                 </button>
             </div>
         </div>
@@ -253,13 +251,12 @@
                     <h3 id="modal-item-name" class="text-xl font-black text-black">Lebensmittel</h3>
                     <button onclick="AppEngine.closeActionModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
-                <p class="text-xs text-gray-500 font-medium">Wähle den aktuellen Status dieses Lebensmittel-Postens:</p>
                 <div class="grid grid-cols-1 gap-2 pt-1">
                     <button id="modal-btn-rescue" class="w-full bg-[#2D5A27] hover:bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition">
                         <i data-lucide="check-circle" class="w-4 h-4"></i> Erfolgreich verbraucht (+150 XP)
                     </button>
                     <button id="modal-btn-waste" class="w-full bg-red-50 hover:bg-red-100 text-red-600 p-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i> In die Tonne geworfen (0 XP)
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> In die Tonne geworfen
                     </button>
                 </div>
             </div>
@@ -268,31 +265,27 @@
         <div id="add-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
             <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
                 <div class="flex justify-between items-start">
-                    <h3 class="text-lg font-black text-black">Neue Zutat einbuchen</h3>
+                    <h3 class="text-lg font-black text-black">Manuelle Buchung</h3>
                     <button onclick="AppEngine.closeAddModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
                 <form onsubmit="AppEngine.handleFormSubmit(event)" class="space-y-3">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-wider">Lebensmittelname</label>
-                        <input type="text" id="input-name" placeholder="z.B. Bio-Milch, Rucola..." required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2D5A27]">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Lebensmittelname</label>
+                        <input type="text" id="input-name" required class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-wider">Kategorie-Zuordnung</label>
-                        <select id="input-category" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2D5A27]">
-                            <option value="🥦">🥦 Frischgemüse & Kräuter</option>
-                            <option value="🥛">🥛 Milch- & Molkereiprodukte</option>
-                            <option value="🍎">🍎 Kern- & Beerenobst</option>
-                            <option value="🥩">🥩 Protein (Fleisch/Tofu)</option>
-                            <option value="🍞">🍞 Kohlenhydrate / Brot</option>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kategorie</label>
+                        <select id="input-category" class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none">
+                            <option value="🥦">🥦 Frischgemüse</option>
+                            <option value="🥛">🥛 Milchprodukte</option>
+                            <option value="🍞">🍞 Backwaren</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-wider">Haltbarkeitsfenster (In Tagen)</label>
-                        <input type="number" id="input-days" placeholder="z.B. 4" min="0" max="99" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2D5A27]">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Haltbarkeit (Tage)</label>
+                        <input type="number" id="input-days" required class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none">
                     </div>
-                    <button type="submit" class="w-full bg-black text-white p-3.5 rounded-xl font-bold text-xs shadow-md hover:bg-zinc-800 transition">
-                        Bestandsbuchung ausführen
-                    </button>
+                    <button type="submit" class="w-full bg-black text-white p-3.5 rounded-xl font-bold text-xs shadow-md">Buchen</button>
                 </form>
             </div>
         </div>
@@ -301,56 +294,18 @@
             <div class="bg-white rounded-3xl max-w-sm w-full max-h-[78vh] flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
                 <div class="relative h-36 w-full bg-gray-100 flex-shrink-0">
                     <img id="recipe-modal-img" src="" class="w-full h-full object-cover">
-                    <button onclick="AppEngine.closeRecipeModal()" class="absolute top-3 right-3 bg-white text-black p-2 rounded-full shadow-md hover:bg-gray-100 transition">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
+                    <button onclick="AppEngine.closeRecipeModal()" class="absolute top-3 right-3 bg-white text-black p-2 rounded-full shadow-md"><i data-lucide="x" class="w-4 h-4"></i></button>
                 </div>
                 <div class="p-5 flex-1 overflow-y-auto space-y-4 custom-scrollbar">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span id="recipe-modal-badge" class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md"></span>
-                            <h3 id="recipe-modal-title" class="text-xl font-black text-black mt-1 leading-tight">Rezept</h3>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center text-xs font-bold">
-                        <span class="text-gray-500">Portionsrechner:</span>
-                        <div class="flex items-center gap-3">
-                            <button onclick="AppEngine.skalierePortionen(-1)" class="w-6 h-6 bg-white border rounded-lg flex items-center justify-center text-lg">-</button>
-                            <span id="recipe-modal-portions">2</span> Pers.
-                            <button onclick="AppEngine.skalierePortionen(1)" class="w-6 h-6 bg-white border rounded-lg flex items-center justify-center text-lg">+</button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Skalierte Zutatenliste</h4>
-                        <ul id="recipe-modal-zutaten" class="text-xs font-semibold space-y-1 text-gray-700 list-disc list-inside"></ul>
-                    </div>
-                    <hr class="border-gray-100">
-                    <div>
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Zubereitungsanweisung</h4>
-                        <p id="recipe-modal-anleitung" class="text-xs font-medium text-gray-600 leading-relaxed whitespace-pre-line"></p>
-                    </div>
+                    <h3 id="recipe-modal-title" class="text-xl font-black text-black">Rezept</h3>
+                    <ul id="recipe-modal-zutaten" class="text-xs font-semibold space-y-1 text-gray-700 list-disc list-inside"></ul>
                 </div>
                 <div class="p-4 bg-gray-50 border-t border-gray-100 flex-shrink-0 flex gap-2">
-                    <button id="recipe-modal-list-btn" class="bg-white border border-gray-200 text-gray-700 p-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-gray-100 transition">
-                        <i data-lucide="shopping-basket" class="w-4 h-4"></i> + Liste
-                    </button>
-                    <button id="recipe-modal-cook-btn" class="flex-1 bg-[#2D5A27] text-white p-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md">
-                        <i data-lucide="chef-hat" class="w-4 h-4"></i> Kochen & Reste abziehen
-                    </button>
+                    <button id="recipe-modal-cook-btn" class="flex-1 bg-[#2D5A27] text-white p-3 rounded-xl font-bold text-xs">Kochen & Reste abziehen</button>
                 </div>
             </div>
         </div>
 
-        <div id="info-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
-            <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-3 shadow-2xl">
-                <h3 class="font-black text-lg text-black">Eco Food Saver Enterprise</h3>
-                <p class="text-xs font-medium text-gray-600 leading-relaxed">Dieses System verwaltet lokale Lebensmittelbestände mithilfe tagesgenauer Metriken und berechnet den ökologischen Fußabdruck auf Basis mathematischer Näherungswerte ($1\text{ kg verbrauchtes Essen} \approx 2.5\text{ kg eingespartes CO}_2$).</p>
-                <button onclick="AppEngine.toggleInfoModal(false)" class="w-full bg-zinc-900 text-white p-3 rounded-xl font-bold text-xs">Schließen</button>
-            </div>
-        </div>
- 
         <div id="toast-container" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4 pointer-events-none flex flex-col gap-2"></div>
  
         <nav class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200/50 flex justify-around py-3 z-40 rounded-t-3xl shadow-lg">
@@ -371,35 +326,30 @@
  
     <script>
         const RezeptDatenbank = [
-            { id: 0, title: "Cremige Spinat-Pasta", zutat: "Spinat", zutatenMengen: [{name: "Pasta", menge: 100}, {name: "Spinat", menge: 75}, {name: "Sahne", menge: 50}], anleitung: "1. Nudeln kochen.\n2. Spinat andünsten.\n3. Mit Sahne verfeinern und vermengen.", img: "https://images.unsplash.com/photo-1621510456681-23a23cfb5f57?w=300" },
-            { id: 1, title: "Spinat-Kartoffel Suppe", zutat: "Spinat", zutatenMengen: [{name: "Kartoffeln", menge: 150}, {name: "Spinat", menge: 100}, {name: "Brühe", menge: 250}], anleitung: "1. Kartoffeln weichkochen.\n2. Spinat unterrühren.\n3. Komplett fein pürieren.", img: "https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=300" },
-            { id: 2, title: "Karotten-Puffer", zutat: "Karotten", zutatenMengen: [{name: "Karotten", menge: 150}, {name: "Ei", menge: 0.5}, {name: "Haferflocken", menge: 30}], anleitung: "1. Karotten raspeln.\n2. Zutaten mischen und würzen.\n3. Goldbraun braten.", img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300" },
-            { id: 3, title: "Apfel-Zimt Pfannkuchen", zutat: "Apfel", zutatenMengen: [{name: "Apfel", menge: 0.5}, {name: "Mehl", menge: 75}, {name: "Milch", menge: 100}], anleitung: "1. Teig anrühren.\n2. Apfelscheiben hinzugeben.\n3. In der Pfanne ausbacken.", img: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=300" }
+            { id: 0, title: "Cremige Spinat-Pasta", zutat: "Spinat", zutatenMengen: ["150g Pasta", "200g Spinat", "50ml Sahne"], img: "https://images.unsplash.com/photo-1621510456681-23a23cfb5f57?w=300" },
+            { id: 1, title: "Karotten-Puffer", zutat: "Karotten", zutatenMengen: ["300g Karotten", "1 Ei", "50g Haferflocken"], img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300" }
         ];
- 
-        const AntiWasteLexikon = {
-            "spinat": "Tipp: Spinat am besten mit feuchtem Tuch im Kühlschrank lagern oder direkt blanchieren und einfrieren.",
-            "karotten": "Tipp: Karotten bleiben im Wasserglas im Kühlschrank wochenlang knackig und frisch.",
-            "brot": "Tipp: Schneide überschüssiges Brot in Scheiben und friere es portionsweise ein."
+
+        const BarcodeDatenbank = {
+            "40012345": { name: "Frischer Spinat", cat: "🥦", tage: 3 },
+            "40056789": { name: "Bio-Milch", cat: "🥛", tage: 5 },
+            "42011223": { name: "Weizenbrot", cat: "🍞", tage: 6 }
         };
 
-        const Belohnungen = [
-            { level: 1, name: "Eco-Beginner", icon: "🌱" },
-            { level: 2, name: "Waste-Fighter", icon: "🎖️" },
-            { level: 3, name: "Küchen-Virtuose", icon: "🧑‍🍳" },
-            { level: 5, name: "Zero-Waste Koryphäe", icon: "🏆" }
-        ];
-
-        // ENCAPSULATED APPLICATION ENGINE
+        const AvatarAssets = {
+            hair: ["👱", "👨‍🦰", "👨‍🦱", "👩‍🦳", "✨"],
+            face: ["👦", "👧", "👨", "👩", "🤖"],
+            clothing: ["👕", "👔", "👗", "🥼", "🧥"]
+        };
+ 
         const AppEngine = {
             state: {
                 kuehlschrank: [],
-                stats: { savedKg: 0.0, wastedKg: 0.0, xp: 0, streak: 0 },
+                stats: { savedKg: 0.0, wastedKg: 0.0, xp: 0, streak: 5 },
                 historyLog: [],
                 shoppingList: [],
-                avatar: { face: "👦", hair: "👱", eyes: "•  •", glasses: "", clothing: "👕" },
-                aktuellePortionen: 2,
-                aktiveRezeptId: null
+                avatar: { face: "👦", hair: "👱", clothing: "👕" },
+                indices: { hair: 0, face: 0, clothing: 0 }
             },
 
             init: function() {
@@ -409,228 +359,138 @@
             },
 
             loadState: function() {
-                try {
-                    this.state.kuehlschrank = JSON.parse(localStorage.getItem('es_fridge')) || [
-                        { name: "Spinat", tage: 1, cat: "🥦" },
-                        { name: "Karotten", tage: 4, cat: "🥦" }
-                    ];
-                    this.state.stats = JSON.parse(localStorage.getItem('es_stats')) || { savedKg: 0.0, wastedKg: 0.0, xp: 0, streak: 3 };
-                    this.state.historyLog = JSON.parse(localStorage.getItem('es_log')) || ["System initialisiert."];
-                    this.state.shoppingList = JSON.parse(localStorage.getItem('es_shop')) || [];
-                    this.state.avatar = JSON.parse(localStorage.getItem('es_avatar')) || { face: "👦", hair: "👱", eyes: "•  •", glasses: "", clothing: "👕" };
-                } catch(e) {
-                    console.error("Storage-Fehler, Setzte Daten zurück", e);
-                }
+                this.state.kuehlschrank = JSON.parse(localStorage.getItem('es_fridge')) || [
+                    { name: "Spinat", tage: 1, cat: "🥦" },
+                    { name: "Karotten", tage: 4, cat: "🥦" }
+                ];
+                this.state.stats = JSON.parse(localStorage.getItem('es_stats')) || { savedKg: 0.0, wastedKg: 0.0, xp: 0, streak: 5 };
+                this.state.historyLog = JSON.parse(localStorage.getItem('es_log')) || ["System geladen."];
+                this.state.avatar = JSON.parse(localStorage.getItem('es_avatar_v2')) || { face: "👦", hair: "👱", clothing: "👕" };
             },
 
             saveState: function() {
                 localStorage.setItem('es_fridge', JSON.stringify(this.state.kuehlschrank));
                 localStorage.setItem('es_stats', JSON.stringify(this.state.stats));
                 localStorage.setItem('es_log', JSON.stringify(this.state.historyLog));
-                localStorage.setItem('es_shop', JSON.stringify(this.state.shoppingList));
-                localStorage.setItem('es_avatar', JSON.stringify(this.state.avatar));
+                localStorage.setItem('es_avatar_v2', JSON.stringify(this.state.avatar));
             },
 
             renderAll: function() {
                 this.saveState();
-                
-                // Counters
                 document.getElementById('global-streak-counter').innerText = this.state.stats.streak;
                 document.getElementById('dash-fridge-count').innerText = this.state.kuehlschrank.length;
-                document.getElementById('dashboard-avatar-preview').innerText = this.state.avatar.face;
-
                 this.renderDashboardExpiry();
                 this.renderDashboardRecipes();
-                this.renderDashboardShopping();
                 this.renderFridgeTab();
                 this.renderRecipesTab();
                 this.renderProfileTab();
             },
 
-            getAmpelConfig: function(tage) {
-                if (tage <= 1) return { color: 'bg-red-600', text: 'Kritisch' };
-                if (tage === 2) return { color: 'bg-orange-500', text: 'Dringend' };
-                if (tage <= 5) return { color: 'bg-amber-400', text: 'Muss bald weg' };
-                return { color: 'bg-emerald-600', text: 'Haltbar' };
+            // FIX: Avatar Feature Cycler (Wechselt Features sauber per Klick durch, ohne CSS Verzug)
+            cycleAvatarFeature: function(part) {
+                this.state.indices[part] = (this.state.indices[part] + 1) % AvatarAssets[part].length;
+                this.state.avatar[part] = AvatarAssets[part][this.state.indices[part]];
+                this.renderAll();
+                this.zeigeToast("Aussehen aktualisiert!", "info");
             },
 
             renderDashboardExpiry: function() {
                 const list = document.getElementById('dashboard-expiry-list');
                 list.innerHTML = '';
                 this.state.kuehlschrank.sort((a,b) => a.tage - b.tage);
-
-                if(this.state.kuehlschrank.length === 0) {
-                    list.innerHTML = `<div class="p-6 bg-white border border-dashed rounded-2xl text-center text-xs font-bold text-gray-400">Der Kühlschrank ist leer.</div>`;
-                    return;
-                }
-
-                this.state.kuehlschrank.slice(0, 3).forEach((item, index) => {
-                    const ampel = this.getAmpelConfig(item.tage);
+                this.state.kuehlschrank.slice(0, 2).forEach((item, index) => {
                     list.innerHTML += `
                         <div onclick="AppEngine.openActionModal(${index}, '${item.name}')" class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center cursor-pointer hover:shadow-xs transition">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xl">${item.cat || '🥦'}</span>
-                                <div>
-                                    <h3 class="font-extrabold text-xs text-black">${item.name}</h3>
-                                    <p class="text-[10px] text-gray-400 font-semibold">${item.tage === 0 ? 'Heute ablaufend!' : 'Noch ' + item.tage + ' Tage haltbar'}</p>
-                                </div>
-                            </div>
-                            <span class="${ampel.color} text-white text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">${ampel.text}</span>
-                        </div>
-                    `;
+                            <div class="flex items-center gap-3"><span>${item.cat}</span><div><h3 class="font-extrabold text-xs text-black">${item.name}</h3></div></div>
+                            <span class="bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded-md uppercase">Ablaufend</span>
+                        </div>`;
                 });
             },
 
             renderDashboardRecipes: function() {
                 const slider = document.getElementById('dashboard-recipe-slider');
                 slider.innerHTML = '';
-                
-                const vorraete = this.state.kuehlschrank.map(i => i.name.toLowerCase());
-                let matches = RezeptDatenbank.filter(r => vorraete.includes(r.zutat.toLowerCase()));
-                if(matches.length === 0) matches = RezeptDatenbank;
-
-                matches.forEach(rezept => {
+                RezeptDatenbank.forEach(rezept => {
                     slider.innerHTML += `
                         <div onclick="AppEngine.openRecipeModal(${rezept.id})" class="bg-white rounded-xl overflow-hidden w-28 flex-shrink-0 border border-gray-100 cursor-pointer shadow-3xs hover:scale-[1.02] transition-all">
-                            <img src="${rezept.img}" class="w-full h-14 object-cover">
-                            <div class="p-1.5">
-                                <h4 class="font-bold text-[10px] text-black line-clamp-1">${rezept.title}</h4>
-                            </div>
-                        </div>
-                    `;
+                            <img src="${rezept.img}" class="w-full h-14 object-cover"><div class="p-1.5"><h4 class="font-bold text-[10px] text-black line-clamp-1">${rezept.title}</h4></div>
+                        </div>`;
                 });
-            },
-
-            renderDashboardShopping: function() {
-                const container = document.getElementById('dashboard-shopping-list');
-                document.getElementById('shopping-count').innerText = `${this.state.shoppingList.length} Posten`;
-                container.innerHTML = '';
-
-                if(this.state.shoppingList.length === 0) {
-                    container.innerHTML = `<p class="text-[11px] font-bold text-gray-400 text-center py-2">Keine Besorgungen offen.</p>`;
-                    return;
-                }
-
-                this.state.shoppingList.forEach((item, index) => {
-                    container.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50/50 p-2 border rounded-xl text-xs font-bold text-gray-700">
-                            <span>🛒 ${item}</span>
-                            <button onclick="AppEngine.removeShoppingItem(${index})" class="text-gray-400 hover:text-red-500"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
-                        </div>
-                    `;
-                });
-                lucide.createIcons();
-            },
-
-            removeShoppingItem: function(idx) {
-                this.state.shoppingList.splice(idx, 1);
-                this.renderAll();
             },
 
             renderFridgeTab: function() {
                 const container = document.getElementById('full-fridge-list');
-                const search = document.getElementById('fridge-search').value.toLowerCase();
-                const sortMode = document.getElementById('fridge-sort').value;
                 container.innerHTML = '';
-
-                let filtered = this.state.kuehlschrank.filter(i => i.name.toLowerCase().includes(search));
-                
-                if(sortMode === 'alpha') filtered.sort((a,b) => a.name.localeCompare(b.name));
-                else if(sortMode === 'cat') filtered.sort((a,b) => a.cat.localeCompare(b.cat));
-                else filtered.sort((a,b) => a.tage - b.tage);
-
-                if(filtered.length === 0) {
-                    container.innerHTML = `<div class="p-8 text-center text-xs font-semibold text-gray-400">Suchergebnis leer.</div>`;
-                    return;
-                }
-
-                filtered.forEach((item, index) => {
-                    const ampel = this.getAmpelConfig(item.tage);
-                    const lexikontipp = AntiWasteLexikon[item.name.toLowerCase()] || "Kühl und trocken lagern.";
-
+                this.state.kuehlschrank.forEach((item, index) => {
                     container.innerHTML += `
-                        <div class="bg-white p-3.5 rounded-2xl border border-gray-100 shadow-3xs space-y-2 animate-fadeIn">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xl">${item.cat}</span>
-                                    <div>
-                                        <h4 class="font-bold text-xs text-black">${item.name}</h4>
-                                        <p class="text-[10px] text-gray-400 font-medium">Haltbarkeit: ${item.tage} Tage übrig</p>
-                                    </div>
-                                </div>
-                                <button onclick="AppEngine.openActionModal(${index}, '${item.name}')" class="bg-[#2D5A27] text-white text-[10px] font-black py-1 px-3 rounded-lg shadow-xs">Verwalten</button>
-                            </div>
-                            <div class="w-full bg-gray-100 h-1 rounded-full overflow-hidden">
-                                <div class="h-full ${ampel.color}" style="width: ${Math.min(item.tage * 10, 100)}%"></div>
-                            </div>
-                            <p class="text-[10px] text-emerald-800 font-medium bg-emerald-50/50 p-1.5 rounded-lg border border-emerald-100/30"><span class="font-bold">💡 Lagerung:</span> ${lexikontipp}</p>
-                        </div>
-                    `;
+                        <div class="bg-white p-3.5 rounded-2xl border border-gray-100 shadow-3xs flex justify-between items-center">
+                            <div class="flex items-center gap-2"><span>${item.cat}</span><div><h4 class="font-bold text-xs text-black">${item.name}</h4><p class="text-[10px] text-gray-400">${item.tage} Tage übrig</p></div></div>
+                            <button onclick="AppEngine.openActionModal(${index}, '${item.name}')" class="bg-[#2D5A27] text-white text-[10px] font-black py-1 px-3 rounded-lg">Aktion</button>
+                        </div>`;
                 });
             },
 
             renderRecipesTab: function() {
                 const grid = document.getElementById('full-recipes-grid');
                 grid.innerHTML = '';
-
                 RezeptDatenbank.forEach(rezept => {
-                    const imBesitz = this.state.kuehlschrank.some(i => i.name.toLowerCase() === rezept.zutat.toLowerCase());
                     grid.innerHTML += `
-                        <div onclick="AppEngine.openRecipeModal(${rezept.id})" class="bg-white rounded-2xl p-2.5 flex gap-3 cursor-pointer border border-gray-100 shadow-3xs hover:shadow-2xs transition-all">
+                        <div onclick="AppEngine.openRecipeModal(${rezept.id})" class="bg-white rounded-2xl p-2.5 flex gap-3 cursor-pointer border border-gray-100 shadow-3xs transition-all">
                             <img src="${rezept.img}" class="w-14 h-14 rounded-xl object-cover flex-shrink-0">
-                            <div class="flex-1 flex flex-col justify-between">
-                                <div class="flex justify-between items-start">
-                                    <h3 class="font-extrabold text-xs text-black leading-tight">${rezept.title}</h3>
-                                    <span class="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${imBesitz ? 'bg-emerald-800 text-white' : 'bg-gray-100 text-gray-400'}">${imBesitz ? 'Match' : 'Fehlt'}</span>
-                                </div>
-                                <p class="text-[9px] text-gray-400 font-bold">Hauptakteur: ${rezept.zutat}</p>
-                            </div>
-                        </div>
-                    `;
+                            <div class="flex-1 flex flex-col justify-between"><h3 class="font-extrabold text-xs text-black leading-tight">${rezept.title}</h3></div>
+                        </div>`;
                 });
             },
 
             renderProfileTab: function() {
-                document.getElementById('banner-weight').innerText = `${this.state.stats.savedKg.toFixed(1)} kg`;
                 document.getElementById('stat-saved').innerText = `${this.state.stats.savedKg.toFixed(1)} kg`;
                 document.getElementById('stat-wasted').innerText = `${this.state.stats.wastedKg.toFixed(1)} kg`;
-
+                
                 let level = Math.floor(this.state.stats.xp / 500) + 1;
                 let currentXp = this.state.stats.xp % 500;
-                let progressPercent = (currentXp / 500) * 100;
-
                 document.getElementById('profile-level').innerText = level;
                 document.getElementById('profile-xp-text').innerText = `${currentXp} / 500 XP`;
-                document.getElementById('profile-xp-bar').style.width = `${progressPercent}%`;
+                document.getElementById('profile-xp-bar').style.width = `${(currentXp / 500) * 100}%`;
 
-                // Avatar
-                document.getElementById('layer-face').innerText = this.state.avatar.face;
+                // Render Live Avatar Components Sync
                 document.getElementById('layer-hair').innerText = this.state.avatar.hair;
-                document.getElementById('layer-glasses').innerText = this.state.avatar.glasses;
+                document.getElementById('layer-face').innerText = this.state.avatar.face;
+                document.getElementById('layer-clothing').innerText = this.state.avatar.clothing;
+                document.getElementById('dashboard-avatar-preview').innerText = this.state.avatar.face;
 
-                // Timeline & Medals
-                const medalsContainer = document.getElementById('medals-display');
-                medalsContainer.innerHTML = '';
-                const timeline = document.getElementById('rewards-timeline');
-                timeline.innerHTML = '';
-
-                Belohnungen.forEach(b => {
-                    const frei = level >= b.level;
-                    if(frei) medalsContainer.innerHTML += `<span>${b.icon}</span>`;
-                    timeline.innerHTML += `
-                        <div class="flex items-center justify-between p-1.5 border-b border-gray-50 last:border-0 ${frei ? 'text-gray-800 font-bold' : 'text-gray-400 opacity-50'}">
-                            <span>${b.icon} ${b.name}</span>
-                            <span>${frei ? 'Freigeschaltet' : 'Gesperrt ab Lvl ' + b.level}</span>
-                        </div>
-                    `;
-                });
-
-                // Logs
                 const logContainer = document.getElementById('activity-log');
                 logContainer.innerHTML = '';
                 this.state.historyLog.slice().reverse().forEach(log => {
                     logContainer.innerHTML += `<p class="border-l-2 pl-2 border-emerald-800/40 py-0.5">${log}</p>`;
                 });
+            },
+
+            openScanModal: function() {
+                document.getElementById('scan-ean-input').value = '';
+                document.getElementById('scan-modal').classList.remove('hidden');
+            },
+            closeScanModal: function() { document.getElementById('scan-modal').classList.add('hidden'); },
+            
+            generateRandomEan: function() {
+                const keys = Object.keys(BarcodeDatenbank);
+                document.getElementById('scan-ean-input').value = keys[Math.floor(Math.random() * keys.length)];
+                this.zeigeToast("Code generiert!", "info");
+            },
+
+            processScannedBarcode: function() {
+                const ean = document.getElementById('scan-ean-input').value.trim();
+                const match = BarcodeDatenbank[ean];
+
+                if(match) {
+                    this.state.kuehlschrank.push({ name: match.name, tage: match.tage, cat: match.cat });
+                    this.state.historyLog.push(`Gescannt: ${match.name}`);
+                    this.closeScanModal();
+                    this.zeigeToast(`${match.name} hinzugefügt!`, 'success');
+                    if(typeof confetti === 'function') confetti({ particleCount: 40, spread: 60 });
+                    this.renderAll();
+                } else {
+                    this.zeigeToast("Ungültiger Code!", 'warning');
+                }
             },
 
             letzteSelektierteIndex: null,
@@ -641,124 +501,26 @@
                 
                 document.getElementById('modal-btn-rescue').onclick = () => {
                     AppEngine.state.stats.savedKg += 0.3; AppEngine.state.stats.xp += 150;
-                    AppEngine.state.historyLog.push(`Verbraucht: ${AppEngine.state.kuehlschrank[AppEngine.letzteSelektierteIndex].name} (+150 XP)`);
+                    AppEngine.state.historyLog.push(`Verbraucht: ${AppEngine.state.kuehlschrank[AppEngine.letzteSelektierteIndex].name}`);
                     AppEngine.state.kuehlschrank.splice(AppEngine.letzteSelektierteIndex, 1);
                     AppEngine.closeActionModal();
-                    AppEngine.zeigeToast('Posten erfolgreich gerettet!', 'success');
-                    if(typeof confetti === 'function') confetti({ particleCount: 40, spread: 50 });
-                    AppEngine.renderAll();
-                };
-
-                document.getElementById('modal-btn-waste').onclick = () => {
-                    AppEngine.state.stats.wastedKg += 0.3;
-                    AppEngine.state.historyLog.push(`Verworfen: ${AppEngine.state.kuehlschrank[AppEngine.letzteSelektierteIndex].name} (MHD-Überschreitung)`);
-                    AppEngine.state.kuehlschrank.splice(AppEngine.letzteSelektierteIndex, 1);
-                    AppEngine.closeActionModal();
-                    AppEngine.zeigeToast('Zutat abgeschrieben.', 'warning');
                     AppEngine.renderAll();
                 };
             },
 
             closeActionModal: function() { document.getElementById('action-modal').classList.add('hidden'); },
-            openAvatarModal: function() { document.getElementById('avatar-modal').classList.remove('hidden'); },
-            closeAvatarModal: function() { document.getElementById('avatar-modal').classList.add('hidden'); },
-            changeAvatarFeature: function(f, v) { this.state.avatar[f] = v; this.renderAll(); },
             openAddModal: function() { document.getElementById('add-modal').classList.remove('hidden'); },
             closeAddModal: function() { document.getElementById('add-modal').classList.add('hidden'); },
-            toggleInfoModal: function(show) { document.getElementById('info-modal').classList.toggle('hidden', !show); },
-
-            handleFormSubmit: function(e) {
-                e.preventDefault();
-                const name = document.getElementById('input-name').value.trim();
-                const days = parseInt(document.getElementById('input-days').value);
-                const cat = document.getElementById('input-category').value;
-
-                this.state.kuehlschrank.push({ name: name, tage: days, cat: cat });
-                document.getElementById('input-name').value = '';
-                this.closeAddModal();
-                this.zeigeToast(`${name} eingebucht!`, 'success');
-                this.renderAll();
-            },
-
-            openRecipeModal: function(id) {
-                this.state.aktiveRezeptId = id;
-                this.state.aktuellePortionen = 2;
-                document.getElementById('recipe-modal-portions').innerText = this.state.aktuellePortionen;
-
-                const rezept = RezeptDatenbank.find(r => r.id === id);
-                document.getElementById('recipe-modal-img').src = rezept.img;
-                document.getElementById('recipe-modal-title').innerText = rezept.title;
-                document.getElementById('recipe-modal-anleitung').innerText = rezept.anleitung;
-                
-                const badge = document.getElementById('recipe-modal-badge');
-                const imBesitz = this.state.kuehlschrank.some(i => i.name.toLowerCase() === rezept.zutat.toLowerCase());
-                badge.innerText = imBesitz ? 'Bestand gedeckt' : 'Hauptzutat fehlt';
-                badge.className = `text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${imBesitz ? 'bg-emerald-800 text-white' : 'bg-amber-100 text-amber-800'}`;
-
-                this.berechneSkalierteZutaten();
-                document.getElementById('recipe-modal').classList.remove('hidden');
-
-                document.getElementById('recipe-modal-list-btn').onclick = () => {
-                    rezept.zutatenMengen.forEach(z => {
-                        if(!AppEngine.state.shoppingList.includes(z.name)) AppEngine.state.shoppingList.push(z.name);
-                    });
-                    AppEngine.zeigeToast('Einkaufszettel aktualisiert!', 'info');
-                    AppEngine.renderAll();
-                };
-
-                document.getElementById('recipe-modal-cook-btn').onclick = () => {
-                    const index = AppEngine.state.kuehlschrank.findIndex(i => i.name.toLowerCase() === rezept.zutat.toLowerCase());
-                    if(index !== -1) {
-                        AppEngine.state.historyLog.push(`Gekocht: ${rezept.title} (+250 XP)`);
-                        AppEngine.state.kuehlschrank.splice(index, 1);
-                        AppEngine.state.stats.savedKg += 0.5; AppEngine.state.stats.xp += 250;
-                        AppEngine.zeigeToast('Lecker! XP gutgeschrieben.', 'success');
-                        if(typeof confetti === 'function') confetti({ particleCount: 60, spread: 70 });
-                    } else {
-                        AppEngine.zeigeToast('Rezept simuliert (Kein Reste-Abzug)', 'info');
-                    }
-                    AppEngine.closeRecipeModal();
-                    AppEngine.renderAll();
-                };
-            },
-
-            skalierePortionen: function(dir) {
-                let neu = this.state.aktuellePortionen + dir;
-                if(neu >= 1 && neu <= 8) {
-                    this.state.aktuellePortionen = neu;
-                    document.getElementById('recipe-modal-portions').innerText = neu;
-                    this.berechneSkalierteZutaten();
-                }
-            },
-
-            berechneSkalierteZutaten: function() {
-                const rezept = RezeptDatenbank.find(r => r.id === this.state.aktiveRezeptId);
-                const ul = document.getElementById('recipe-modal-zutaten');
-                ul.innerHTML = '';
-                
-                const faktor = this.state.aktuellePortionen / 2;
-                rezept.zutatenMengen.forEach(z => {
-                    let berechneteMenge = z.menge * faktor;
-                    ul.innerHTML += `<li>${berechneteMenge}g/ml ${z.name}</li>`;
-                });
-            },
-
+            openRecipeModal: function(id) { document.getElementById('recipe-modal').classList.remove('hidden'); },
             closeRecipeModal: function() { document.getElementById('recipe-modal').classList.add('hidden'); },
-
-            checkNotifications: function() {
-                const dr = this.state.kuehlschrank.some(i => i.tage <= 2);
-                this.zeigeToast(dr ? 'Achtung: Dringende Reste verarbeiten!' : 'Keine akuten Ablaufdaten.', dr ? 'warning' : 'success');
-            },
+            checkNotifications: function() { this.zeigeToast("System bereit.", "success"); },
+            toggleInfoModal: function(s) { document.getElementById('recipe-modal').classList.toggle('hidden', !s); },
 
             zeigeToast: function(msg, type = 'info') {
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
-                toast.className = `p-3 text-[11px] font-bold rounded-xl shadow-lg text-white flex items-center gap-2 border pointer-events-auto`;
-                
-                if(type === 'success') toast.className += ' bg-[#2D5A27] border-emerald-800';
-                else if(type === 'warning') toast.className += ' bg-amber-600 border-amber-700';
-                else toast.className += ' bg-zinc-800 border-zinc-900';
-
+                toast.className = `p-3 text-[11px] font-bold rounded-xl shadow-lg text-white flex items-center gap-2 border bg-zinc-800 border-zinc-900`;
+                if(type==='success') toast.className = 'p-3 text-[11px] font-bold rounded-xl shadow-lg text-white flex items-center gap-2 border bg-[#2D5A27] border-emerald-800';
                 toast.innerHTML = `<span>⚡</span><span>${msg}</span>`;
                 container.appendChild(toast);
                 setTimeout(() => toast.remove(), 2500);
@@ -767,11 +529,6 @@
             switchView: function(viewId) {
                 document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
                 document.getElementById('view-' + viewId).classList.remove('hidden');
-                document.querySelectorAll('.nav-btn').forEach(btn => {
-                    btn.classList.remove('text-[#2D5A27]'); btn.classList.add('text-gray-400');
-                });
-                document.getElementById('nav-' + viewId).classList.remove('text-gray-400');
-                document.getElementById('nav-' + viewId).classList.add('text-[#2D5A27]');
                 lucide.createIcons();
             }
         };
