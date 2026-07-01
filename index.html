@@ -545,10 +545,10 @@
                 document.getElementById('info-modal').classList.toggle('hidden', !show);
             },
 
-            // --- SCANNER LOGIC WITH MANUAL OVERRIDE ---
+            // --- SCANNER LOGIC WITH EXPANDED DATABASE ---
             openScanModal() {
                 document.getElementById('scan-modal').classList.remove('hidden');
-                document.getElementById('manual-barcode-input').value = ''; // Input zurücksetzen
+                document.getElementById('manual-barcode-input').value = '';
                 
                 setTimeout(() => {
                     try {
@@ -581,7 +581,6 @@
                 }
             },
 
-            // NEU: Verarbeitet die manuell eingetippte Artikelnummer
             handleManualBarcodeSubmit() {
                 const inputEl = document.getElementById('manual-barcode-input');
                 const code = inputEl.value.trim();
@@ -597,12 +596,26 @@
             handleScanSuccess(code) {
                 this.closeScanModal();
                 
+                // ERWEITERTE PRODUKT-DATENBANK (Zufallsauswahl)
                 const mockProducts = [
                     { name: "Frischmilch 1L", cat: "🥛", tage: 3 },
-                    { name: "Naturjoghurt", cat: "🥛", tage: 5 },
-                    { name: "Paprika Mix", cat: "🥦", tage: 4 },
-                    { name: "Salatkopf", cat: "🥦", tage: 2 }
+                    { name: "Naturjoghurt 500g", cat: "🥛", tage: 6 },
+                    { name: "Paprika Mix (3er)", cat: "🥦", tage: 4 },
+                    { name: "Salatkopf", cat: "🥦", tage: 2 },
+                    { name: "Bio-Tomaten 500g", cat: "🍎", tage: 5 },
+                    { name: "Speisequark 250g", cat: "🥛", tage: 7 },
+                    { name: "Gouda gerieben", cat: "🧀", tage: 9 },
+                    { name: "Veggie-Burger-Patties", cat: "🍔", tage: 3 },
+                    { name: "Frische Schlagsahne", cat: "🥛", tage: 4 },
+                    { name: "Toastbrot Vollkorn", cat: "🍞", tage: 8 },
+                    { name: "Bio-Gurke", cat: "🥒", tage: 3 },
+                    { name: "Hähnchenbrustfilet", cat: "🥩", tage: 2 },
+                    { name: "Tofu Natur", cat: "🌱", tage: 12 },
+                    { name: "Kräuterbutter", cat: "🧈", tage: 14 },
+                    { name: "Erdbeeren Schale", cat: "🍓", tage: 2 },
+                    { name: "Bio-Eier (10er)", cat: "🥚", tage: 10 }
                 ];
+                
                 const randomProduct = mockProducts[Math.floor(Math.random() * mockProducts.length)];
                 
                 const newItem = {
@@ -619,12 +632,12 @@
             },
 
             simulateScan() {
-                const mockCodes = ["4008400200123", "4105600012345", "4001234567890"];
+                const mockCodes = ["4008400200123", "4105600012345", "4001234567890", "4200123456789"];
                 const randomCode = mockCodes[Math.floor(Math.random() * mockCodes.length)];
                 this.handleScanSuccess(randomCode);
             },
 
-            // --- MANUELLE VOLLBUCHUNG ---
+            // Manuelle Vollbuchung
             openAddModal() {
                 document.getElementById('add-modal').classList.remove('hidden');
             },
