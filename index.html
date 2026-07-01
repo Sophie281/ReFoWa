@@ -9,68 +9,112 @@
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         /* Spezifische Ampelfarben laut Vorgabe */
-        .status-weinrot { color: #800020; }
-        .status-rot { color: #ef4444; }
-        .status-gelb { color: #eab308; }
-        .status-gruen { color: #22c55e; }
+        .status-weinrot { color: #800020; background-color: #fce7f3; }
+        .status-rot { color: #ef4444; background-color: #fee2e2; }
+        .status-gelb { color: #eab308; background-color: #fef9c3; }
+        .status-gruen { color: #22c55e; background-color: #dcfce7; }
     </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800">
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen flex flex-col">
 
     <header class="bg-emerald-600 text-white p-4 shadow-md sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold tracking-wide"><i class="fa-solid fa-fridge mr-2"></i>ReFoWa</h1>
-            <p class="text-sm italic hidden sm:block">Reduce Food Waste</p>
+            <h1 class="text-2xl font-bold tracking-wide flex items-center">
+                <i class="fa-solid fa-fridge mr-3"></i>ReFoWa
+            </h1>
+            <p class="text-sm italic hidden sm:block">Reduce Food Waste – Schütze deine Lebensmittel</p>
         </div>
     </header>
 
-    <main class="container mx-auto p-4 max-w-4xl">
+    <main class="container mx-auto p-4 max-w-4xl flex-grow">
 
-        <section class="bg-white rounded-xl shadow p-6 mb-6">
-            <h2 class="text-xl font-semibold mb-4 text-emerald-700"><i class="fa-solid fa-barcode mr-2"></i>Lebensmittel scannen</h2>
+        <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-emerald-700 flex items-center">
+                <i class="fa-solid fa-plus-circle mr-2"></i>Lebensmittel hinzufügen
+            </h2>
             
-            <div id="reader" class="w-full max-w-sm mx-auto mb-4 overflow-hidden rounded-lg"></div>
-            
-            <div class="flex flex-col sm:flex-row gap-2 justify-center">
-                <button onclick="startScanner()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg transition">
-                    Kamera-Scanner starten
+            <div id="scanner-wrapper" class="hidden mb-4 p-4 bg-gray-100 rounded-lg text-center">
+                <div id="reader" class="w-full max-w-sm mx-auto overflow-hidden rounded-lg border-2 border-emerald-500 bg-black"></div>
+                <button onclick="stopScanner()" class="mt-3 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium py-1.5 px-4 rounded-lg transition">
+                    <i class="fa-solid fa-xmark mr-2"></i>Scanner schließen
                 </button>
-                <button onclick="simulateScan()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition">
+            </div>
+            
+            <div class="flex flex-wrap gap-3 justify-center mb-6">
+                <button id="btn-start-scanner" onclick="startScanner()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-5 rounded-lg transition shadow-sm flex items-center">
+                    <i class="fa-solid fa-camera mr-2"></i>Kamera-Scanner starten
+                </button>
+                <button onclick="simulateScan()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-5 rounded-lg transition shadow-sm flex items-center">
                     <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Demo-Produkt scannen
                 </button>
             </div>
+
+            <div class="relative flex py-2 items-center mb-4">
+                <div class="flex-grow border-t border-gray-200"></div>
+                <span class="flex-shrink mx-4 text-gray-400 text-xs uppercase tracking-wider">Oder manuell eintragen</span>
+                <div class="flex-grow border-t border-gray-200"></div>
+            </div>
+
+            <form id="manuelles-form" onsubmit="handleManuellesHinzufuegen(event)" class="grid gap-3 sm:grid-cols-3 items-end">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Produktname</label>
+                    <input type="text" id="manual-name" placeholder="z.B. Butter, Salat..." required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Ablaufdatum (MHD)</label>
+                    <input type="date" id="manual-date" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-emerald-500">
+                </div>
+                <button type="submit" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-medium py-2 px-4 rounded-lg transition h-[42px]">
+                    <i class="fa-solid fa-arrow-down-to-bracket mr-2"></i>Speichern
+                </button>
+            </form>
         </section>
 
-        <section class="bg-white rounded-xl shadow p-6 mb-6">
-            <h2 class="text-xl font-semibold mb-4 text-emerald-700"><i class="fa-solid fa-box-tissue mr-2"></i>Mein Kühlschrank</h2>
+        <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-emerald-700 flex items-center">
+                    <i class="fa-solid fa-box-tissue mr-2"></i>Mein Kühlschrank
+                </h2>
+                <span id="inventar-zaehler" class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full">0 Produkte</span>
+            </div>
             
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="border-b border-gray-200 text-gray-500 text-sm">
-                            <th class="pb-2">Status</th>
-                            <th class="pb-2">Produkt</th>
-                            <th class="pb-2">Ablaufdatum</th>
-                            <th class="pb-2 text-right">Aktion</th>
+                        <tr class="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
+                            <th class="pb-3 pl-2 w-12">Status</th>
+                            <th class="pb-3 pl-2">Produkt</th>
+                            <th class="pb-3">Ablaufdatum / Zustand</th>
+                            <th class="pb-3 text-right pr-2">Aktion</th>
                         </tr>
                     </thead>
                     <tbody id="kuehlschrank-liste">
                         </tbody>
                 </table>
             </div>
-            <p id="leerer-kuehlschrank" class="text-gray-400 text-center py-6 hidden">Dein Kühlschrank ist leer. Scanne ein Produkt!</p>
+            <p id="leerer-kuehlschrank" class="text-gray-400 text-center py-8 hidden">
+                <i class="fa-solid fa-basket-shopping text-3xl block mb-2 text-gray-300"></i>
+                Dein Kühlschrank ist leer. Scanne ein Produkt oder trage es manuell ein!
+            </p>
         </section>
 
         <section class="bg-emerald-50 border border-emerald-200 rounded-xl p-6">
-            <h2 class="text-xl font-semibold mb-4 text-emerald-800"><i class="fa-solid fa-utensils mr-2"></i>Rezept-Vorschläge (Basierend auf Ablaufdatum)</h2>
+            <h2 class="text-xl font-semibold mb-2 text-emerald-800 flex items-center">
+                <i class="fa-solid fa-utensils mr-2"></i>Rezept-Vorschläge
+            </h2>
+            <p class="text-xs text-emerald-700 mb-4 font-medium">Automatisch generiert basierend auf den am dringendsten ablaufenden Zutaten.</p>
             <div id="rezept-container" class="grid gap-4 md:grid-cols-2">
                 </div>
         </section>
 
     </main>
 
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
     <script>
-        // Demo-Datenbank für gescannte Barcodes
+        // Datenbank für Demo-Barcodes
         const produktDatenbank = {
             "4000123456789": { name: "Milch", tageBisAblauf: 3 },
             "4000987654321": { name: "Frischkäse", tageBisAblauf: 1 },
@@ -78,10 +122,30 @@
             "4005566778899": { name: "Naturjoghurt", tageBisAblauf: 12 }
         };
 
-        // Das Inventar im Kühlschrank (wird im LocalStorage gespeichert)
         let kuehlschrank = JSON.parse(localStorage.getItem('kuehlschrank')) || [];
+        let html5QrCode = null;
 
-        // Funktion zum Berechnen der verbleibenden Tage
+        // Custom Toast-Meldungen statt hässlichen Alerts
+        function zeigeToast(nachricht, typ = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const farbe = typ === 'success' ? 'bg-emerald-600' : (typ === 'error' ? 'bg-red-600' : 'bg-blue-600');
+            
+            toast.className = `${farbe} text-white px-4 py-3 rounded-lg shadow-lg text-sm flex items-center gap-2 transform translate-y-5 opacity-0 transition-all duration-300`;
+            toast.innerHTML = `<i class="fa-solid ${typ === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i> <span>${nachricht}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.remove('translate-y-5', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Resttage berechnen
         function berechneRestTage(ablaufDatumStr) {
             const heute = new Date();
             heute.setHours(0,0,0,0);
@@ -92,21 +156,24 @@
             return Math.ceil(unterschiedZeit / (1000 * 60 * 60 * 24));
         }
 
-        // Funktion zur Bestimmung der Statusfarbe laut deinen Vorgaben
+        // Statusfarbe ermitteln
         function holeStatusKlasse(tage) {
             if (tage <= 1) return 'status-weinrot';
             if (tage >= 2 && tage <= 3) return 'status-rot';
             if (tage >= 4 && tage <= 8) return 'status-gelb';
-            return 'status-gruen'; // Mehr als 9 Tage
+            return 'status-gruen';
         }
 
-        // Kühlschrank-Ansicht aktualisieren
+        // HTML-Ansicht rendern
         function updateKuehlschrankAnsicht() {
             const liste = document.getElementById('kuehlschrank-liste');
             const leererHinweis = document.getElementById('leerer-kuehlschrank');
+            const zaehler = document.getElementById('inventar-zaehler');
+            
             liste.innerHTML = '';
+            zaehler.innerText = `${kuehlschrank.length} ${kuehlschrank.length === 1 ? 'Produkt' : 'Produkte'}`;
 
-            // Sortieren nach Ablaufdatum (dringendste zuerst)
+            // Sortierung: Kritischste Produkte zuerst
             kuehlschrank.sort((a, b) => new Date(a.ablaufDatum) - new Date(b.ablaufDatum));
 
             if (kuehlschrank.length === 0) {
@@ -118,16 +185,26 @@
                     const tage = berechneRestTage(item.ablaufDatum);
                     const statusKlasse = holeStatusKlasse(tage);
                     
+                    let statusText = `${tage} Tage übrig`;
+                    if (tage === 0) statusText = "Heute läuft es ab!";
+                    if (tage === 1) statusText = "Morgen läuft es ab!";
+                    if (tage < 0) statusText = `Seit ${Math.abs(tage)} Tagen abgelaufen`;
+
                     const tr = document.createElement('tr');
-                    tr.className = "border-b border-gray-100 hover:bg-gray-50 text-sm md:text-base";
+                    tr.className = "border-b border-gray-100 hover:bg-gray-50/80 transition text-sm md:text-base";
                     tr.innerHTML = `
-                        <td class="py-3 px-1">
-                            <i class="fa-solid fa-circle text-xl ${statusKlasse}"></i>
+                        <td class="py-3 pl-2">
+                            <span class="${statusKlasse} p-1.5 rounded-full inline-flex items-center justify-center">
+                                <i class="fa-solid fa-circle text-xs"></i>
+                            </span>
                         </td>
-                        <td class="py-3 font-medium">${item.name}</td>
-                        <td class="py-3 text-gray-500">${new Date(item.ablaufDatum).toLocaleDateString('de-DE')} (${tage < 0 ? 'Abgelaufen' : tage + ' Tage'})</td>
-                        <td class="py-3 text-right">
-                            <button onclick="loescheProdukt(${index})" class="text-red-500 hover:text-red-700 p-1">
+                        <td class="py-3 pl-2 font-semibold text-gray-900">${item.name}</td>
+                        <td class="py-3 text-sm text-gray-600">
+                            <span class="block font-medium">${new Date(item.ablaufDatum).toLocaleDateString('de-DE')}</span>
+                            <span class="text-xs text-gray-400">${statusText}</span>
+                        </td>
+                        <td class="py-3 text-right pr-2">
+                            <button onclick="loescheProdukt(${index})" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition" title="Produkt entfernen">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </td>
@@ -139,102 +216,150 @@
             generiereRezeptVorschlaege();
         }
 
-        // Produkt hinzufügen
+        // Produkt-Logik
         function fuegeProduktHinzu(name, tageBisAblauf) {
             const ablaufDatum = new Date();
             ablaufDatum.setDate(ablaufDatum.getDate() + tageBisAblauf);
-
+            
             kuehlschrank.push({
                 name: name,
                 ablaufDatum: ablaufDatum.toISOString().split('T')[0]
             });
-
             updateKuehlschrankAnsicht();
         }
 
-        // Produkt löschen (wenn gegessen oder weggeworfen)
+        function handleManuellesHinzufuegen(event) {
+            event.preventDefault();
+            const nameInput = document.getElementById('manual-name');
+            const dateInput = document.getElementById('manual-date');
+            
+            const ablaufDatum = new Date(dateInput.value);
+            const heute = new Date();
+            heute.setHours(0,0,0,0);
+            
+            const diffZeit = ablaufDatum - heute;
+            const tageDiff = Math.ceil(diffZeit / (1000 * 60 * 60 * 24));
+
+            kuehlschrank.push({
+                name: nameInput.value,
+                ablaufDatum: dateInput.value
+            });
+
+            zeigeToast(`"${nameInput.value}" wurde hinzugefügt.`);
+            nameInput.value = '';
+            dateInput.value = '';
+            
+            updateKuehlschrankAnsicht();
+        }
+
         function loescheProdukt(index) {
+            const name = kuehlschrank[index].name;
             kuehlschrank.splice(index, 1);
+            zeigeToast(`"${name}" wurde aufgebraucht/entfernt.`, 'info');
             updateKuehlschrankAnsicht();
         }
 
-        // In LocalStorage speichern
         function speichereDaten() {
             localStorage.setItem('kuehlschrank', JSON.stringify(kuehlschrank));
         }
 
-        // Simulation eines Scans
+        // Simulierter Scan
         function simulateScan() {
             const barcodes = Object.keys(produktDatenbank);
             const zufallsBarcode = barcodes[Math.floor(Math.random() * barcodes.length)];
             const produkt = produktDatenbank[zufallsBarcode];
             
-            alert(`Gescannt: ${produkt.name} (Haltbar: ${produkt.tageBisAblauf} Tage)`);
+            zeigeToast(`Gescannt: ${produkt.name}`);
             fuegeProduktHinzu(produkt.name, produkt.tageBisAblauf);
         }
 
-        // Kochvorschläge basierend auf den am nächsten ablaufenden Zutaten
+        // Rezeptgenerator
         function generiereRezeptVorschlaege() {
             const container = document.getElementById('rezept-container');
             container.innerHTML = '';
 
             if (kuehlschrank.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 italic">Füge Lebensmittel hinzu, um Rezeptvorschläge zu erhalten.</p>';
+                container.innerHTML = '<p class="text-emerald-700 italic text-sm">Füge Lebensmittel hinzu, um smarte Rezeptvorschläge zu erhalten.</p>';
                 return;
             }
 
-            // Hole die zwei am dringendsten ablaufenden Zutaten
-            const dringendeZutaten = kuehlschrank.slice(0, 2).map(i => i.name);
+            // Filtere alle ablaufenden Zutaten heraus (höchstens die ersten 3)
+            const dringendeZutaten = kuehlschrank.slice(0, 3).map(i => i.name);
+            let zutatenText = dringendeZutaten.join(' und ');
+            if (dringendeZutaten.length > 2) {
+                zutatenText = `${dringendeZutaten[0]}, ${dringendeZutaten[1]} und ${dringendeZutaten[2]}`;
+            }
 
-            // Einfache Logik für Rezepte
             let rezepte = [
-                { title: "Reste-Pfanne", beschreibung: `Brate deine ${dringendeZutaten.join(' und ')} zusammen mit etwas Öl und Gewürzen in der Pfanne an.`, icon: "fa-fire-burner" },
-                { title: "Kreativer Auflauf", beschreibung: `Schneide alles klein, gib es in eine Auflaufform und überbacke ${dringendeZutaten.join(' / ')} mit etwas Käse.`, icon: "fa-bowl-food" }
+                { title: "Smarte Reste-Pfanne", beschreibung: `Erhitze etwas Öl und brate deine ablaufenden Zutaten (${zutatenText}) scharf an. Schmecke es mit Kräutern der Saison ab.`, icon: "fa-fire-burner" },
+                { title: "Kreativer Reste-Auflauf", beschreibung: `Schneide ${dringendeZutaten.join(' / ')} in mundgerechte Stücke, gib sie in eine Form, gieße etwas Pflanzendrink/Milch darüber und überbacke das Ganze.`, icon: "fa-bowl-food" }
             ];
 
             rezepte.forEach(rezept => {
                 const div = document.createElement('div');
-                div.className = "bg-white p-4 rounded-lg shadow-sm border border-emerald-100 flex gap-3";
+                div.className = "bg-white p-4 rounded-lg shadow-sm border border-emerald-100 flex gap-3 items-start hover:shadow-md transition";
                 div.innerHTML = `
-                    <div class="text-emerald-600 text-2xl mt-1">
+                    <div class="text-emerald-600 text-2xl mt-0.5">
                         <i class="fa-solid ${rezept.icon}"></i>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-emerald-900">${rezept.title}</h3>
-                        <p class="text-sm text-gray-600 mt-1">${rezept.beschreibung}</p>
+                        <h3 class="font-semibold text-emerald-950">${rezept.title}</h3>
+                        <p class="text-xs md:text-sm text-gray-600 mt-1 leading-relaxed">${rezept.beschreibung}</p>
                     </div>
                 `;
                 container.appendChild(div);
             });
         }
 
-        // Echter Kamera-Scanner (Html5Qrcode) initialisieren
+        // Live-Kamera-Scanner
         function startScanner() {
-            const html5QrCode = new Html5Qrcode("reader");
+            document.getElementById('scanner-wrapper').classList.remove('hidden');
+            document.getElementById('btn-start-scanner').disabled = true;
+            
+            html5QrCode = new Html5Qrcode("reader");
+            
             const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-                // Wenn der Barcode in unserer Datenbank existiert
                 if (produktDatenbank[decodedText]) {
                     const prod = produktDatenbank[decodedText];
                     fuegeProduktHinzu(prod.name, prod.tageBisAblauf);
-                    alert(`Erfolgreich gescannt: ${prod.name}`);
+                    zeigeToast(`Erfolgreich erfasst: ${prod.name}`);
                 } else {
-                    // Fallback, falls der Barcode unbekannt ist
-                    const name = prompt("Unbekannter Barcode. Wie heißt das Produkt?");
-                    if(name) fuegeProduktHinzu(name, 5);
+                    // Falls unbekannter Barcode, öffne Prompt-Abfrage
+                    const name = prompt(`Unbekannter Barcode (${decodedText}). Name des Produkts?`);
+                    if(name) {
+                        fuegeProduktHinzu(name, 5);
+                        zeigeToast(`"${name}" registriert.`);
+                    }
                 }
-                html5QrCode.stop();
+                stopScanner();
             };
-            const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+            
+            const config = { fps: 10, qrbox: { width: 260, height: 160 } };
             
             html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
             .catch(err => {
-                alert("Kamera konnte nicht geöffnet werden. Nutze den Demo-Button.");
+                zeigeToast("Kamera-Zugriff verweigert oder nicht verfügbar.", "error");
                 console.error(err);
+                stopScanner();
             });
         }
 
-        // Beim Laden der Seite Liste aufrufen
-        updateKuehlschrankAnsicht();
+        function stopScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scanner-wrapper').classList.add('hidden');
+                    document.getElementById('btn-start-scanner').disabled = false;
+                }).catch(err => console.error("Fehler beim Stoppen des Scanners:", err));
+            } else {
+                document.getElementById('scanner-wrapper').classList.add('hidden');
+                document.getElementById('btn-start-scanner').disabled = false;
+            }
+        }
+
+        // Initialisierung beim Laden
+        document.addEventListener("DOMContentLoaded", () => {
+            updateKuehlschrankAnsicht();
+        });
     </script>
 </body>
 </html>
