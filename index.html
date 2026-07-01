@@ -54,7 +54,7 @@
                 <div class="flex items-center gap-1 bg-amber-50 border border-amber-200/60 px-2 py-1 rounded-xl text-xs font-black text-amber-700 shadow-xs">
                     <span>🔥</span> <span id="global-streak-counter">0</span> Days
                 </div>
-                <button onclick="AppEngine.showToast('Keine neuen Benachrichtigungen')" class="p-2 bg-white/80 rounded-xl shadow-xs hover:opacity-70 transition relative">
+                <button onclick="AppEngine.showToast('Keine Benachrichtigungen')" class="p-2 bg-white/80 rounded-xl shadow-xs hover:opacity-70 transition relative">
                     <i data-lucide="bell" class="w-4 h-4 text-gray-700"></i>
                 </button>
             </div>
@@ -98,12 +98,12 @@
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
                         <h2 class="font-extrabold text-[12px] text-black uppercase tracking-wider flex items-center gap-1.5">
-                            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-700"></i> Empfohlene Rezepte
+                            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-700"></i> Verfügbare Reste-Rezepte
                         </h2>
                         <button onclick="AppEngine.switchView('recipes')" class="text-emerald-800 text-xs font-bold hover:underline">Gesamtes Kochbuch</button>
                     </div>
-                    <div id="dashboard-recipe-slider" class="text-xs text-gray-500 font-medium bg-white p-4 rounded-2xl border border-gray-100">
-                        Wechsle in den Rezepte-Tab, um deine dynamischen Rezepte zu kochen! 🧑‍🍳
+                    <div class="text-xs text-gray-500 font-medium bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs">
+                        Schau im Rezept-Tab vorbei, um deine Reste-Rezepte mit Kochanleitung zu sehen! 🧑‍🍳
                     </div>
                 </div>
             </div>
@@ -139,13 +139,13 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-black text-black tracking-tight">Reste-Kochbuch 🧑‍🍳</h2>
-                        <p class="text-xs text-gray-500 font-semibold">Mengen passen sich automatisch an deine Portionen an!</p>
+                        <p class="text-xs text-gray-500 font-semibold">Wähle die Personenanzahl – die Mengen passen sich an!</p>
                     </div>
                 </div>
 
                 <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-xs flex justify-between items-center">
                     <span class="text-xs font-extrabold text-gray-700 flex items-center gap-1.5">
-                        <i data-lucide="users" class="w-4 h-4 text-emerald-800"></i> Rezepte berechnen für:
+                        <i data-lucide="users" class="w-4 h-4 text-emerald-800"></i> Portionen berechnen für:
                     </span>
                     <select id="recipe-servings" onchange="AppEngine.changeServings(this.value)" class="bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl px-3 py-1.5 text-xs font-black focus:outline-none">
                         <option value="1">1 Person</option>
@@ -155,7 +155,7 @@
                     </select>
                 </div>
 
-                <div id="full-recipes-grid" class="grid grid-cols-1 gap-3.5"></div>
+                <div id="full-recipes-grid" class="grid grid-cols-1 gap-4"></div>
             </div>
 
             <div id="view-profile" class="page-view hidden space-y-5">
@@ -182,7 +182,6 @@
                 <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs space-y-4">
                     <h3 class="text-sm font-black text-black uppercase tracking-wider border-b pb-2">Profil-Einstellungen</h3>
                     <div class="space-y-4 text-xs font-semibold text-gray-700">
-                        
                         <div class="space-y-1">
                             <label class="text-black font-extrabold flex items-center gap-2">
                                 <i data-lucide="user-check" class="w-4 h-4 text-emerald-800"></i> Benutzername ändern:
@@ -192,41 +191,6 @@
                                 <button onclick="AppEngine.saveProfileData()" class="bg-emerald-800 text-white px-3 py-2 rounded-xl font-bold hover:bg-emerald-900 transition text-[11px]">Speichern</button>
                             </div>
                         </div>
-
-                        <div class="space-y-1">
-                            <label class="text-black font-extrabold flex items-center gap-2">
-                                <i data-lucide="text-quote" class="w-4 h-4 text-emerald-800"></i> Biografie verfassen:
-                            </label>
-                            <div class="flex gap-2">
-                                <input type="text" id="setting-bio" placeholder="Erzähle etwas über dich..." class="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-xl font-medium focus:outline-none focus:border-emerald-800 text-xs">
-                                <button onclick="AppEngine.saveProfileData()" class="bg-emerald-800 text-white px-3 py-2 rounded-xl font-bold hover:bg-emerald-900 transition text-[11px]">Speichern</button>
-                            </div>
-                        </div>
-
-                        <div class="space-y-1">
-                            <label class="text-black font-extrabold flex items-center gap-2">
-                                <i data-lucide="activity" class="w-4 h-4 text-emerald-800"></i> Status aktualisieren:
-                            </label>
-                            <div class="flex gap-2">
-                                <input type="text" id="setting-status" placeholder="z.B. Am Kochen! 🍲" class="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-xl font-medium focus:outline-none focus:border-emerald-800 text-xs">
-                                <button onclick="AppEngine.saveProfileData()" class="bg-emerald-800 text-white px-3 py-2 rounded-xl font-bold hover:bg-emerald-900 transition text-[11px]">Speichern</button>
-                            </div>
-                        </div>
-
-                        <div class="space-y-2 pt-1">
-                            <label class="text-black font-extrabold flex items-center gap-2">
-                                <i data-lucide="smile" class="w-4 h-4 text-emerald-800"></i> Standard-Avatar wählen:
-                            </label>
-                            <div class="grid grid-cols-6 gap-2 bg-gray-50 p-2.5 rounded-2xl border border-gray-100" id="avatar-selection-gallery">
-                                <button onclick="AppEngine.selectAvatar('🍳')" class="text-2xl p-1 hover:bg-white rounded-lg transition border border-transparent active:scale-95">🍳</button>
-                                <button onclick="AppEngine.selectAvatar('🧑‍🍳')" class="text-2xl p-1 hover:bg-white rounded-lg transition border border-transparent active:scale-95">🧑‍🍳</button>
-                                <button onclick="AppEngine.selectAvatar('🌱')" class="text-2xl p-1 hover:bg-white rounded-lg transition border border-transparent active:scale-95">🌱</button>
-                                <button onclick="AppEngine.selectAvatar('🍎')" class="text-2xl p-1 hover:bg-white rounded-lg transition border border-transparent active:scale-95">🍎</button>
-                                <button onclick="AppEngine.selectAvatar('🍕')" class="text-2xl p-1 hover:bg-white rounded-lg transition border border-transparent active:scale-95">🍕</button>
-                                <button onclick="AppEngine.selectAvatar('🏆')" class="text-2xl p-1 hover:bg-white rounded-lg transition border border-transparent active:scale-95">🏆</button>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
             </div>
@@ -244,7 +208,7 @@
                     <div id="interactive-camera-feed" class="w-full h-full"></div>
                     <div class="absolute inset-x-0 h-0.5 bg-red-500 shadow-[0_0_8px_#ef4444] scanner-laser top-0 pointer-events-none"></div>
                 </div>
-                <button onclick="AppEngine.closeScanModal()" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-900 transition">Scanner schließen</button>
+                <button onclick="AppEngine.closeScanModal()" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-900 transition">Schließen</button>
             </div>
         </div>
 
@@ -260,10 +224,10 @@
                         <input type="text" id="input-name" required placeholder="z.B. Bio-Tomaten" class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Haltbarkeit (Tage ab heute)</label>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Haltbarkeit (Tage)</label>
                         <input type="number" id="input-days" required min="1" max="365" class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none">
                     </div>
-                    <button type="submit" class="w-full bg-black text-white p-3.5 rounded-xl font-bold text-xs shadow-md transition hover:bg-neutral-900">Bestand einbuchen (+50 XP)</button>
+                    <button type="submit" class="w-full bg-black text-white p-3.5 rounded-xl font-bold text-xs shadow-md transition hover:bg-neutral-900">Einbuchen (+50 XP)</button>
                 </form>
             </div>
         </div>
@@ -295,33 +259,33 @@
     </div>
  
     <script>
-        // DATENBANK FÜR REZEPTE MIT RECHNEBAREN MENGEN
+        // DATA RECIPES WITH SCALEABLE BALANCES
         const RezepteKochbuch = [
             {
                 id: 1,
                 name: "Rahmspinat-Quark-Pfanne",
                 icon: "🥦",
-                basisPersonen: 2, // Rezepte Mengengrundlage ist für 2 Personen ausgelegt
+                basisPersonen: 2, // Original-Mengen sind für 2 Personen ausgelegt
                 zutaten: [
                     { name: "Frischer Spinat", menge: 250, einheit: "g" },
                     { name: "Magerquark", menge: 200, einheit: "g" },
                     { name: "Zwiebel", menge: 0.5, einheit: "Stk." },
-                    { name: "Öl", menge: 1, einheit: "EL" }
+                    { name: "Speiseöl", menge: 1, einheit: "EL" }
                 ],
-                anleitung: "Die Zwiebeln fein hacken und im Öl andünsten. Den gewaschenen Spinat hinzugeben, bis er zusammenfällt. Vom Herd nehmen und den Magerquark gleichmäßig unterrühren. Mit Salz und Pfeffer abschmecken."
+                anleitung: "Die Zwiebel würfeln und in einer Pfanne mit etwas Öl andünsten. Den gewaschenen Spinat hinzugeben und zusammenfallen lassen. Anschließend die Pfanne von der Hitze nehmen und den Magerquark gleichmäßig unterrühren. Nach Geschmack mit Salz und Pfeffer würzen."
             },
             {
                 id: 2,
-                name: "Power-Haferflocken-Quark",
+                name: "Süßer Hafer-Quark-Traum",
                 icon: "🥣",
-                basisPersonen: 1, // Mengengrundlage ausgelegt für 1 Person
+                basisPersonen: 1, // Original-Mengen für 1 Person
                 zutaten: [
                     { name: "Haferflocken", menge: 60, einheit: "g" },
                     { name: "Magerquark", menge: 150, einheit: "g" },
                     { name: "Milch oder Wasser", menge: 50, einheit: "ml" },
                     { name: "Nutella", menge: 1, einheit: "TL" }
                 ],
-                anleitung: "Den Quark mit Flüssigkeit glattrühren. Die Haferflocken untermischen und das Ganze mit einem Teelöffel Nutella für den Geschmack garnieren."
+                anleitung: "Den Magerquark mit der Milch (oder dem Wasser) in einer kleinen Schüssel glattrühren. Die Haferflocken unterheben. Zum Schluss einen Teelöffel Nutella leicht erwärmen und dekorativ als Topping darübergeben."
             }
         ];
 
@@ -338,13 +302,13 @@
                     status: localStorage.getItem('refowa_status') || "Aktiv am Retten 🌱",
                     avatar: localStorage.getItem('refowa_avatar') || "🍳"
                 },
-                selectedServings: 2 // Standardmäßig für 2 Personen berechnen
+                selectedServings: 2
             },
 
             init() {
                 this.loadProfileUi();
                 this.renderFridgeTab();
-                this.renderRecipesTab(); // Rezepte direkt beim Start laden
+                this.renderRecipesTab();
                 this.showToast("Willkommen zurück bei ReFoWa!");
                 document.getElementById('global-streak-counter').innerText = this.state.stats.streak;
                 lucide.createIcons();
@@ -361,8 +325,6 @@
             loadProfileUi() {
                 const p = this.state.profile;
                 document.getElementById('setting-username').value = p.username;
-                document.getElementById('setting-bio').value = p.bio;
-                document.getElementById('setting-status').value = p.status;
                 document.getElementById('profile-name-title').innerText = p.username;
                 document.getElementById('dashboard-welcome-text').innerText = `Guten Tag, ${p.username}!`;
                 document.getElementById('dashboard-status-preview').innerText = p.status ? `Status: ${p.status}` : '';
@@ -375,20 +337,9 @@
 
             saveProfileData() {
                 this.state.profile.username = document.getElementById('setting-username').value.trim() || "User";
-                this.state.profile.bio = document.getElementById('setting-bio').value.trim();
-                this.state.profile.status = document.getElementById('setting-status').value.trim();
                 localStorage.setItem('refowa_username', this.state.profile.username);
-                localStorage.setItem('refowa_bio', this.state.profile.bio);
-                localStorage.setItem('refowa_status', this.state.profile.status);
                 this.loadProfileUi();
-                this.showToast("Profil aktualisiert! ✨");
-            },
-
-            selectAvatar(emoji) {
-                this.state.profile.avatar = emoji;
-                localStorage.setItem('refowa_avatar', emoji);
-                this.loadProfileUi();
-                this.showToast(`Avatar geändert zu ${emoji}`);
+                this.showToast("Profil erfolgreich aktualisiert! ✨");
             },
 
             renderFridgeTab() {
@@ -440,43 +391,41 @@
                 lucide.createIcons();
             },
 
-            // DYNAMISCHES REZEPTE RENDERING
+            // REZEPTE RENDER LOGIK MIT AUTOMATISCHER SKALIERUNG
             renderRecipesTab() {
                 const recipesGrid = document.getElementById('full-recipes-grid');
                 const aktuellePersonen = this.state.selectedServings;
 
                 recipesGrid.innerHTML = RezepteKochbuch.map(rezept => {
-                    // Errechne den Skalierungsfaktor für dieses Rezept
                     const faktor = aktuellePersonen / rezept.basisPersonen;
 
-                    // Baue die Zutatenliste mit angepassten Mengen zusammen
                     const zutatenHTML = rezept.zutaten.map(zutat => {
-                        const berechneteMenge = (zutat.menge * faktor).toLocaleString('de-DE', { maximumFractionDigits: 1 });
+                        const neueMenge = (zutat.menge * faktor).toLocaleString('de-DE', { maximumFractionDigits: 1 });
                         return `
-                            <li class="flex justify-between border-b border-gray-100 py-1">
+                            <li class="flex justify-between border-b border-gray-100 py-1 text-xs">
                                 <span class="text-gray-600 font-medium">${zutat.name}</span>
-                                <span class="font-bold text-emerald-800">${berechneteMenge} ${zutat.einheit}</span>
+                                <span class="font-bold text-emerald-800">${neueMenge} ${zutat.einheit}</span>
                             </li>
                         `;
                     }).join('');
 
                     return `
-                        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-3">
+                        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs space-y-3">
                             <div class="flex items-center gap-2.5">
                                 <span class="text-2xl">${rezept.icon}</span>
                                 <h3 class="font-black text-sm text-gray-900">${rezept.name}</h3>
                             </div>
                             
-                            <div class="bg-gray-50/70 p-3 rounded-xl text-[11px]">
-                                <p class="font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">Zutaten für ${aktuellePersonen} Person(en):</p>
+                            <div class="bg-gray-50 p-3 rounded-xl">
+                                <p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1">Zutaten für ${aktuellePersonen} Person(en):</p>
                                 <ul class="space-y-0.5">
                                     ${zutatenHTML}
                                 </ul>
                             </div>
 
-                            <div class="space-y-1">
-                                <p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Schritt-für-Schritt Anleitung:</p>
-                                <p class="text-xs font-medium text-gray-600 leading-relaxed">${rezept.anleitung}</p>
+                            <div class="space-y-1 pt-1">
+                                <p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Zubereitung:</p>
+                                <p class="text-xs font-semibold text-gray-600 leading-relaxed">${rezept.anleitung}</p>
                             </div>
                         </div>
                     `;
@@ -486,13 +435,13 @@
             changeServings(val) {
                 this.state.selectedServings = parseInt(val, 10);
                 this.renderRecipesTab();
-                this.showToast(`Mengen für ${val} Personen neu berechnet!`);
+                this.showToast(`Mengen für ${val} Personen berechnet!`);
             },
 
             deleteItem(id) {
                 this.state.kuehlschrank = this.state.kuehlschrank.filter(i => i.id !== id);
                 this.renderFridgeTab();
-                this.showToast("Produkt verbraucht / gelöscht.");
+                this.showToast("Produkt gelöscht.");
             },
 
             handleFormSubmit(e) {
@@ -509,7 +458,7 @@
                 
                 this.renderFridgeTab();
                 this.closeAddModal();
-                this.showToast("+50 XP: Erfolgreich eingebucht!");
+                this.showToast("+50 XP gebucht!");
                 if(typeof confetti === 'function') confetti({ particleCount: 30, spread: 60 });
             },
 
@@ -522,7 +471,7 @@
             showToast(msg) {
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
-                toast.className = "bg-black/90 backdrop-blur-md text-white text-xs font-bold px-4 py-3 rounded-xl shadow-lg transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto text-center";
+                toast.className = "bg-black/90 text-white text-xs font-bold px-4 py-3 rounded-xl shadow-lg transition-all transform translate-y-2 opacity-0 pointer-events-auto text-center";
                 toast.innerText = msg;
                 container.appendChild(toast);
                 setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
@@ -533,7 +482,6 @@
             }
         };
 
-        // Engine starten wenn geladen
         window.onload = () => AppEngine.init();
     </script>
 </body>
