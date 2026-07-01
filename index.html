@@ -224,6 +224,7 @@
                     <div id="interactive-camera-feed" class="w-full h-full"></div>
                     <div class="absolute inset-x-0 h-0.5 bg-red-500 shadow-[0_0_8px_#ef4444] scanner-laser top-0 pointer-events-none"></div>
                 </div>
+                <button onclick="AppEngine.simulateScan()" class="w-full bg-amber-500 text-white p-2.5 rounded-xl font-bold text-[11px] shadow-xs hover:bg-amber-600 transition">Test-Produkt scannen (Demo)</button>
                 <button onclick="AppEngine.closeScanModal()" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-900 transition">Schließen</button>
             </div>
         </div>
@@ -494,14 +495,15 @@
                             <ul class="space-y-0.5">${zutatenHTML}</ul>
                             <div class="pt-2">
                                 <p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1">Zubereitung:</p>
-                                <p class="text-xs text-gray-600 font-medium leading-relaxed">${rezept.anleitung}</p>
+                                <p class="text-xs text-gray-600 leading-relaxed">${rezept.anleitung}</p>
                             </div>
-                            <button onclick="AppEngine.cookRecipe(${rezept.id})" class="w-full bg-emerald-50 text-emerald-800 hover:bg-emerald-100 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
-                                🍳 Rezept nachkochen (+100 XP)
+                            <button onclick="AppEngine.cookRecipe(${rezept.id})" class="w-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-xs p-2.5 rounded-xl flex items-center justify-center gap-1.5 transition">
+                                <i data-lucide="cooking-pot" class="w-4 h-4"></i> Rezept nachkochen (+100 XP)
                             </button>
                         </div>
                     `;
                 }).join('');
+                lucide.createIcons();
             },
 
             changeServings(val) {
@@ -511,136 +513,143 @@
 
             cookRecipe(id) {
                 this.addXp(100);
-                this.showToast("Lecker! 100 XP fürs Nachkochen erhalten!");
+                this.showToast("🍳 Super! Du hast ein Reste-Rezept gekocht! +100 XP");
             },
 
             rescueItem(id) {
                 this.state.kuehlschrank = this.state.kuehlschrank.filter(i => i.id !== id);
                 this.addXp(20);
                 this.renderFridgeTab();
-                this.showToast("Super! Lebensmittel gerettet (+20 XP) 🌿");
+                this.showToast("🌱 Lebensmittel erfolgreich verwertet! +20 XP");
             },
 
             deleteItem(id) {
                 this.state.kuehlschrank = this.state.kuehlschrank.filter(i => i.id !== id);
                 this.renderFridgeTab();
-                this.showToast("Produkt entfernt.");
+                this.showToast("Aus dem Bestand entfernt.");
             },
 
+            // --- CAMERA LIVE SCANNER LOGIC ---
             openScanModal() {
                 document.getElementById('scan-modal').classList.remove('hidden');
                 
-                // Scanner initialisieren & starten
-                this.html5QrcodeScanner = new Html5Qrcode("interactive-camera-feed");
-                this.html5QrcodeScanner.start(
-                    { facingMode: "environment" }, 
-                    {
-                        fps: 10,
-                        qrbox: { width: 250, height: 150 }
-                    },
-                    (decodedText, decodedResult) => {
-                        // Erfolg: Barcode erkannt
-                        this.handleBarcodeDetected(decodedText);
-                    },
-                    (errorMessage) => {
-                        // Kontinuierliche Suche im Kamera-Stream (wird im Hintergrund ignoriert)
+                // Scanner initialisieren und starten
+                setTimeout(() => {
+                    try {
+                        this.html5QrcodeScanner = new Html5Qrcode("interactive-camera-feed");
+                        this.html5QrcodeScanner.start(
+                            { facingMode: "environment" }, 
+                            {
+                                fps: 10,
+                                qrbox: { width: 250, height: 150 } // Optimiert für Barcodes
+                            },
+                            (decodedText, decodedResult) => {
+                                // Erfolg: Code erkannt
+                                this.handleScanSuccess(decodedText);
+                            },
+                            (errorMessage) => {
+                                // Fehler beim Scannen (kann ignoriert werden, da er permanent sucht)
+                            }
+                        ).catch(err => {
+                            console.warn("Kamera konnte nicht gestartet werden: ", err);
+                        });
+                    } catch (e) {
+                        console.error("Scanner Error: ", e);
                     }
-                ).catch(err => {
-                    this.showToast("Kamera-Fehler: Berechtigung fehlt oder blockiert.");
-                    console.error("Scanner Error:", err);
-                });
+                }, 300);
             },
 
             closeScanModal() {
                 document.getElementById('scan-modal').classList.add('hidden');
                 if (this.html5QrcodeScanner) {
                     this.html5QrcodeScanner.stop().then(() => {
-                        document.getElementById('interactive-camera-feed').innerHTML = "";
-                    }).catch(err => console.error(err));
+                        this.html5QrcodeScanner = null;
+                    }).catch(err => console.error("Fehler beim Stoppen der Kamera: ", err));
                 }
             },
 
-            handleBarcodeDetected(code) {
-                // Ein kleines Set von Mock-Produkten passend zu bekannten Codes oder Testeingaben
-                let prodName = "Gescanntes Produkt";
-                let cat = "📦";
-                let tage = 5;
-
-                if (code.endsWith("1") || code.includes("quark")) {
-                    prodName = "Magerquark (500g)";
-                    cat = "🥛";
-                    tage = 3;
-                } else if (code.endsWith("2") || code.includes("tomate")) {
-                    prodName = "Frische Bio-Tomaten";
-                    cat = "🍅";
-                    tage = 4;
-                } else if (code.endsWith("3") || code.includes("milch")) {
-                    prodName = "Frischmilch 3.5%";
-                    cat = "🥛";
-                    tage = 2;
-                }
-
+            handleScanSuccess(code) {
+                this.closeScanModal();
+                // Generiere zufällige Demodaten passend zum gescannten Code
+                const mockProducts = [
+                    { name: "Frischmilch 1L", cat: "🥛", tage: 3 },
+                    { name: "Naturjoghurt", cat: "🥛", tage: 5 },
+                    { name: "Paprika Mix", cat: "🥦", tage: 4 },
+                    { name: "Salatkopf", cat: "🥦", tage: 2 }
+                ];
+                const randomProduct = mockProducts[Math.floor(Math.random() * mockProducts.length)];
+                
                 const newItem = {
                     id: Date.now(),
-                    name: `${prodName} [#${code.slice(-4)}]`,
-                    cat: cat,
-                    tage: tage
+                    name: `${randomProduct.name} (${code.substring(0, 5)})`,
+                    cat: randomProduct.cat,
+                    tage: randomProduct.tage
                 };
-
+                
                 this.state.kuehlschrank.push(newItem);
                 this.addXp(50);
                 this.renderFridgeTab();
-                this.closeScanModal();
-                this.showToast(`🎯 Code ${code} erkannt: ${prodName} eingebucht! (+50 XP)`);
+                this.showToast(`📸 Code ${code} erkannt! ${newItem.name} hinzugefügt! (+50 XP)`);
             },
 
+            simulateScan() {
+                // Ermöglicht das Testen ohne echte Kamera
+                const mockCodes = ["4008400200123", "4105600012345", "4001234567890"];
+                const randomCode = mockCodes[Math.floor(Math.random() * mockCodes.length)];
+                this.handleScanSuccess(randomCode);
+            },
+
+            // --- MANUELLE BUCHUNG ---
             openAddModal() {
                 document.getElementById('add-modal').classList.remove('hidden');
             },
 
             closeAddModal() {
                 document.getElementById('add-modal').classList.add('hidden');
-                document.getElementById('input-name').value = "";
-                document.getElementById('input-days').value = "";
+                document.getElementById('input-name').value = '';
+                document.getElementById('input-days').value = '';
             },
 
             handleFormSubmit(e) {
                 e.preventDefault();
                 const name = document.getElementById('input-name').value.trim();
-                const days = parseInt(document.getElementById('input-days').value) || 3;
+                const tage = parseInt(document.getElementById('input-days').value) || 3;
                 
                 if(!name) return;
 
-                this.state.kuehlschrank.push({
+                const newItem = {
                     id: Date.now(),
                     name: name,
-                    cat: "🍎",
-                    tage: days
-                });
+                    cat: "🍎", // Standard-Icon für manuelle Eintragungen
+                    tage: tage
+                };
 
+                this.state.kuehlschrank.push(newItem);
                 this.addXp(50);
                 this.renderFridgeTab();
                 this.closeAddModal();
-                this.showToast("Produkt manuell eingebucht! (+50 XP)");
-            },
-
-            toggleInfoModal(show) {
-                document.getElementById('info-modal').classList[show ? 'remove' : 'add']('hidden');
+                this.showToast("📥 Produkt manuell eingebucht! +50 XP");
             },
 
             showToast(msg) {
                 const container = document.getElementById('toast-container');
-                const t = document.createElement('div');
-                t.className = "bg-black/95 backdrop-blur-md border border-white/10 text-white text-[11px] font-bold px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 animate-bounce pointer-events-auto transition-all";
-                t.innerHTML = `🌟 <span>${msg}</span>`;
-                container.appendChild(t);
+                const toast = document.createElement('div');
+                toast.className = "bg-black/90 text-white text-[11px] font-bold px-4 py-3 rounded-xl shadow-md backdrop-blur-xs transition-all opacity-0 translate-y-2 pointer-events-auto flex items-center justify-center text-center";
+                toast.innerText = msg;
+                
+                container.appendChild(toast);
                 setTimeout(() => {
-                    t.style.opacity = '0';
-                    setTimeout(() => t.remove(), 300);
+                    toast.classList.remove('opacity-0', 'translate-y-2');
+                }, 50);
+
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => toast.remove(), 300);
                 }, 3000);
             }
         };
 
+        // Starten bei Seitenaufruf
         window.addEventListener('DOMContentLoaded', () => AppEngine.init());
     </script>
 </body>
