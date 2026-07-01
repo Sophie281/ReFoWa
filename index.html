@@ -48,7 +48,7 @@
                 <div class="font-black text-emerald-800 tracking-tight text-base uppercase flex items-center gap-1.5">
                     <i data-lucide="barcode" class="w-5 h-5"></i> ReFoWa
                 </div>
-                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">v1.3.0 Ultimate</div>
+                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">v1.4.0 Gamified</div>
             </div>
             <div class="flex items-center gap-2">
                 <div class="flex items-center gap-1 bg-amber-50 border border-amber-200/60 px-2 py-1 rounded-xl text-xs font-black text-amber-700 shadow-xs">
@@ -73,6 +73,14 @@
                         <p id="dashboard-status-preview" class="text-[11px] text-emerald-600 italic font-medium pt-0.5"></p>
                     </div>
                     <div class="w-12 h-12 bg-emerald-800 text-white rounded-xl flex items-center justify-center text-2xl shadow-md font-bold select-none" id="dashboard-avatar-preview">🍳</div>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-2xl border border-gray-100 shadow-2xs flex justify-between items-center">
+                    <div>
+                        <p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Dein Fortschritt</p>
+                        <p class="text-xs font-black text-gray-800">Level <span class="dash-level-text">1</span> (<span class="dash-xp-text">120</span> / 500 XP)</p>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100">Koche & rette für mehr XP! 🌟</span>
                 </div>
 
                 <button onclick="AppEngine.openScanModal()" class="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-3 shadow-md transition-all active:scale-[0.99]">
@@ -103,7 +111,7 @@
                         <button onclick="AppEngine.switchView('recipes')" class="text-emerald-800 text-xs font-bold hover:underline">Gesamtes Kochbuch</button>
                     </div>
                     <div class="text-xs text-gray-500 font-medium bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs">
-                        Schau im Rezept-Tab vorbei, um deine Reste-Rezepte mit Kochanleitung zu sehen! 🧑‍🍳
+                        Schau im Rezept-Tab vorbei, um deine Reste-Rezepte mit Kochanleitung zu sehen! Kochst du ein Rezept nach, bekommst du **100 XP**! 🧑‍🍳
                     </div>
                 </div>
             </div>
@@ -182,7 +190,16 @@
                 <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs space-y-4">
                     <h3 class="text-sm font-black text-black uppercase tracking-wider border-b pb-2">Profil-Einstellungen</h3>
                     <div class="space-y-4 text-xs font-semibold text-gray-700">
-                        <div class="space-y-1">
+                        
+                        <div class="space-y-2">
+                            <label class="text-black font-extrabold flex items-center gap-2">
+                                <i data-lucide="smile" class="w-4 h-4 text-emerald-800"></i> Avatar auswählen (Klicken zum Wechseln):
+                            </label>
+                            <div id="avatar-selector-grid" class="grid grid-cols-4 gap-2 pt-1">
+                                </div>
+                        </div>
+
+                        <div class="space-y-1 pt-2">
                             <label class="text-black font-extrabold flex items-center gap-2">
                                 <i data-lucide="user-check" class="w-4 h-4 text-emerald-800"></i> Benutzername ändern:
                             </label>
@@ -259,13 +276,12 @@
     </div>
  
     <script>
-        // DATA RECIPES WITH SCALEABLE BALANCES
         const RezepteKochbuch = [
             {
                 id: 1,
                 name: "Rahmspinat-Quark-Pfanne",
                 icon: "🥦",
-                basisPersonen: 2, // Original-Mengen sind für 2 Personen ausgelegt
+                basisPersonen: 2,
                 zutaten: [
                     { name: "Frischer Spinat", menge: 250, einheit: "g" },
                     { name: "Magerquark", menge: 200, einheit: "g" },
@@ -278,7 +294,7 @@
                 id: 2,
                 name: "Süßer Hafer-Quark-Traum",
                 icon: "🥣",
-                basisPersonen: 1, // Original-Mengen für 1 Person
+                basisPersonen: 1,
                 zutaten: [
                     { name: "Haferflocken", menge: 60, einheit: "g" },
                     { name: "Magerquark", menge: 150, einheit: "g" },
@@ -289,13 +305,20 @@
             }
         ];
 
+        // Die 8 verfügbaren Avatare
+        const AvailableAvatars = ["🍳", "🧑‍🍳", "🌱", "🦊", "🥑", "🍕", "🐼", "🚀"];
+
         const AppEngine = {
             state: {
                 kuehlschrank: [
                     { id: 1, name: "Magerquark (500g)", cat: "🥛", tage: 2 },
                     { id: 2, name: "Spinat", cat: "🥦", tage: 4 }
                 ],
-                stats: { xp: 120, streak: 3 },
+                stats: { 
+                    xp: parseInt(localStorage.getItem('refowa_xp')) || 120, 
+                    level: parseInt(localStorage.getItem('refowa_level')) || 1,
+                    streak: 3 
+                },
                 profile: {
                     username: localStorage.getItem('refowa_username') || "EcoRetter",
                     bio: localStorage.getItem('refowa_bio') || "Ich liebe Nachhaltigkeit!",
@@ -307,6 +330,7 @@
 
             init() {
                 this.loadProfileUi();
+                this.renderAvatarSelector();
                 this.renderFridgeTab();
                 this.renderRecipesTab();
                 this.showToast("Willkommen zurück bei ReFoWa!");
@@ -322,17 +346,68 @@
                 document.getElementById(`nav-${viewId}`).classList.replace('text-gray-400', 'text-emerald-800');
             },
 
+            addXp(amount) {
+                this.state.stats.xp += amount;
+                
+                if (this.state.stats.xp >= 500) {
+                    this.state.stats.level += Math.floor(this.state.stats.xp / 500);
+                    this.state.stats.xp = this.state.stats.xp % 500;
+                    this.showToast(`🎉 LEVEL UP! Du bist jetzt Level ${this.state.stats.level}!`);
+                    if(typeof confetti === 'function') confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+                }
+
+                localStorage.setItem('refowa_xp', this.state.stats.xp);
+                localStorage.setItem('refowa_level', this.state.stats.level);
+                this.loadProfileUi();
+            },
+
             loadProfileUi() {
                 const p = this.state.profile;
+                const stats = this.state.stats;
+                
                 document.getElementById('setting-username').value = p.username;
                 document.getElementById('profile-name-title').innerText = p.username;
                 document.getElementById('dashboard-welcome-text').innerText = `Guten Tag, ${p.username}!`;
                 document.getElementById('dashboard-status-preview').innerText = p.status ? `Status: ${p.status}` : '';
                 document.getElementById('profile-avatar-large').innerText = p.avatar;
                 document.getElementById('dashboard-avatar-preview').innerText = p.avatar;
-                document.getElementById('profile-rank-title').innerText = "Nachhaltigkeits-Pionier";
-                document.getElementById('profile-xp-bar').style.width = "45%";
-                document.getElementById('profile-xp-text').innerText = `${this.state.stats.xp} / 500 XP`;
+                
+                document.getElementById('profile-level').innerText = stats.level;
+                document.querySelectorAll('.dash-level-text').forEach(el => el.innerText = stats.level);
+                document.querySelectorAll('.dash-xp-text').forEach(el => el.innerText = stats.xp);
+                
+                let rang = "Nachhaltigkeits-Pionier";
+                if(stats.level >= 3) rang = "Meister-Rettungskoch";
+                if(stats.level >= 5) rang = "Zero-Waste Champion 👑";
+                document.getElementById('profile-rank-title').innerText = rang;
+                
+                const prozent = (stats.xp / 500) * 100;
+                document.getElementById('profile-xp-bar').style.width = `${prozent}%`;
+                document.getElementById('profile-xp-text').innerText = `${stats.xp} / 500 XP`;
+            },
+
+            // NEU: RENDERT DIE AVATAR-LISTE IN DEN EINSTELLUNGEN
+            renderAvatarSelector() {
+                const container = document.getElementById('avatar-selector-grid');
+                const currentAvatar = this.state.profile.avatar;
+
+                container.innerHTML = AvailableAvatars.map(av => {
+                    const isSelected = av === currentAvatar;
+                    return `
+                        <button onclick="AppEngine.selectAvatar('${av}')" class="text-2xl p-2 rounded-xl transition border-2 flex items-center justify-center ${isSelected ? 'bg-emerald-50 border-emerald-600 scale-105 shadow-2xs' : 'bg-gray-50 border-gray-100 hover:border-gray-300'}">
+                            ${av}
+                        </button>
+                    `;
+                }).join('');
+            },
+
+            // NEU: AKTION BEI AVATAR-KLICK
+            selectAvatar(newAvatar) {
+                this.state.profile.avatar = newAvatar;
+                localStorage.setItem('refowa_avatar', newAvatar);
+                this.loadProfileUi();
+                this.renderAvatarSelector();
+                this.showToast(`Avatar erfolgreich zu ${newAvatar} gewechselt!`);
             },
 
             saveProfileData() {
@@ -365,7 +440,12 @@
                                     <p class="text-[10px] font-semibold ${item.tage <= 3 ? 'text-red-600' : 'text-gray-400'}">MHD: noch ${item.tage} Tage</p>
                                 </div>
                             </div>
-                            <button onclick="AppEngine.deleteItem(${item.id})" class="text-gray-300 hover:text-red-600 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <div class="flex items-center gap-1">
+                                <button onclick="AppEngine.rescueItem(${item.id})" class="text-emerald-600 hover:bg-emerald-50 p-1.5 rounded-lg transition" title="Lebensmittel retten (+20 XP)">
+                                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="AppEngine.deleteItem(${item.id})" class="text-gray-300 hover:text-red-600 p-1.5 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
                         </div>
                     `).join('');
                 }
@@ -391,7 +471,6 @@
                 lucide.createIcons();
             },
 
-            // REZEPTE RENDER LOGIK MIT AUTOMATISCHER SKALIERUNG
             renderRecipesTab() {
                 const recipesGrid = document.getElementById('full-recipes-grid');
                 const aktuellePersonen = this.state.selectedServings;
@@ -427,15 +506,36 @@
                                 <p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Zubereitung:</p>
                                 <p class="text-xs font-semibold text-gray-600 leading-relaxed">${rezept.anleitung}</p>
                             </div>
+
+                            <button onclick="AppEngine.cookRecipe('${rezept.name}')" class="w-full mt-2 bg-emerald-800 hover:bg-emerald-950 text-white p-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors">
+                                <i data-lucide="cooking-pot" class="w-4 h-4"></i> Rezept koche ich nach (+100 XP)
+                            </button>
                         </div>
                     `;
                 }).join('');
+                lucide.createIcons();
             },
 
             changeServings(val) {
                 this.state.selectedServings = parseInt(val, 10);
                 this.renderRecipesTab();
                 this.showToast(`Mengen für ${val} Personen berechnet!`);
+            },
+
+            rescueItem(id) {
+                const item = this.state.kuehlschrank.find(i => i.id === id);
+                const name = item ? item.name : "Lebensmittel";
+                this.state.kuehlschrank = this.state.kuehlschrank.filter(i => i.id !== id);
+                this.renderFridgeTab();
+                this.addXp(20);
+                this.showToast(`Super! ${name} gerettet. (+20 XP)`);
+                if(typeof confetti === 'function') confetti({ particleCount: 20, spread: 40 });
+            },
+
+            cookRecipe(recipeName) {
+                this.addXp(100);
+                this.showToast(`Guten Appetit! "${recipeName}" gekocht. (+100 XP)`);
+                if(typeof confetti === 'function') confetti({ particleCount: 45, spread: 60 });
             },
 
             deleteItem(id) {
@@ -458,7 +558,8 @@
                 
                 this.renderFridgeTab();
                 this.closeAddModal();
-                this.showToast("+50 XP gebucht!");
+                this.addXp(50);
+                this.showToast("+50 XP für Einbuchung!");
                 if(typeof confetti === 'function') confetti({ particleCount: 30, spread: 60 });
             },
 
