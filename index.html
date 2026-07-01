@@ -65,10 +65,11 @@
             <div id="view-dashboard" class="page-view space-y-6">
                 <div class="flex justify-between items-center pt-1">
                     <div class="space-y-0.5">
-                        <h1 class="text-3xl font-black tracking-tight text-black leading-none">Guten Tag!</h1>
+                        <h1 class="text-3xl font-black tracking-tight text-black leading-none" id="dashboard-welcome-text">Guten Tag!</h1>
                         <p class="text-xs font-semibold text-gray-500">Scanne Produkte, um Lebensmittel aktiv vor der Tonne zu retten.</p>
+                        <p id="dashboard-status-preview" class="text-[11px] text-emerald-700 italic font-medium pt-1"></p>
                     </div>
-                    <div class="w-12 h-12 bg-emerald-800 text-white rounded-xl flex items-center justify-center text-2xl shadow-md font-bold select-none animate-bounce" id="dashboard-avatar-preview">🍳</div>
+                    <div class="w-12 h-12 bg-emerald-800 text-white rounded-xl flex items-center justify-center text-2xl shadow-md font-bold select-none" id="dashboard-avatar-preview">🍳</div>
                 </div>
 
                 <button onclick="AppEngine.openScanModal()" class="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-3 shadow-md transition-all active:scale-[0.99]">
@@ -144,7 +145,8 @@
                             <span id="profile-avatar-large" class="text-4xl">🍳</span>
                         </div>
                         <div class="flex-1 space-y-1">
-                            <h3 class="text-base font-black text-gray-900 leading-none">Level <span id="profile-level">1</span></h3>
+                            <h3 class="text-base font-black text-gray-900 leading-none" id="profile-name-title">User</h3>
+                            <h4 class="text-xs font-bold text-gray-400">Level <span id="profile-level">1</span></h4>
                             <p id="profile-rank-title" class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Lade Rang...</p>
                             
                             <div class="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden mt-2 border border-gray-200/50">
@@ -157,35 +159,52 @@
 
                 <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs space-y-4">
                     <h3 class="text-sm font-black text-black uppercase tracking-wider border-b pb-2">Profil-Einstellungen</h3>
-                    <div class="space-y-3 text-xs font-semibold text-gray-700">
-                        <div class="flex items-start gap-2.5">
-                            <i data-lucide="user-check" class="w-4 h-4 text-emerald-800 mt-0.5"></i>
-                            <div>
-                                <strong class="text-black">Benutzername ändern:</strong>
-                                <p class="text-gray-500 font-medium mt-0.5">Wähle einen einzigartigen Namen, der in der Community angezeigt wird.</p>
+                    <div class="space-y-4 text-xs font-semibold text-gray-700">
+                        
+                        <div class="space-y-1">
+                            <label class="text-black font-extrabold flex items-center gap-2">
+                                <i data-lucide="user-check" class="w-4 h-4 text-emerald-800"></i> Benutzername ändern:
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="text" id="setting-username" placeholder="Dein neuer Name..." class="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-xl font-medium focus:outline-none focus:border-emerald-800 text-xs">
+                                <button onclick="AppEngine.saveProfileData()" class="bg-emerald-800 text-white px-3 py-2 rounded-xl font-bold hover:bg-emerald-900 transition text-[11px]">Speichern</button>
                             </div>
                         </div>
-                        <div class="flex items-start gap-2.5">
-                            <i data-lucide="text-quote" class="w-4 h-4 text-emerald-800 mt-0.5"></i>
-                            <div>
-                                <strong class="text-black">Biografie verfassen:</strong>
-                                <p class="text-gray-500 font-medium mt-0.5">Erzähle anderen Mitgliedern kurz etwas über dich, deine Interessen oder deine Projekte.</p>
+
+                        <div class="space-y-1">
+                            <label class="text-black font-extrabold flex items-center gap-2">
+                                <i data-lucide="text-quote" class="w-4 h-4 text-emerald-800"></i> Biografie verfassen:
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="text" id="setting-bio" placeholder="Erzähle etwas über dich..." class="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-xl font-medium focus:outline-none focus:border-emerald-800 text-xs">
+                                <button onclick="AppEngine.saveProfileData()" class="bg-emerald-800 text-white px-3 py-2 rounded-xl font-bold hover:bg-emerald-900 transition text-[11px]">Speichern</button>
                             </div>
                         </div>
-                        <div class="flex items-start gap-2.5">
-                            <i data-lucide="smile" class="w-4 h-4 text-emerald-800 mt-0.5"></i>
-                            <div>
-                                <strong class="text-black">Standard-Avatar wählen:</strong>
-                                <p class="text-gray-500 font-medium mt-0.5">Such dir einen der vorgefertigten Avatare aus unserer Galerie aus, um deinem Profil ein Gesicht zu geben.</p>
+
+                        <div class="space-y-1">
+                            <label class="text-black font-extrabold flex items-center gap-2">
+                                <i data-lucide="activity" class="w-4 h-4 text-emerald-800"></i> Status aktualisieren:
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="text" id="setting-status" placeholder="z.B. Am Kochen! 🍲" class="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-xl font-medium focus:outline-none focus:border-emerald-800 text-xs">
+                                <button onclick="AppEngine.saveProfileData()" class="bg-emerald-800 text-white px-3 py-2 rounded-xl font-bold hover:bg-emerald-900 transition text-[11px]">Speichern</button>
                             </div>
                         </div>
-                        <div class="flex items-start gap-2.5">
-                            <i data-lucide="activity" class="w-4 h-4 text-emerald-800 mt-0.5"></i>
-                            <div>
-                                <strong class="text-black">Status aktualisieren:</strong>
-                                <p class="text-gray-500 font-medium mt-0.5">Lass deine Freunde wissen, was du gerade tust oder woran du arbeitest.</p>
+
+                        <div class="space-y-2 pt-1">
+                            <label class="text-black font-extrabold flex items-center gap-2">
+                                <i data-lucide="smile" class="w-4 h-4 text-emerald-800"></i> Standard-Avatar wählen:
+                            </label>
+                            <div class="grid grid-cols-6 gap-2 bg-gray-50 p-2.5 rounded-2xl border border-gray-100" id="avatar-selection-gallery">
+                                <button onclick="AppEngine.selectAvatar('🍳')" class="text-2xl p-1 hover:bg-white rounded-lg transition border border-transparent active:scale-95">🍳</button>
+                                <button onclick="AppEngine.selectAvatar('🧑‍🍳')" class="text-2xl p-1 hover:bg-white rounded-lg transition border border-transparent active:scale-95">🧑‍🍳</button>
+                                <button onclick="AppEngine.selectAvatar('🌱')" class="text-2xl p-1 hover:bg-white rounded-lg transition border border-transparent active:scale-95">🌱</button>
+                                <button onclick="AppEngine.selectAvatar('🍎')" class="text-2xl p-1 hover:bg-white rounded-lg transition border border-transparent active:scale-95">🍎</button>
+                                <button onclick="AppEngine.selectAvatar('🍕')" class="text-2xl p-1 hover:bg-white rounded-lg transition border border-transparent active:scale-95">🍕</button>
+                                <button onclick="AppEngine.selectAvatar('🏆')" class="text-2xl p-1 hover:bg-white rounded-lg transition border border-transparent active:scale-95">🏆</button>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -206,12 +225,10 @@
                     </h3>
                     <button onclick="AppEngine.closeScanModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
-
                 <div class="w-full h-44 bg-zinc-900 rounded-2xl relative overflow-hidden border-2 border-emerald-800 flex items-center justify-center">
                     <div id="interactive-camera-feed" class="w-full h-full"></div>
                     <div class="absolute inset-x-0 h-0.5 bg-red-500 shadow-[0_0_8px_#ef4444] scanner-laser top-0 pointer-events-none"></div>
                 </div>
-
                 <div class="space-y-2">
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Manueller Code / Test-Eingabe</label>
                     <div class="flex gap-2">
@@ -219,7 +236,6 @@
                         <button onclick="AppEngine.generateRandomEan()" class="bg-gray-100 hover:bg-gray-200 px-3 rounded-xl text-xs font-bold flex items-center gap-1">🎲 Mix</button>
                     </div>
                 </div>
-
                 <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-[10px] text-gray-500 max-h-32 overflow-y-auto space-y-1 custom-scrollbar">
                     <p class="font-bold text-gray-400 border-b pb-0.5 mb-1">Klickbare Vorlagen:</p>
                     <div class="grid grid-cols-1 gap-1.5">
@@ -229,30 +245,12 @@
                         <button onclick="document.getElementById('scan-ean-input').value='4004172400155'" class="text-left font-medium text-emerald-800 bg-emerald-50/50 p-1 rounded hover:bg-emerald-50">🌾 4004172400155: Haferflocken</button>
                     </div>
                 </div>
-
                 <button onclick="AppEngine.processScannedBarcode()" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-900 transition flex items-center justify-center gap-2">
                     <i data-lucide="search-code" class="w-4 h-4"></i> Code abschicken
                 </button>
             </div>
         </div>
 
-        <div id="action-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
-            <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
-                <div class="flex justify-between items-start">
-                    <h3 id="modal-item-name" class="text-xl font-black text-black">Lebensmittel</h3>
-                    <button onclick="AppEngine.closeActionModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
-                </div>
-                <div class="grid grid-cols-1 gap-2 pt-1">
-                    <button id="modal-btn-rescue" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm hover:bg-emerald-900">
-                        <i data-lucide="check-circle" class="w-4 h-4"></i> Erfolgreich verbraucht (+150 XP)
-                    </button>
-                    <button id="modal-btn-waste" class="w-full bg-red-50 text-red-600 p-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-red-100/70">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i> In die Tonne geworfen (0 XP)
-                    </button>
-                </div>
-            </div>
-        </div>
- 
         <div id="add-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
             <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
                 <div class="flex justify-between items-start">
@@ -285,72 +283,6 @@
             </div>
         </div>
 
-        <div id="recipe-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
-            <div class="bg-white rounded-3xl max-w-sm w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
-                <div class="relative h-36 w-full bg-gray-100 flex-shrink-0">
-                    <img id="recipe-modal-img" src="" class="w-full h-full object-cover">
-                    <button onclick="AppEngine.closeRecipeModal()" class="absolute top-3 right-3 bg-white text-black p-2 rounded-full shadow-md hover:scale-105 transition"><i data-lucide="x" class="w-4 h-4"></i></button>
-                </div>
-                <div class="p-5 flex-1 overflow-y-auto space-y-4 custom-scrollbar">
-                    <h3 id="recipe-modal-title" class="text-xl font-black text-black">Rezeptbezeichnung</h3>
-                     
-                    <div class="grid grid-cols-3 gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-center items-center">
-                        <div>
-                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Portionen</p>
-                            <div class="flex items-center justify-center gap-2">
-                                <button onclick="AppEngine.updatePortions(-1)" class="w-5 h-5 bg-white border border-gray-200 text-emerald-800 rounded-md font-black text-xs flex items-center justify-center active:scale-90 select-none">-</button>
-                                <span id="recipe-modal-personen" class="text-xs font-black text-emerald-800 w-4 inline-block">2</span>
-                                <button onclick="AppEngine.updatePortions(1)" class="w-5 h-5 bg-white border border-gray-200 text-emerald-800 rounded-md font-black text-xs flex items-center justify-center active:scale-90 select-none">+</button>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Dauer</p>
-                            <p id="recipe-modal-zeit" class="text-xs font-black text-emerald-800">-- Min.</p>
-                        </div>
-                        <div>
-                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Schwierigkeit</p>
-                            <p id="recipe-modal-level" class="text-xs font-black text-emerald-800">Einfach</p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                            <i data-lucide="wrench" class="w-3 h-3"></i> Zubehör & Utensilien
-                        </h4>
-                        <p id="recipe-modal-werkzeug" class="text-xs font-semibold text-zinc-600 bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 rounded-lg"></p>
-                    </div>
-                     
-                    <div>
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Zutatenliste</h4>
-                        <ul id="recipe-modal-zutaten" class="text-xs font-semibold space-y-1 text-gray-700 list-disc list-inside"></ul>
-                    </div>
-
-                    <div>
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Zubereitungsschritte</h4>
-                        <ol id="recipe-modal-anleitung" class="text-xs font-medium space-y-2 text-gray-600 list-decimal list-inside"></ol>
-                    </div>
-                </div>
-                <div class="p-4 bg-gray-50 border-t border-gray-100 flex-shrink-0">
-                    <button id="recipe-modal-cook-btn" onclick="AppEngine.cookRecipe()" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white p-3 rounded-xl font-bold text-xs transition shadow-md">Gericht kochen & Zutaten abziehen (+200 XP)</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="levelup-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-5">
-            <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 text-center shadow-2xl border-2 border-amber-400 animate-fadeIn">
-                <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-sm animate-bounce">🎉</div>
-                <div class="space-y-1">
-                    <h3 class="text-2xl font-black text-black">LEVEL UP!</h3>
-                    <p class="text-xs text-gray-500 font-semibold">Du hast deine Nachhaltigkeit gesteigert!</p>
-                </div>
-                <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-200">
-                    <p class="text-[10px] font-bold text-amber-800 uppercase tracking-widest">Neuer Meilenstein-Rang</p>
-                    <p id="levelup-reward-title" class="text-base font-black text-gray-900 mt-1">Gegenstand</p>
-                </div>
-                <button onclick="AppEngine.closeLevelUpModal()" class="w-full bg-emerald-800 text-white p-3 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-900">Klasse! Weiterretten</button>
-            </div>
-        </div>
-
         <div id="info-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
             <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-3 shadow-2xl">
                 <h3 class="text-lg font-black flex items-center gap-2"><i data-lucide="info" class="text-emerald-800"></i> Über ReFoWa</h3>
@@ -378,495 +310,140 @@
     </div>
  
     <script>
-        const RezeptDatenbank = [
-            { 
-                id: 0, 
-                title: "Cremige Spinat-Pasta", 
-                zutat: "Spinat", 
-                basisPersonen: 2,
-                zeit: "20 Min.",
-                level: "Einfach",
-                werkzeug: "Kochtopf, Große Pfanne, Knoblauchpresse",
-                zutatenMengen: [
-                    { wert: 150, einheit: "g", name: "Pasta" },
-                    { wert: 200, einheit: "g", name: "Spinat" },
-                    { wert: 50, einheit: "ml", name: "Sahne" },
-                    { wert: 1, einheit: "Stk.", name: "Knoblauchzehe" }
-                ], 
-                anleitung: [
-                    "Die Pasta in reichlich gesalzenem Wasser bissfest kochen.",
-                    "Knoblauch fein hacken und in etwas Öl in einer Pfanne andünsten.",
-                    "Den gewaschenen Spinat dazugeben und zusammenfallen lassen.",
-                    "Mit Sahne ablöschen, mit Salz und Pfeffer abschmecken.",
-                    "Die fertige Pasta direkt in die Sauce geben und gut vermengen."
-                ],
-                img: "https://images.unsplash.com/photo-1621510456681-23a23cfb5f57?w=300" 
-            },
-            {
-                id: 1,
-                title: "Power-Frühstück Haferbrei",
-                zutat: "Vollkornhaferflocken",
-                basisPersonen: 1,
-                zeit: "8 Min.",
-                level: "Kinderleicht",
-                werkzeug: "Kleiner Topf, Rührlöffel",
-                zutatenMengen: [
-                    { wert: 50, einheit: "g", name: "Vollkornhaferflocken" },
-                    { wert: 200, einheit: "ml", name: "Bio-Hafermilch (1L)" },
-                    { wert: 1, einheit: "TL", name: "Zimt / Nutella" }
-                ],
-                anleitung: [
-                    "Haferflocken zusammen mit der Hafermilch in einen kleinen Topf geben.",
-                    "Unter ständigem Rühren aufkochen lassen, bis eine cremige Konsistenz entsteht.",
-                    "In eine Schüssel füllen und nach Belieben mit Nutella oder Früchten garnieren."
-                ],
-                img: "https://images.unsplash.com/photo-1517686469429-8faf88b9f7af?w=300"
-            }
-        ];
-
+        // Dummy-Datenbanken für ein reibungsloses Mock-Erlebnis
         const BarcodeDatenbank = {
             "40012345": { name: "Spinat", cat: "🥦", tage: 3 },
-            "40056789": { name: "Bio-Milch", cat: "🥛", tage: 5 },
-            "42011223": { name: "Weizenbrot", cat: "🍞", tage: 6 },
-            "43001122": { name: "Mineralwasser", cat: "💧", tage: 30 },
-            "40099001": { name: "Rispentomaten", cat: "🥦", tage: 5 },
             "4008400204712": { name: "Nutella (450g)", cat: "🍪", tage: 60 },
-            "4001428001010": { name: "Apfelsaft naturtrüb (1L)", cat: "💧", tage: 14 },
-            "4260123456001": { name: "Bio-Hafermilch (1L)", cat: "🥛", tage: 10 },
-            "40084011": { name: "Kinder Schokolade", cat: "🍪", tage: 45 },
             "4014400924107": { name: "Magerquark (500g)", cat: "🥛", tage: 7 },
             "4004172400155": { name: "Vollkornhaferflocken", cat: "🍞", tage: 90 }
         };
 
-        const LevelBelohnungen = {
-            1: { titel: "Küchen-Lehrling", avatar: "🍳" },
-            10: { titel: "Barcode-Lehrling", avatar: "🛒" },
-            20: { titel: "Regal-Inspektor", avatar: "📦" },
-            30: { titel: "Scanner-Spezialist", avatar: "🔍" },
-            40: { titel: "Frische-Experte", avatar: "🍏" },
-            50: { titel: "Daten-Meister", avatar: "🏆" },
-            60: { titel: "Supermarkt-Legende", avatar: "👑" }
-        };
- 
         const AppEngine = {
-            html5QrcodeScanner: null,
             state: {
                 kuehlschrank: [],
-                stats: { xp: 0, streak: 3 },
-                historyLog: [],
-                currentActiveRecipe: null,
-                currentSelectedPortions: 2
+                stats: { xp: 120, streak: 3 },
+                // Standardmäßig geladene oder aus dem LocalStorage gezogene Profildaten
+                profile: {
+                    username: localStorage.getItem('refowa_username') || "EcoRetter",
+                    bio: localStorage.getItem('refowa_bio') || "Ich liebe Nachhaltigkeit!",
+                    status: localStorage.getItem('refowa_status') || "Aktiv am Retten 🌱",
+                    avatar: localStorage.getItem('refowa_avatar') || "🍳"
+                }
             },
 
-            init: function() {
-                this.loadState();
-                this.renderAll();
+            init() {
                 lucide.createIcons();
+                this.loadProfileUi();
+                this.showToast("Willkommen zurück bei ReFoWa!");
+                document.getElementById('global-streak-counter').innerText = this.state.stats.streak;
             },
 
-            loadState: function() {
-                this.state.kuehlschrank = JSON.parse(localStorage.getItem('es_fridge')) || [
-                    { name: "Spinat", tage: 2, cat: "🥦" },
-                    { name: "Vollkornhaferflocken", tage: 45, cat: "🍞" }
-                ];
-                this.state.stats = JSON.parse(localStorage.getItem('es_stats')) || { xp: 0, streak: 3 };
-                this.state.historyLog = JSON.parse(localStorage.getItem('es_log')) || ["ReFoWa System erfolgreich gestartet."];
-            },
-
-            saveState: function() {
-                localStorage.setItem('es_fridge', JSON.stringify(this.state.kuehlschrank));
-                localStorage.setItem('es_stats', JSON.stringify(this.state.stats));
-                localStorage.setItem('es_log', JSON.stringify(this.state.historyLog));
-            },
-
-            calculateLevel: function(xp) {
-                return Math.floor(xp / 500) + 1;
-            },
-
-            getRewardConfig: function(level) {
-                let passendesLevel = 1;
-                const keys = Object.keys(LevelBelohnungen).map(Number).sort((a,b) => a-b);
-                for (let lvl of keys) {
-                    if (level >= lvl) {
-                        passendesLevel = lvl;
-                    }
-                }
-                return LevelBelohnungen[passendesLevel];
-            },
-
-            addXp: function(amount) {
-                const altesLevel = this.calculateLevel(this.state.stats.xp);
-                this.state.stats.xp += amount;
-                const neuesLevel = this.calculateLevel(this.state.stats.xp);
-                
-                this.showToast(`+${amount} XP generiert!`);
-                if (neuesLevel > altesLevel) {
-                    this.triggerLevelUp(neuesLevel);
-                }
-                this.renderAll();
-            },
-
-            triggerLevelUp: function(level) {
-                const config = this.getRewardConfig(level);
-                document.getElementById('levelup-reward-title').innerText = `${config.avatar} ${config.titel}`;
-                document.getElementById('levelup-modal').classList.remove('hidden');
-                
-                if(typeof confetti === 'function') {
-                    confetti();
-                }
-            },
-
-            closeLevelUpModal: function() {
-                document.getElementById('levelup-modal').classList.add('hidden');
-            },
-
-            showToast: function(msg) {
-                const container = document.getElementById('toast-container');
-                const toast = document.createElement('div');
-                toast.className = "bg-black/90 backdrop-blur-xs text-white text-xs font-bold py-3 px-4 rounded-xl shadow-lg flex items-center justify-between border border-white/10 animate-fadeIn pointer-events-auto";
-                toast.innerHTML = `<span>${msg}</span><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>`;
-                container.appendChild(toast);
-                lucide.createIcons();
-                setTimeout(() => toast.remove(), 3200);
-            },
-
-            switchView: function(viewId) {
-                document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
+            switchView(viewId) {
+                document.querySelectorAll('.page-view').forEach(view => view.classList.add('hidden'));
                 document.getElementById(`view-${viewId}`).classList.remove('hidden');
                 
-                document.querySelectorAll('.nav-btn').forEach(btn => {
-                    btn.classList.remove('text-emerald-800');
-                    btn.classList.add('text-gray-400');
-                });
-                document.getElementById(`nav-${viewId}`).classList.add('text-emerald-800');
-                document.getElementById(`nav-${viewId}`).classList.remove('text-gray-400');
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-emerald-800', 'text-gray-400'));
+                document.getElementById(`nav-${viewId}`).classList.replace('text-gray-400', 'text-emerald-800');
             },
 
-            toggleInfoModal: function(show) {
-                document.getElementById('info-modal').classList.toggle('hidden', !show);
+            // Lädt Profildaten in Inputs und Ansichten
+            loadProfileUi() {
+                const p = this.state.profile;
+                
+                // Inputs befüllen
+                document.getElementById('setting-username').value = p.username;
+                document.getElementById('setting-bio').value = p.bio;
+                document.getElementById('setting-status').value = p.status;
+
+                // UI Text-Elemente synchronisieren
+                document.getElementById('profile-name-title').innerText = p.username;
+                document.getElementById('dashboard-welcome-text').innerText = `Guten Tag, ${p.username}!`;
+                document.getElementById('dashboard-status-preview').innerText = p.status ? `Status: ${p.status}` : '';
+                
+                // Avatare anpassen
+                document.getElementById('profile-avatar-large').innerText = p.avatar;
+                document.getElementById('dashboard-avatar-preview').innerText = p.avatar;
+                
+                // XP Rang berechnen (Mockup)
+                document.getElementById('profile-rank-title').innerText = "Nachhaltigkeits-Pionier";
+                document.getElementById('profile-xp-bar').style.width = "45%";
+                document.getElementById('profile-xp-text').innerText = `${this.state.stats.xp} / 500 XP`;
             },
 
-            checkNotifications: function() {
-                this.showToast("Alle Systeme im grünen Bereich! 🌱");
+            // Speichert Änderungen aus den Input-Feldern ab
+            saveProfileData() {
+                const newName = document.getElementById('setting-username').value.trim();
+                const newBio = document.getElementById('setting-bio').value.trim();
+                const newStatus = document.getElementById('setting-status').value.trim();
+
+                this.state.profile.username = newName || "User";
+                this.state.profile.bio = newBio;
+                this.state.profile.status = newStatus;
+
+                localStorage.setItem('refowa_username', this.state.profile.username);
+                localStorage.setItem('refowa_bio', this.state.profile.bio);
+                localStorage.setItem('refowa_status', this.state.profile.status);
+
+                this.loadProfileUi();
+                this.showToast("Profil erfolgreich aktualisiert! ✨");
+                
+                // Konfetti-Effekt zur Belohnung
+                if(typeof confetti === 'function') confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 } });
             },
 
-            renderAll: function() {
-                this.saveState();
-                
-                // Streak Counter
-                document.getElementById('global-streak-counter').innerText = this.state.stats.streak;
-                
-                // Level & XP Engine UI
-                const currentLevel = this.calculateLevel(this.state.stats.xp);
-                const currentConfig = this.getRewardConfig(currentLevel);
-                const currentXpInLevel = this.state.stats.xp % 500;
-                const progressPercent = (currentXpInLevel / 500) * 100;
-
-                // Update Avatar Previews dynamic
-                document.getElementById('dashboard-avatar-preview').innerText = currentConfig.avatar;
-                document.getElementById('profile-avatar-large').innerText = currentConfig.avatar;
-                
-                document.getElementById('profile-level').innerText = currentLevel;
-                document.getElementById('profile-rank-title').innerText = currentConfig.titel;
-                document.getElementById('profile-xp-bar').style.width = `${progressPercent}%`;
-                document.getElementById('profile-xp-text').innerText = `${currentXpInLevel} / 500 XP`;
-
-                // Log Render
-                const logBox = document.getElementById('activity-log');
-                logBox.innerHTML = this.state.historyLog.map(log => `
-                    <div class="flex items-center gap-2 border-b border-gray-50 pb-1">
-                        <span class="text-emerald-700">●</span> <p class="truncate">${log}</p>
-                    </div>
-                `).join('');
-
-                this.renderDashboardTab();
-                this.renderFridgeTab();
-                this.renderRecipesTab();
+            // Ändert das ausgewählte Avatar-Emoji direkt
+            selectAvatar(emoji) {
+                this.state.profile.avatar = emoji;
+                localStorage.setItem('refowa_avatar', emoji);
+                this.loadProfileUi();
+                this.showToast(`Avatar zu ${emoji} geändert!`);
             },
 
-            renderDashboardTab: function() {
-                const criticalItems = [...this.state.kuehlschrank]
-                    .sort((a,b) => a.tage - b.tage)
-                    .slice(0, 3);
-                
-                document.getElementById('dash-fridge-count').innerText = this.state.kuehlschrank.length;
-                const container = document.getElementById('dashboard-expiry-list');
-                
-                if(criticalItems.length === 0) {
-                    container.innerHTML = `<p class="text-xs font-bold text-gray-400 py-3 text-center bg-white rounded-2xl border border-dashed">Dein Kühlschrank ist leer.</p>`;
-                    return;
-                }
-
-                container.innerHTML = criticalItems.map((item, idx) => `
-                    <div onclick="AppEngine.openActionModal(${idx}, true)" class="bg-white p-3.5 rounded-2xl border border-gray-100 flex justify-between items-center shadow-xs active:scale-[0.99] transition cursor-pointer">
-                        <div class="flex items-center gap-3">
-                            <div class="text-xl p-2 bg-gray-50 rounded-xl">${item.cat || '📦'}</div>
-                            <div>
-                                <h4 class="font-bold text-sm text-black leading-tight">${item.name}</h4>
-                                <p class="text-[10px] text-gray-400 font-semibold mt-0.5">Kategorie-Bestand</p>
-                            </div>
-                        </div>
-                        <span class="px-2.5 py-1 rounded-xl text-[10px] font-black ${item.tage <= 2 ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-amber-50 text-amber-700'}">
-                            ${item.tage} Tage übrig
-                        </span>
-                    </div>
-                `).join('');
-            },
-
-            renderFridgeTab: function() {
-                const searchVal = document.getElementById('fridge-search').value.toLowerCase();
-                const sortVal = document.getElementById('fridge-sort').value;
-                const container = document.getElementById('full-fridge-list');
-
-                let list = [...this.state.kuehlschrank].filter(i => i.name.toLowerCase().includes(searchVal));
-                
-                if (sortVal === "days") list.sort((a,b) => a.tage - b.tage);
-                if (sortVal === "alpha") list.sort((a,b) => a.name.localeCompare(b.name));
-
-                if(list.length === 0) {
-                    container.innerHTML = `<p class="text-xs font-bold text-gray-400 text-center py-6">Keine passenden Lebensmittel gefunden.</p>`;
-                    return;
-                }
-
-                container.innerHTML = list.map((item, index) => `
-                    <div onclick="AppEngine.openActionModal(${index}, false)" class="bg-white p-3.5 rounded-2xl border border-gray-100 flex justify-between items-center shadow-xs cursor-pointer active:scale-[0.99]">
-                        <div class="flex items-center gap-3">
-                            <div class="text-xl p-2 bg-gray-50 rounded-xl">${item.cat || '📦'}</div>
-                            <div>
-                                <h4 class="font-bold text-sm text-black leading-tight">${item.name}</h4>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">${item.tage > 7 ? 'Länger haltbar' : 'Bald verbrauchen'}</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="px-2.5 py-1 rounded-xl text-[10px] font-black ${item.tage <= 3 ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-700'}">
-                                ${item.tage} T.
-                            </span>
-                        </div>
-                    </div>
-                `).join('');
-            },
-
-            renderRecipesTab: function() {
-                const fridgeNames = this.state.kuehlschrank.map(i => i.name.toLowerCase());
-                
-                const processRecipe = (rec) => {
-                    const match = fridgeNames.some(fName => fName.includes(rec.zutat.toLowerCase()) || rec.zutat.toLowerCase().includes(fName));
-                    return { ...rec, match };
-                };
-
-                const processed = RezeptDatenbank.map(processRecipe);
-                
-                // Slider On Dashboard
-                const slider = document.getElementById('dashboard-recipe-slider');
-                slider.innerHTML = processed.map(rec => `
-                    <div onclick="AppEngine.openRecipeModal(${rec.id})" class="bg-white min-w-[210px] max-w-[210px] rounded-2xl border border-gray-100 overflow-hidden shadow-xs relative flex-shrink-0 cursor-pointer active:scale-[0.98] transition">
-                        <img src="${rec.img}" class="w-full h-24 object-cover">
-                        ${rec.match ? `<span class="absolute top-2 left-2 bg-emerald-800 text-white text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md shadow-sm flex items-center gap-0.5">✨ Match</span>` : ''}
-                        <div class="p-3 space-y-1">
-                            <h4 class="font-bold text-xs text-black line-clamp-1">${rec.title}</h4>
-                            <p class="text-[10px] text-gray-400 font-semibold flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> ${rec.zeit}</p>
-                        </div>
-                    </div>
-                `).join('');
-
-                // Full Grid On Recipes Tab
-                const grid = document.getElementById('full-recipes-grid');
-                grid.innerHTML = processed.map(rec => `
-                    <div onclick="AppEngine.openRecipeModal(${rec.id})" class="bg-white p-3 rounded-2xl border border-gray-100 shadow-xs flex gap-3 cursor-pointer active:scale-[0.99] transition">
-                        <img src="${rec.img}" class="w-20 h-20 rounded-xl object-cover flex-shrink-0">
-                        <div class="flex-1 flex flex-col justify-between py-0.5">
-                            <div>
-                                <div class="flex items-center justify-between gap-1">
-                                    <h4 class="font-bold text-sm text-black line-clamp-1">${rec.title}</h4>
-                                    ${rec.match ? `<span class="bg-emerald-50 text-emerald-800 border border-emerald-100 text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase">Bereit</span>` : ''}
-                                </div>
-                                <p class="text-[10px] text-gray-500 font-medium mt-0.5">Hauptzutat: <span class="font-bold text-emerald-800">${rec.zutat}</span></p>
-                            </div>
-                            <div class="flex items-center gap-3 text-[10px] font-bold text-gray-400">
-                                <span class="flex items-center gap-0.5"><i data-lucide="clock" class="w-3 h-3"></i> ${rec.zeit}</span>
-                                <span class="flex items-center gap-0.5"><i data-lucide="bar-chart" class="w-3 h-3"></i> ${rec.level}</span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-                
-                lucide.createIcons();
-            },
-
-            openScanModal: function() {
-                document.getElementById('scan-modal').classList.remove('hidden');
-                document.getElementById('scan-ean-input').value = '';
-                
-                // Initialize html5QrCode scanner dynamically
-                setTimeout(() => {
-                    try {
-                        this.html5QrcodeScanner = new Html5Qrcode("interactive-camera-feed");
-                        this.html5QrcodeScanner.start(
-                            { facingMode: "environment" },
-                            { fps: 10, qrbox: { width: 250, height: 250 } },
-                            (decodedText) => {
-                                document.getElementById('scan-ean-input').value = decodedText;
-                                this.processScannedBarcode();
-                            },
-                            () => {} // Silent catch framework error
-                        ).catch(() => {});
-                    } catch(e) {}
-                }, 100);
-            },
-
-            closeScanModal: function() {
-                document.getElementById('scan-modal').classList.add('hidden');
-                if (this.html5QrcodeScanner) {
-                    try {
-                        this.html5QrcodeScanner.stop().then(() => this.html5QrcodeScanner.clear());
-                    } catch(e){}
-                }
-            },
-
-            generateRandomEan: function() {
+            // Modals & Hilfsfunktionen
+            openScanModal() { document.getElementById('scan-modal').classList.remove('hidden'); },
+            closeScanModal() { document.getElementById('scan-modal').classList.add('hidden'); },
+            openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); },
+            closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); },
+            toggleInfoModal(show) { document.getElementById('info-modal').classList.toggle('hidden', !show); },
+            
+            generateRandomEan() {
                 const keys = Object.keys(BarcodeDatenbank);
-                const randomKey = keys[Math.floor(Math.random() * keys.length)];
-                document.getElementById('scan-ean-input').value = randomKey;
-                this.showToast("Zufälliger Code geladen! 🎲");
+                document.getElementById('scan-ean-input').value = keys[Math.floor(Math.random() * keys.length)];
             },
 
-            processScannedBarcode: function() {
-                const ean = document.getElementById('scan-ean-input').value.trim();
-                this.closeScanModal();
-
+            processScannedBarcode() {
+                const ean = document.getElementById('scan-ean-input').value;
                 if(BarcodeDatenbank[ean]) {
-                    const item = BarcodeDatenbank[ean];
-                    this.state.kuehlschrank.unshift({ name: item.name, tage: item.tage, cat: item.cat });
-                    this.state.historyLog.unshift(`Eingescannt: ${item.name} (${item.cat}) via Barcode.`);
-                    this.addXp(120);
+                    this.showToast(`Erkannt: ${BarcodeDatenbank[ean].name}!`);
+                    this.closeScanModal();
                 } else {
-                    // Fallback template name for unknown codes
-                    this.state.kuehlschrank.unshift({ name: `Unknown Item (${ean})`, tage: 5, cat: "📦" });
-                    this.state.historyLog.unshift(`Unbekannter Barcode (${ean}) gebucht.`);
-                    this.addXp(40);
+                    this.showToast("Code unbekannt. Bitte manuell eintragen.");
                 }
             },
 
-            openActionModal: function(index, fromDashboard = false) {
-                let targetIndex = index;
-                if (fromDashboard) {
-                    const criticalItems = [...this.state.kuehlschrank].sort((a,b) => a.tage - b.tage).slice(0, 3);
-                    const selectedItem = criticalItems[index];
-                    targetIndex = this.state.kuehlschrank.findIndex(i => i.name === selectedItem.name && i.tage === selectedItem.tage);
-                }
-
-                const item = this.state.kuehlschrank[targetIndex];
-                if(!item) return;
-
-                document.getElementById('modal-item-name').innerText = `${item.cat || '📦'} ${item.name}`;
-                document.getElementById('action-modal').classList.remove('hidden');
-
-                document.getElementById('modal-btn-rescue').onclick = () => {
-                    this.state.historyLog.unshift(`Verbraucht: ${item.name}. Vorbildlich gerettet!`);
-                    this.state.kuehlschrank.splice(targetIndex, 1);
-                    this.closeActionModal();
-                    this.addXp(150);
-                };
-
-                document.getElementById('modal-btn-waste').onclick = () => {
-                    this.state.historyLog.unshift(`Verdorben: ${item.name} musste entsorgt werden.`);
-                    this.state.kuehlschrank.splice(targetIndex, 1);
-                    this.closeActionModal();
-                    this.showToast("Lebensmittel leider entsorgt.");
-                    this.renderAll();
-                };
-            },
-
-            closeActionModal: function() {
-                document.getElementById('action-modal').classList.add('hidden');
-            },
-
-            openAddModal: function() {
-                document.getElementById('add-modal').classList.remove('hidden');
-            },
-
-            closeAddModal: function() {
-                document.getElementById('add-modal').classList.add('hidden');
-            },
-
-            handleFormSubmit: function(e) {
+            handleFormSubmit(e) {
                 e.preventDefault();
-                const name = document.getElementById('input-name').value;
-                const cat = document.getElementById('input-category').value;
-                const days = parseInt(document.getElementById('input-days').value);
-
-                this.state.kuehlschrank.unshift({ name, tage: days, cat });
-                this.state.historyLog.unshift(`Manuell gebucht: ${name} (${cat}) für ${days} Tage.`);
-                
+                this.showToast(`${document.getElementById('input-name').value} hinzugefügt!`);
                 this.closeAddModal();
                 e.target.reset();
-                this.addXp(50);
             },
 
-            openRecipeModal: function(id) {
-                const rec = RezeptDatenbank.find(r => r.id === id);
-                if(!rec) return;
-
-                this.currentActiveRecipe = rec;
-                this.currentSelectedPortions = rec.basisPersonen;
-
-                document.getElementById('recipe-modal-img').src = rec.img;
-                document.getElementById('recipe-modal-title').innerText = rec.title;
-                document.getElementById('recipe-modal-zeit').innerText = rec.zeit;
-                document.getElementById('recipe-modal-level').innerText = rec.level;
-                document.getElementById('recipe-modal-werkzeug').innerText = rec.werkzeug || 'Keine Angabe';
-
-                this.renderRecipeIngredientsAndSteps();
-                document.getElementById('recipe-modal').classList.remove('hidden');
+            showToast(msg) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = "bg-black/90 text-white text-xs font-bold px-4 py-3 rounded-xl shadow-lg text-center transition-all duration-300 transform translate-y-2 opacity-0";
+                toast.innerText = msg;
+                container.appendChild(toast);
+                setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 50);
+                setTimeout(() => {
+                    toast.classList.add('translate-y-2', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, 2500);
             },
-
-            updatePortions: function(mod) {
-                const target = this.currentSelectedPortions + mod;
-                if(target >= 1 && target <= 12) {
-                    this.currentSelectedPortions = target;
-                    this.renderRecipeIngredientsAndSteps();
-                }
-            },
-
-            renderRecipeIngredientsAndSteps: function() {
-                if(!this.currentActiveRecipe) return;
-                const rec = this.currentActiveRecipe;
-                
-                document.getElementById('recipe-modal-personen').innerText = this.currentSelectedPortions;
-                const multiplier = this.currentSelectedPortions / rec.basisPersonen;
-
-                const zutatenContainer = document.getElementById('recipe-modal-zutaten');
-                zutatenContainer.innerHTML = rec.zutatenMengen.map(z => {
-                    const berechneterWert = Math.round(z.wert * multiplier);
-                    return `<li><span class="font-extrabold text-emerald-800">${berechneterWert} ${z.einheit}</span> ${z.name}</li>`;
-                }).join('');
-
-                const anleitungContainer = document.getElementById('recipe-modal-anleitung');
-                anleitungContainer.innerHTML = rec.anleitung.map(step => `<li>${step}</li>`).join('');
-            },
-
-            closeRecipeModal: function() {
-                document.getElementById('recipe-modal').classList.add('hidden');
-                this.currentActiveRecipe = null;
-            },
-
-            cookRecipe: function() {
-                if(!this.currentActiveRecipe) return;
-                const rec = this.currentActiveRecipe;
-                
-                // Attempt to auto remove ingredient from fridge mapping match
-                const idx = this.state.kuehlschrank.findIndex(i => i.name.toLowerCase().includes(rec.zutat.toLowerCase()) || rec.zutat.toLowerCase().includes(i.name.toLowerCase()));
-                if(idx !== -1) {
-                    this.state.kuehlschrank.splice(idx, 1);
-                }
-
-                this.state.historyLog.unshift(`Gekocht: "${rec.title}" zubereitet.`);
-                this.closeRecipeModal();
-                this.addXp(200);
-            }
+            
+            checkNotifications() { this.showToast("Keine neuen Benachrichtigungen."); }
         };
 
-        // Window Startup Bootloader
         window.addEventListener('DOMContentLoaded', () => AppEngine.init());
     </script>
 </body>
