@@ -54,7 +54,7 @@
                 <div class="flex items-center gap-1 bg-amber-50 border border-amber-200/60 px-2 py-1 rounded-xl text-xs font-black text-amber-700 shadow-xs">
                     <span>🔥</span> <span id="global-streak-counter">0</span> Days
                 </div>
-                <button onclick="AppEngine.checkNotifications()" class="p-2 bg-white/80 rounded-xl shadow-xs hover:opacity-70 transition relative">
+                <button onclick="AppEngine.showToast('Keine neuen Benachrichtigungen')" class="p-2 bg-white/80 rounded-xl shadow-xs hover:opacity-70 transition relative">
                     <i data-lucide="bell" class="w-4 h-4 text-gray-700"></i>
                 </button>
             </div>
@@ -98,11 +98,13 @@
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
                         <h2 class="font-extrabold text-[12px] text-black uppercase tracking-wider flex items-center gap-1.5">
-                            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-700"></i> Verfügbare Reste-Rezepte
+                            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-700"></i> Empfohlene Rezepte
                         </h2>
                         <button onclick="AppEngine.switchView('recipes')" class="text-emerald-800 text-xs font-bold hover:underline">Gesamtes Kochbuch</button>
                     </div>
-                    <div id="dashboard-recipe-slider" class="flex gap-4 overflow-x-auto custom-scrollbar pb-2 -mx-5 px-5"></div>
+                    <div id="dashboard-recipe-slider" class="text-xs text-gray-500 font-medium bg-white p-4 rounded-2xl border border-gray-100">
+                        Wechsle in den Rezepte-Tab, um deine dynamischen Rezepte zu kochen! 🧑‍🍳
+                    </div>
                 </div>
             </div>
  
@@ -134,8 +136,25 @@
             </div>
 
             <div id="view-recipes" class="page-view hidden space-y-4">
-                <h2 class="text-2xl font-black text-black tracking-tight">Reste-Kochbuch 🧑‍🍳</h2>
-                <p class="text-xs text-gray-500 font-semibold -mt-2">Rezepte basieren auf den Gegenständen in deinem Kühlschrank.</p>
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-black text-black tracking-tight">Reste-Kochbuch 🧑‍🍳</h2>
+                        <p class="text-xs text-gray-500 font-semibold">Mengen passen sich automatisch an deine Portionen an!</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-xs flex justify-between items-center">
+                    <span class="text-xs font-extrabold text-gray-700 flex items-center gap-1.5">
+                        <i data-lucide="users" class="w-4 h-4 text-emerald-800"></i> Rezepte berechnen für:
+                    </span>
+                    <select id="recipe-servings" onchange="AppEngine.changeServings(this.value)" class="bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl px-3 py-1.5 text-xs font-black focus:outline-none">
+                        <option value="1">1 Person</option>
+                        <option value="2" selected>2 Personen</option>
+                        <option value="4">4 Personen</option>
+                        <option value="6">6 Personen</option>
+                    </select>
+                </div>
+
                 <div id="full-recipes-grid" class="grid grid-cols-1 gap-3.5"></div>
             </div>
 
@@ -210,13 +229,6 @@
 
                     </div>
                 </div>
-
-                <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs space-y-2">
-                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <i data-lucide="history" class="w-3.5 h-3.5"></i> Live-Küchenprotokoll
-                    </h4>
-                    <div id="activity-log" class="space-y-1.5 max-h-40 overflow-y-auto text-[11px] font-semibold text-gray-600 custom-scrollbar"></div>
-                </div>
             </div>
         </main>
  
@@ -232,25 +244,7 @@
                     <div id="interactive-camera-feed" class="w-full h-full"></div>
                     <div class="absolute inset-x-0 h-0.5 bg-red-500 shadow-[0_0_8px_#ef4444] scanner-laser top-0 pointer-events-none"></div>
                 </div>
-                <div class="space-y-2">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Manueller Code / Test-Eingabe</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="scan-ean-input" placeholder="z.B. 40012345" class="flex-1 p-3 bg-gray-50 border rounded-xl text-xs font-bold tracking-widest text-center focus:outline-none focus:border-emerald-800">
-                        <button onclick="AppEngine.generateRandomEan()" class="bg-gray-100 hover:bg-gray-200 px-3 rounded-xl text-xs font-bold flex items-center gap-1">🎲 Mix</button>
-                    </div>
-                </div>
-                <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-[10px] text-gray-500 max-h-32 overflow-y-auto space-y-1 custom-scrollbar">
-                    <p class="font-bold text-gray-400 border-b pb-0.5 mb-1">Klickbare Vorlagen:</p>
-                    <div class="grid grid-cols-1 gap-1.5">
-                        <button onclick="document.getElementById('scan-ean-input').value='4008400204712'" class="text-left font-medium text-emerald-800 bg-emerald-50/50 p-1 rounded hover:bg-emerald-50">🍫 4008400204712: Nutella</button>
-                        <button onclick="document.getElementById('scan-ean-input').value='40012345'" class="text-left font-medium text-emerald-800 bg-emerald-50/50 p-1 rounded hover:bg-emerald-50">🥦 40012345: Frischer Spinat</button>
-                        <button onclick="document.getElementById('scan-ean-input').value='4014400924107'" class="text-left font-medium text-emerald-800 bg-emerald-50/50 p-1 rounded hover:bg-emerald-50">🥛 4014400924107: Magerquark</button>
-                        <button onclick="document.getElementById('scan-ean-input').value='4004172400155'" class="text-left font-medium text-emerald-800 bg-emerald-50/50 p-1 rounded hover:bg-emerald-50">🌾 4004172400155: Haferflocken</button>
-                    </div>
-                </div>
-                <button onclick="AppEngine.processScannedBarcode()" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-900 transition flex items-center justify-center gap-2">
-                    <i data-lucide="search-code" class="w-4 h-4"></i> Code abschicken
-                </button>
+                <button onclick="AppEngine.closeScanModal()" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-900 transition">Scanner schließen</button>
             </div>
         </div>
 
@@ -263,23 +257,11 @@
                 <form onsubmit="AppEngine.handleFormSubmit(event)" class="space-y-3">
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Produktname</label>
-                        <input type="text" id="input-name" required placeholder="z.B. Bio-Tomaten" class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none focus:border-black">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kategorie</label>
-                        <select id="input-category" class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none">
-                            <option value="🥦">🥦 Frischgemüse / Kräuter</option>
-                            <option value="🍎">🍎 Obst & Beeren</option>
-                            <option value="🥛">🥛 Milchprodukte & Alternativen</option>
-                            <option value="🍞">🍞 Backwaren & Getreide</option>
-                            <option value="🥩">🥩 Fleisch, Fisch & Proteine</option>
-                            <option value="💧">💧 Wasser & Säfte</option>
-                            <option value="🍪">🍪 Snacks & Süßwaren</option>
-                        </select>
+                        <input type="text" id="input-name" required placeholder="z.B. Bio-Tomaten" class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Haltbarkeit (Tage ab heute)</label>
-                        <input type="number" id="input-days" required min="1" max="365" class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none focus:border-black">
+                        <input type="number" id="input-days" required min="1" max="365" class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none">
                     </div>
                     <button type="submit" class="w-full bg-black text-white p-3.5 rounded-xl font-bold text-xs shadow-md transition hover:bg-neutral-900">Bestand einbuchen (+50 XP)</button>
                 </form>
@@ -313,12 +295,35 @@
     </div>
  
     <script>
-        const BarcodeDatenbank = {
-            "40012345": { name: "Spinat", cat: "🥦", tage: 3 },
-            "4008400204712": { name: "Nutella (450g)", cat: "🍪", tage: 60 },
-            "4014400924107": { name: "Magerquark (500g)", cat: "🥛", tage: 7 },
-            "4004172400155": { name: "Vollkornhaferflocken", cat: "🍞", tage: 90 }
-        };
+        // DATENBANK FÜR REZEPTE MIT RECHNEBAREN MENGEN
+        const RezepteKochbuch = [
+            {
+                id: 1,
+                name: "Rahmspinat-Quark-Pfanne",
+                icon: "🥦",
+                basisPersonen: 2, // Rezepte Mengengrundlage ist für 2 Personen ausgelegt
+                zutaten: [
+                    { name: "Frischer Spinat", menge: 250, einheit: "g" },
+                    { name: "Magerquark", menge: 200, einheit: "g" },
+                    { name: "Zwiebel", menge: 0.5, einheit: "Stk." },
+                    { name: "Öl", menge: 1, einheit: "EL" }
+                ],
+                anleitung: "Die Zwiebeln fein hacken und im Öl andünsten. Den gewaschenen Spinat hinzugeben, bis er zusammenfällt. Vom Herd nehmen und den Magerquark gleichmäßig unterrühren. Mit Salz und Pfeffer abschmecken."
+            },
+            {
+                id: 2,
+                name: "Power-Haferflocken-Quark",
+                icon: "🥣",
+                basisPersonen: 1, // Mengengrundlage ausgelegt für 1 Person
+                zutaten: [
+                    { name: "Haferflocken", menge: 60, einheit: "g" },
+                    { name: "Magerquark", menge: 150, einheit: "g" },
+                    { name: "Milch oder Wasser", menge: 50, einheit: "ml" },
+                    { name: "Nutella", menge: 1, einheit: "TL" }
+                ],
+                anleitung: "Den Quark mit Flüssigkeit glattrühren. Die Haferflocken untermischen und das Ganze mit einem Teelöffel Nutella für den Geschmack garnieren."
+            }
+        ];
 
         const AppEngine = {
             state: {
@@ -332,15 +337,17 @@
                     bio: localStorage.getItem('refowa_bio') || "Ich liebe Nachhaltigkeit!",
                     status: localStorage.getItem('refowa_status') || "Aktiv am Retten 🌱",
                     avatar: localStorage.getItem('refowa_avatar') || "🍳"
-                }
+                },
+                selectedServings: 2 // Standardmäßig für 2 Personen berechnen
             },
 
             init() {
-                lucide.createIcons();
                 this.loadProfileUi();
                 this.renderFridgeTab();
+                this.renderRecipesTab(); // Rezepte direkt beim Start laden
                 this.showToast("Willkommen zurück bei ReFoWa!");
                 document.getElementById('global-streak-counter').innerText = this.state.stats.streak;
+                lucide.createIcons();
             },
 
             switchView(viewId) {
@@ -353,50 +360,37 @@
 
             loadProfileUi() {
                 const p = this.state.profile;
-                
                 document.getElementById('setting-username').value = p.username;
                 document.getElementById('setting-bio').value = p.bio;
                 document.getElementById('setting-status').value = p.status;
-
                 document.getElementById('profile-name-title').innerText = p.username;
                 document.getElementById('dashboard-welcome-text').innerText = `Guten Tag, ${p.username}!`;
                 document.getElementById('dashboard-status-preview').innerText = p.status ? `Status: ${p.status}` : '';
-                
                 document.getElementById('profile-avatar-large').innerText = p.avatar;
                 document.getElementById('dashboard-avatar-preview').innerText = p.avatar;
-                
                 document.getElementById('profile-rank-title').innerText = "Nachhaltigkeits-Pionier";
                 document.getElementById('profile-xp-bar').style.width = "45%";
                 document.getElementById('profile-xp-text').innerText = `${this.state.stats.xp} / 500 XP`;
             },
 
             saveProfileData() {
-                const newName = document.getElementById('setting-username').value.trim();
-                const newBio = document.getElementById('setting-bio').value.trim();
-                const newStatus = document.getElementById('setting-status').value.trim();
-
-                this.state.profile.username = newName || "User";
-                this.state.profile.bio = newBio;
-                this.state.profile.status = newStatus;
-
+                this.state.profile.username = document.getElementById('setting-username').value.trim() || "User";
+                this.state.profile.bio = document.getElementById('setting-bio').value.trim();
+                this.state.profile.status = document.getElementById('setting-status').value.trim();
                 localStorage.setItem('refowa_username', this.state.profile.username);
                 localStorage.setItem('refowa_bio', this.state.profile.bio);
                 localStorage.setItem('refowa_status', this.state.profile.status);
-
                 this.loadProfileUi();
-                this.showToast("Profil erfolgreich aktualisiert! ✨");
-                
-                if(typeof confetti === 'function') confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 } });
+                this.showToast("Profil aktualisiert! ✨");
             },
 
             selectAvatar(emoji) {
                 this.state.profile.avatar = emoji;
                 localStorage.setItem('refowa_avatar', emoji);
                 this.loadProfileUi();
-                this.showToast(`Avatar zu ${emoji} geändert!`);
+                this.showToast(`Avatar geändert zu ${emoji}`);
             },
 
-            // RENDER SYSTEM FÜR BESTAND, PRÄFERENZEN UND REZEPTE
             renderFridgeTab() {
                 const searchVal = document.getElementById('fridge-search').value.toLowerCase();
                 const sortVal = document.getElementById('fridge-sort').value;
@@ -405,10 +399,8 @@
                 if(sortVal === 'days') items.sort((a,b) => a.tage - b.tage);
                 if(sortVal === 'alpha') items.sort((a,b) => a.name.localeCompare(b.name));
 
-                // Counter auf Dashboard & Nav-Punkte aktualisieren
                 document.getElementById('dash-fridge-count').innerText = this.state.kuehlschrank.length;
 
-                // 1. Eigentliche Bestandsliste rendern
                 const fridgeContainer = document.getElementById('full-fridge-list');
                 if(items.length === 0) {
                     fridgeContainer.innerHTML = `<p class="text-xs text-gray-400 font-medium text-center py-4">Keine Produkte im Kühlschrank.</p>`;
@@ -427,7 +419,6 @@
                     `).join('');
                 }
 
-                // 2. Dashboard Ablauf-Warnungen (Weniger als 5 Tage Restzeit)
                 const prioContainer = document.getElementById('dashboard-expiry-list');
                 const prioItems = [...this.state.kuehlschrank].filter(i => i.tage <= 4).sort((a,b) => a.tage - b.tage);
                 
@@ -443,61 +434,83 @@
                                     <p class="text-[10px] text-red-700 font-bold">Ablaufgefahr! Noch ${item.tage} Tage.</p>
                                 </div>
                             </div>
-                            <button onclick="AppEngine.deleteItem(${item.id}, true)" class="bg-white text-red-700 border border-red-200 px-2.5 py-1 rounded-lg text-[10px] font-black shadow-2xs hover:bg-red-100">Verbraucht</button>
                         </div>
                     `).join('');
                 }
-
-                // 3. Rezepte updaten
-                this.renderRecipes();
                 lucide.createIcons();
             },
 
-            renderRecipes() {
-                const recipes = [
-                    { name: "Sahnige Quark-Bowl", ingredients: ["🥛", "🍞"], desc: "Magerquark mit Haferflocken verrühren und frisch genießen." },
-                    { name: "Gedünsteter Vital-Spinat", ingredients: ["🥦"], desc: "Spinat kurz in einer Pfanne schwenken, würzen und servieren." },
-                    { name: "Süßer Snack-Teller", ingredients: ["🍪", "🍎"], desc: "Frische Früchte klein schneiden und als Dip-Beilage reichen." }
-                ];
+            // DYNAMISCHES REZEPTE RENDERING
+            renderRecipesTab() {
+                const recipesGrid = document.getElementById('full-recipes-grid');
+                const aktuellePersonen = this.state.selectedServings;
 
-                // Dashboard Rezept-Slider rendern
-                const sliderContainer = document.getElementById('dashboard-recipe-slider');
-                sliderContainer.innerHTML = recipes.map(r => `
-                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-3xs min-w-[220px] max-w-[220px] space-y-2 flex flex-col justify-between">
-                        <div>
-                            <span class="flex gap-1">${r.ingredients.map(i=>`<span>${i}</span>`).join('')}</span>
-                            <h4 class="text-xs font-black text-black mt-1 tracking-tight">${r.name}</h4>
-                            <p class="text-[10px] text-gray-400 font-medium line-clamp-2 mt-0.5">${r.desc}</p>
-                        </div>
-                        <button onclick="AppEngine.switchView('recipes')" class="w-full bg-emerald-50 text-emerald-800 font-bold text-[10px] py-1.5 rounded-lg text-center mt-2">Rezept öffnen</button>
-                    </div>
-                `).join('');
+                recipesGrid.innerHTML = RezepteKochbuch.map(rezept => {
+                    // Errechne den Skalierungsfaktor für dieses Rezept
+                    const faktor = aktuellePersonen / rezept.basisPersonen;
 
-                // Großes Kochbuch-Grid rendern
-                const gridContainer = document.getElementById('full-recipes-grid');
-                gridContainer.innerHTML = recipes.map(r => `
-                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs space-y-2">
-                        <div class="flex justify-between items-center">
-                            <h4 class="text-sm font-black text-black tracking-tight">${r.name}</h4>
-                            <span class="flex gap-1">${r.ingredients.map(i=>`<span class="bg-gray-100 px-1.5 py-0.5 rounded text-xs">${i}</span>`).join('')}</span>
+                    // Baue die Zutatenliste mit angepassten Mengen zusammen
+                    const zutatenHTML = rezept.zutaten.map(zutat => {
+                        const berechneteMenge = (zutat.menge * faktor).toLocaleString('de-DE', { maximumFractionDigits: 1 });
+                        return `
+                            <li class="flex justify-between border-b border-gray-100 py-1">
+                                <span class="text-gray-600 font-medium">${zutat.name}</span>
+                                <span class="font-bold text-emerald-800">${berechneteMenge} ${zutat.einheit}</span>
+                            </li>
+                        `;
+                    }).join('');
+
+                    return `
+                        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-3">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-2xl">${rezept.icon}</span>
+                                <h3 class="font-black text-sm text-gray-900">${rezept.name}</h3>
+                            </div>
+                            
+                            <div class="bg-gray-50/70 p-3 rounded-xl text-[11px]">
+                                <p class="font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">Zutaten für ${aktuellePersonen} Person(en):</p>
+                                <ul class="space-y-0.5">
+                                    ${zutatenHTML}
+                                </ul>
+                            </div>
+
+                            <div class="space-y-1">
+                                <p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Schritt-für-Schritt Anleitung:</p>
+                                <p class="text-xs font-medium text-gray-600 leading-relaxed">${rezept.anleitung}</p>
+                            </div>
                         </div>
-                        <p class="text-xs text-gray-500 font-medium leading-relaxed">${r.desc}</p>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             },
 
-            deleteItem(id, wasConsumed = false) {
+            changeServings(val) {
+                this.state.selectedServings = parseInt(val, 10);
+                this.renderRecipesTab();
+                this.showToast(`Mengen für ${val} Personen neu berechnet!`);
+            },
+
+            deleteItem(id) {
                 this.state.kuehlschrank = this.state.kuehlschrank.filter(i => i.id !== id);
-                if(wasConsumed) {
-                    this.state.stats.xp += 30;
-                    this.showToast("Lebensmittel erfolgreich verwertet! +30 XP 🌟");
-                    if(typeof confetti === 'function') confetti({ particleCount: 30, spread: 40 });
-                } else {
-                    this.showToast("Produkt gelöscht.");
-                }
-                this.logActivity(`Produkt entfernt.`);
-                this.loadProfileUi();
                 this.renderFridgeTab();
+                this.showToast("Produkt verbraucht / gelöscht.");
+            },
+
+            handleFormSubmit(e) {
+                e.preventDefault();
+                const name = document.getElementById('input-name').value;
+                const days = parseInt(document.getElementById('input-days').value, 10);
+                
+                this.state.kuehlschrank.push({
+                    id: Date.now(),
+                    name: name,
+                    cat: "🥦",
+                    tage: days
+                });
+                
+                this.renderFridgeTab();
+                this.closeAddModal();
+                this.showToast("+50 XP: Erfolgreich eingebucht!");
+                if(typeof confetti === 'function') confetti({ particleCount: 30, spread: 60 });
             },
 
             openScanModal() { document.getElementById('scan-modal').classList.remove('hidden'); },
@@ -505,89 +518,23 @@
             openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); },
             closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); },
             toggleInfoModal(show) { document.getElementById('info-modal').classList.toggle('hidden', !show); },
-            
-            generateRandomEan() {
-                const keys = Object.keys(BarcodeDatenbank);
-                document.getElementById('scan-ean-input').value = keys[Math.floor(Math.random() * keys.length)];
-            },
-
-            processScannedBarcode() {
-                const ean = document.getElementById('scan-ean-input').value.trim();
-                if(BarcodeDatenbank[ean]) {
-                    const prod = BarcodeDatenbank[ean];
-                    
-                    // Element in das State-Array einfügen
-                    this.state.kuehlschrank.push({
-                        id: Date.now(),
-                        name: prod.name,
-                        cat: prod.cat,
-                        tage: prod.tage
-                    });
-                    
-                    this.state.stats.xp += 50;
-                    this.showToast(`Erkannt & Gespeichert: ${prod.name}! (+50 XP)`);
-                    this.logActivity(`Eingescannt: ${prod.name}`);
-                    this.closeScanModal();
-                    document.getElementById('scan-ean-input').value = '';
-                    
-                    // Interface Updates
-                    this.loadProfileUi();
-                    this.renderFridgeTab();
-                } else {
-                    this.showToast("Code unbekannt. Bitte manuell eintragen.");
-                }
-            },
-
-            handleFormSubmit(e) {
-                e.preventDefault();
-                const name = document.getElementById('input-name').value.trim();
-                const cat = document.getElementById('input-category').value;
-                const tage = parseInt(document.getElementById('input-days').value);
-
-                if(name) {
-                    this.state.kuehlschrank.push({
-                        id: Date.now(),
-                        name: name,
-                        cat: cat,
-                        tage: tage
-                    });
-                    
-                    this.state.stats.xp += 50;
-                    this.showToast(`${name} hinzugefügt! (+50 XP)`);
-                    this.logActivity(`Eingebucht: ${name}`);
-                    this.closeAddModal();
-                    
-                    this.loadProfileUi();
-                    this.renderFridgeTab();
-                    e.target.reset();
-                }
-            },
-
-            logActivity(text) {
-                const log = document.getElementById('activity-log');
-                if(log) {
-                    const time = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                    log.innerHTML = `<p class="border-b border-gray-100 py-1"><span class="text-emerald-800">[${time}]</span> ${text}</p>` + log.innerHTML;
-                }
-            },
 
             showToast(msg) {
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
-                toast.className = "bg-black/90 text-white text-xs font-bold px-4 py-3 rounded-xl shadow-lg text-center transition-all duration-300 transform translate-y-2 opacity-0";
+                toast.className = "bg-black/90 backdrop-blur-md text-white text-xs font-bold px-4 py-3 rounded-xl shadow-lg transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto text-center";
                 toast.innerText = msg;
                 container.appendChild(toast);
-                setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 50);
+                setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
                 setTimeout(() => {
-                    toast.classList.add('translate-y-2', 'opacity-0');
+                    toast.classList.add('opacity-0', 'translate-y-2');
                     setTimeout(() => toast.remove(), 300);
                 }, 2500);
-            },
-            
-            checkNotifications() { this.showToast("Kene neuen Benachrichtigungen."); }
+            }
         };
 
-        window.addEventListener('DOMContentLoaded', () => AppEngine.init());
+        // Engine starten wenn geladen
+        window.onload = () => AppEngine.init();
     </script>
 </body>
 </html>
