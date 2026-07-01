@@ -4,14 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Reduce Food Waste App</title>
-<!-- Tailwind CSS & Lucide Icons -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
-<!-- Confetti Effects -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
  
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: #EAE5DB;
@@ -24,23 +22,18 @@
 </head>
 <body class="text-[#2C2520] min-h-screen antialiased">
  
-    <!-- MAIN APP CONTAINER (Zentriertes Smartphone-Layout) -->
-<div class="max-w-md mx-auto min-h-screen flex flex-col relative bg-[#F4F1EA] shadow-2xl pb-24 border-x border-gray-200/30">
-<!-- ========================================== -->
-<!-- TOP NAVIGATION BAR                         -->
-<!-- ========================================== -->
+    <div class="max-w-md mx-auto min-h-screen flex flex-col relative bg-[#F4F1EA] shadow-2xl pb-24 border-x border-gray-200/30">
 <header class="p-5 pb-2 flex justify-between items-center bg-[#F4F1EA] sticky top-0 z-30">
 <button onclick="zeigeToast('Menü geöffnet (Demo)', 'info')" class="p-1 hover:opacity-70 transition">
 <i data-lucide="menu" class="w-6 h-6 text-[#2D5A27]"></i>
 </button>
-<!-- Logo aus grafik_3.png / grafik_4.png -->
 <div class="flex items-center justify-center flex-1 mx-4">
 <img src="grafik_3.png" alt="Reduce Food Waste Logo" class="h-10 w-auto object-contain mix-blend-multiply" onerror="this.style.display='none'; document.getElementById('logo-fallback').classList.remove('hidden');">
 <div id="logo-fallback" class="hidden font-black text-emerald-800 tracking-tight text-sm">reduce food waste</div>
 </div>
  
             <div class="flex items-center gap-3">
-<span class="text-xl">🦤</span> <!-- Möwen-Illustration Annäherung -->
+<span class="text-xl">🦤</span>
 <button onclick="zeigeToast('Keine neuen Benachrichtigungen', 'info')" class="p-1 hover:opacity-70 transition relative">
 <i data-lucide="bell" class="w-5 h-5 text-gray-700"></i>
 <span id="notif-dot" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full hidden"></span>
@@ -48,13 +41,8 @@
 </div>
 </header>
  
-        <!-- ========================================== -->
-<!-- PAGES CONTAINER                            -->
-<!-- ========================================== -->
-<main class="flex-1 px-5 pt-2">
-<!-- TAB 1: ÜBERSICHT (HOME) -->
+        <main class="flex-1 px-5 pt-2">
 <div id="view-dashboard" class="page-view space-y-6">
-<!-- Hero Greeting -->
 <div class="flex justify-between items-center pt-2">
 <div class="space-y-1">
 <h1 class="text-[36px] font-black tracking-tight text-black leading-tight">Halli Hallo!</h1>
@@ -68,46 +56,35 @@
 </div>
 </div>
  
-                <!-- Section: Bald ablaufende Lebensmittel -->
-<div class="space-y-3">
+                <div class="space-y-3">
 <div class="flex justify-between items-center">
 <h2 class="font-bold text-[16px] text-black">Bald ablaufende Lebensmittel</h2>
 <button onclick="showView('fridge')" class="text-[#2D5A27] text-xs font-bold hover:underline">Alle anzeigen</button>
 </div>
-<!-- Dynamische Ablaufliste -->
-<div id="dashboard-expiry-list" class="space-y-3">
-<!-- Wird via JavaScript befüllt (Siehe Struktur grafik_4.png) -->
-</div>
+<div id="dashboard-expiry-list" class="space-y-3"></div>
 </div>
  
-                <!-- Section: Passende Kochideen für dich -->
-<div class="space-y-3">
+                <div class="space-y-3">
 <div class="flex justify-between items-center">
 <h2 class="font-bold text-[16px] text-black">Passende Kochideen für dich</h2>
 <button onclick="showView('recipes')" class="text-[#2D5A27] text-xs font-bold hover:underline">Alle anzeigen</button>
 </div>
-<!-- Horizontaler Rezept-Slider -->
-<div id="dashboard-recipe-slider" class="flex gap-4 overflow-x-auto custom-scrollbar pb-3 -mx-5 px-5">
-<!-- Wird via JavaScript befüllt -->
-</div>
+<div id="dashboard-recipe-slider" class="flex gap-4 overflow-x-auto custom-scrollbar pb-3 -mx-5 px-5"></div>
 </div>
  
-                <!-- Section: Eco Impact Banner -->
-<div onclick="showView('profile')" class="bg-[#E4EFE3] p-4 rounded-2xl flex justify-between items-center cursor-pointer hover:opacity-95 transition border border-[#CCE2CA] shadow-xs">
+                <div onclick="showView('profile')" class="bg-[#E4EFE3] p-4 rounded-2xl flex justify-between items-center cursor-pointer hover:opacity-95 transition border border-[#CCE2CA] shadow-xs">
 <div class="flex items-center gap-4">
 <div class="text-3xl text-[#2D5A27]">🌿</div>
 <div>
 <h4 class="font-bold text-[14px] text-[#2D5A27]">Du machst einen Unterschied!</h4>
-<p class="text-[12px] text-[#4A6B45] font-medium mt-0.5">So hast du diese Woche bereits <span id="banner-weight">1,2 kg</span> Lebensmittel gerettet.</p>
+<p class="text-[12px] text-[#4A6B45] font-medium mt-0.5">So hast du diese Woche bereits <span id="banner-weight">0,0 kg</span> Lebensmittel gerettet.</p>
 </div>
 </div>
 <i data-lucide="chevron-right" class="w-5 h-5 text-[#2D5A27]"></i>
 </div>
 </div>
  
- 
-            <!-- TAB 2: KÜHLSCHRANK (INHALT & VERWALTUNG) -->
-<div id="view-fridge" class="page-view hidden space-y-4">
+            <div id="view-fridge" class="page-view hidden space-y-4">
 <div class="flex justify-between items-center">
 <div>
 <h2 class="text-2xl font-black text-black">Dein Kühlschrank</h2>
@@ -117,49 +94,64 @@
 <i data-lucide="plus" class="w-4 h-4"></i> Hinzufügen
 </button>
 </div>
- 
-                <div id="full-fridge-list" class="space-y-2.5">
-<!-- Volle Inhaltsliste -->
-</div>
+<div id="full-fridge-list" class="space-y-2.5"></div>
 </div>
  
- 
-            <!-- TAB 3: REZEPTE (KOCHIDEEN-ZENTRALE) -->
-<div id="view-recipes" class="page-view hidden space-y-4">
+            <div id="view-recipes" class="page-view hidden space-y-4">
 <div>
 <h2 class="text-2xl font-black text-black">Rezepte-Zentrale 🪄</h2>
 <p class="text-xs text-gray-500 font-medium">Diese Gerichte kannst du mit deinen aktuellen Zutaten kochen.</p>
 </div>
-<div id="full-recipes-grid" class="grid grid-cols-1 gap-4">
-<!-- Alle Rezepte -->
-</div>
+<div id="full-recipes-grid" class="grid grid-cols-1 gap-4"></div>
 </div>
  
- 
-            <!-- TAB 4: PROFIL (ECO STATS) -->
-<div id="view-profile" class="page-view hidden space-y-5">
+            <div id="view-profile" class="page-view hidden space-y-5">
 <div>
-<h2 class="text-2xl font-black text-black">Dein Eco-Impact</h2>
-<p class="text-xs text-gray-500 font-medium">Deine persönliche Nachhaltigkeits-Statistik.</p>
+<h2 class="text-2xl font-black text-black">Dein Eco-Impact & Avatar</h2>
+<p class="text-xs text-gray-500 font-medium">Deine Nachhaltigkeits-Statistik und Freischaltungen.</p>
 </div>
  
-                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs text-center relative overflow-hidden">
-<div class="w-16 h-16 bg-[#E4EFE3] rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-inner mb-2">🦸‍♀️</div>
-<h3 class="text-lg font-black text-gray-900">Food-Retter Held</h3>
-<p class="text-xs text-emerald-700 font-extrabold tracking-widest uppercase mt-0.5">Level <span id="profile-level">1</span></p>
-<div class="mt-4 text-left">
+                <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs relative overflow-hidden space-y-4">
+<div class="flex items-center gap-4">
+                        <div class="w-24 h-24 bg-[#E4EFE3] rounded-2xl flex items-center justify-center shadow-inner relative select-none overflow-hidden border border-emerald-100">
+                            <span id="layer-back" class="absolute inset-0 flex items-center justify-center text-4xl opacity-20 pointer-events-none"></span>
+                            
+                            <div class="relative flex flex-col items-center justify-center">
+                                <span id="layer-hair" class="absolute -top-5 text-xl z-20"></span>
+                                <span id="layer-face" class="text-4xl z-10">👦</span>
+                                <span id="layer-eyes" class="absolute top-[10px] text-xs z-20 font-bold tracking-widest text-center w-full"></span>
+                                <span id="layer-glasses" class="absolute top-[6px] text-sm z-30"></span>
+                            </div>
+
+                            <span id="layer-clothing" class="absolute bottom-1 text-xl z-20">👕</span>
+                            <span id="layer-level-hat" class="absolute top-1 text-xl z-40"></span>
+                            
+                            <span id="layer-shoulder" class="absolute -right-1 top-5 text-base z-50"></span>
+</div>
+<div class="flex-1">
+<h3 class="text-lg font-black text-gray-900 leading-tight">Food-Retter Level <span id="profile-level">1</span></h3>
+<p id="current-title-badge" class="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider inline-block mt-1">Hobbykoch</p>
+<div id="medals-display" class="flex gap-1 mt-1 text-lg"></div>
+                            
+                            <button onclick="openAvatarModal()" class="mt-2 text-xs font-bold text-[#2D5A27] bg-[#2D5A27]/10 px-3 py-1.5 rounded-xl flex items-center gap-1 hover:bg-[#2D5A27]/20 transition">
+<i data-lucide="palette" class="w-3.5 h-3.5"></i> Avatar bearbeiten
+</button>
+</div>
+</div>
+ 
+                    <div class="text-left">
 <div class="flex justify-between text-[10px] font-bold text-gray-400 mb-1">
-<span>NÄCHSTES LEVEL XP</span><span id="profile-xp-text" class="text-emerald-700">120 / 500</span>
+<span>NÄCHSTES LEVEL XP</span><span id="profile-xp-text" class="text-emerald-700">0 / 500 XP</span>
 </div>
 <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-<div id="profile-xp-bar" class="h-full bg-[#2D5A27] rounded-full transition-all duration-500" style="width: 24%"></div>
+<div id="profile-xp-bar" class="h-full bg-[#2D5A27] rounded-full transition-all duration-500" style="width: 0%"></div>
 </div>
 </div>
 </div>
  
                 <div class="grid grid-cols-2 gap-3">
 <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
-<span id="stat-saved" class="text-2xl font-black text-[#2D5A27]">1.2 kg</span>
+<span id="stat-saved" class="text-2xl font-black text-[#2D5A27]">0.0 kg</span>
 <p class="text-[10px] text-gray-400 font-bold uppercase mt-1">Gerettet insgesamt</p>
 </div>
 <div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
@@ -167,15 +159,85 @@
 <p class="text-[10px] text-gray-400 font-bold uppercase mt-1">Verdorben / Entsorgt</p>
 </div>
 </div>
+
+                <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs space-y-3">
+<h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+<i data-lucide="shirt" class="w-4 h-4 text-gray-400"></i> Deine Outfit-Freischaltungen
+</h4>
+<div id="rewards-timeline" class="space-y-2.5 max-h-48 overflow-y-auto custom-scrollbar pr-1"></div>
 </div>
- 
+</div>
         </main>
  
-        <!-- ========================================== -->
-<!-- OVERLAYS & MODALS                          -->
-<!-- ========================================== -->
-<!-- Detail & Action Modal für Lebensmittel -->
-<div id="action-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
+        <div id="avatar-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
+<div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl max-h-[85vh] flex flex-col">
+<div class="flex justify-between items-center flex-shrink-0">
+<h3 class="text-lg font-black text-black">Avatar Designer 🎨</h3>
+<button onclick="closeAvatarModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
+</div>
+            
+            <div class="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-1">
+                <div>
+<label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Gesicht & Hautfarbe</label>
+<div class="flex gap-2">
+<button onclick="changeAvatarFeature('face', '👦')" class="p-2 bg-gray-100 rounded-xl text-xl hover:bg-gray-200">👦</button>
+<button onclick="changeAvatarFeature('face', '👧')" class="p-2 bg-gray-100 rounded-xl text-xl hover:bg-gray-200">👧</button>
+<button onclick="changeAvatarFeature('face', '👨')" class="p-2 bg-gray-100 rounded-xl text-xl hover:bg-gray-200">👨</button>
+<button onclick="changeAvatarFeature('face', '👩')" class="p-2 bg-gray-100 rounded-xl text-xl hover:bg-gray-200">👩</button>
+<button onclick="changeAvatarFeature('face', '👶')" class="p-2 bg-gray-100 rounded-xl text-xl hover:bg-gray-200">👶</button>
+</div>
+</div>
+
+                <div>
+<label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Haare</label>
+<div class="flex gap-2 flex-wrap">
+<button onclick="changeAvatarFeature('hair', '')" class="px-3 py-1 bg-gray-100 rounded-xl text-xs font-bold hover:bg-gray-200">Glatte/Keine</button>
+<button onclick="changeAvatarFeature('hair', '👑')" class="p-2 bg-gray-100 rounded-xl text-lg hover:bg-gray-200">👑</button>
+<button onclick="changeAvatarFeature('hair', '🎀')" class="p-2 bg-gray-100 rounded-xl text-lg hover:bg-gray-200">🎀</button>
+<button onclick="changeAvatarFeature('hair', '🧢')" class="p-2 bg-gray-100 rounded-xl text-lg hover:bg-gray-200">🧢</button>
+<button onclick="changeAvatarFeature('hair', '🎩')" class="p-2 bg-gray-100 rounded-xl text-lg hover:bg-gray-200">🎩</button>
+</div>
+</div>
+
+                <div>
+<label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Augen / Ausdruck</label>
+<div class="flex gap-2">
+<button onclick="changeAvatarFeature('eyes', '•  •')" class="px-3 py-2 bg-gray-100 rounded-xl text-xs font-bold hover:bg-gray-200">Standard</button>
+<button onclick="changeAvatarFeature('eyes', '^  ^')" class="px-3 py-2 bg-gray-100 rounded-xl text-xs font-bold hover:bg-gray-200">Fröhlich</button>
+<button onclick="changeAvatarFeature('eyes', '👁️ 👁️')" class="px-3 py-2 bg-gray-100 rounded-xl text-xs font-bold hover:bg-gray-200">Groß</button>
+<button onclick="changeAvatarFeature('eyes', '🕶️')" class="px-3 py-2 bg-gray-100 rounded-xl text-xs font-bold hover:bg-gray-200">Cool</button>
+</div>
+</div>
+
+                <div>
+<label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Brille</label>
+<div class="flex gap-2">
+<button onclick="changeAvatarFeature('glasses', '')" class="px-3 py-1 bg-gray-100 rounded-xl text-xs font-bold hover:bg-gray-200">Keine</button>
+<button onclick="changeAvatarFeature('glasses', '👓')" class="p-2 bg-gray-100 rounded-xl text-lg hover:bg-gray-200">👓</button>
+<button onclick="changeAvatarFeature('glasses', '🕶️')" class="p-2 bg-gray-100 rounded-xl text-lg hover:bg-gray-200">🕶️</button>
+<button onclick="changeAvatarFeature('glasses', '🥽')" class="p-2 bg-gray-100 rounded-xl text-lg hover:bg-gray-200">🥽</button>
+</div>
+</div>
+
+                <div>
+<label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Basis-Kleidung</label>
+<div class="flex gap-2 flex-wrap">
+<button onclick="changeAvatarFeature('clothing', '👕')" class="p-2 bg-gray-100 rounded-xl text-lg hover:bg-gray-200">👕 T-Shirt</button>
+<button onclick="changeAvatarFeature('clothing', '👔')" class="p-2 bg-gray-100 rounded-xl text-lg hover:bg-gray-200">👔 Hemd</button>
+<button onclick="changeAvatarFeature('clothing', '👗')" class="p-2 bg-gray-100 rounded-xl text-lg hover:bg-gray-200">👗 Kleid</button>
+<button onclick="changeAvatarFeature('clothing', '🧥')" class="p-2 bg-gray-100 rounded-xl text-lg hover:bg-gray-200">🧥 Mantel</button>
+<button onclick="changeAvatarFeature('clothing', '🎽')" class="p-2 bg-gray-100 rounded-xl text-lg hover:bg-gray-200">🎽 Sportlich</button>
+</div>
+</div>
+</div>
+
+            <button onclick="closeAvatarModal()" class="w-full bg-[#2D5A27] text-white p-3 rounded-xl font-bold text-xs shadow-md flex-shrink-0">
+                Style speichern
+</button>
+</div>
+</div>
+
+        <div id="action-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
 <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
 <div class="flex justify-between items-start">
 <h3 id="modal-item-name" class="text-xl font-black text-black">Lebensmittel</h3>
@@ -193,8 +255,7 @@
 </div>
 </div>
  
-        <!-- Hinzufügen Modal -->
-<div id="add-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
+        <div id="add-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
 <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
 <div class="flex justify-between items-start">
 <h3 class="text-lg font-black text-black">Zutat hinzufügen</h3>
@@ -203,7 +264,7 @@
 <form onsubmit="handleFormSubmit(event)" class="space-y-3">
 <div>
 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Name</label>
-<input type="text" id="input-name" placeholder="z.B. Tomaten, Milch..." required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2D5A27]">
+<input type="text" id="input-name" placeholder="z.B. Spinat, Karotten..." required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2D5A27]">
 </div>
 <div>
 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tage bis Ablauf</label>
@@ -215,14 +276,46 @@
 </form>
 </div>
 </div>
+
+        <div id="recipe-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
+<div class="bg-white rounded-3xl max-w-sm w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+<div class="relative h-40 w-full bg-gray-100 flex-shrink-0">
+<img id="recipe-modal-img" src="" class="w-full h-full object-cover">
+<button onclick="closeRecipeModal()" class="absolute top-3 right-3 bg-white text-black p-2 rounded-full shadow-md hover:bg-gray-100 transition">
+<i data-lucide="x" class="w-4 h-4"></i>
+</button>
+</div>
+<div class="p-5 flex-1 overflow-y-auto space-y-4 custom-scrollbar">
+<div>
+<span id="recipe-modal-badge" class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md"></span>
+<h3 id="recipe-modal-title" class="text-xl font-black text-black mt-1 leading-tight">Rezept Name</h3>
+<div class="flex gap-4 text-[11px] text-gray-400 font-bold mt-2">
+<span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> <span id="recipe-modal-zeit"></span></span>
+<span class="flex items-center gap-1"><i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> <span id="recipe-modal-diff"></span></span>
+</div>
+</div>
+<hr class="border-gray-100">
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Zutaten</h4>
+<ul id="recipe-modal-zutaten" class="text-sm font-semibold space-y-1 text-gray-700 list-disc list-inside"></ul>
+</div>
+<hr class="border-gray-100">
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Zubereitung</h4>
+<p id="recipe-modal-anleitung" class="text-xs font-medium text-gray-600 leading-relaxed whitespace-pre-line"></p>
+</div>
+</div>
+<div class="p-4 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+<button id="recipe-modal-cook-btn" class="w-full bg-[#2D5A27] hover:bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition shadow-md">
+<i data-lucide="chef-hat" class="w-4 h-4"></i> Gericht kochen & Zutaten verbrauchen
+</button>
+</div>
+</div>
+</div>
  
-        <!-- Toast Notification Container -->
-<div id="toast-container" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4 pointer-events-none flex flex-col gap-2"></div>
+        <div id="toast-container" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4 pointer-events-none flex flex-col gap-2"></div>
  
-        <!-- ========================================== -->
-<!-- BOTTOM NAVIGATION TAB BAR                  -->
-<!-- ========================================== -->
-<nav class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200/50 flex justify-around py-3 z-40 rounded-t-3xl shadow-lg">
+        <nav class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200/50 flex justify-around py-3 z-40 rounded-t-3xl shadow-lg">
 <button onclick="showView('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-1 text-[#2D5A27] transition-all">
 <i data-lucide="home" class="w-5 h-5"></i><span class="text-[10px] font-bold">Übersicht</span>
 </button>
@@ -239,63 +332,107 @@
  
     </div>
  
-    <!-- ========================================== -->
-<!-- JAVASCRIPT APPLICATION CORE ENGINE         -->
-<!-- ========================================== -->
-<script>
-        // Initialer Datenbestand exakt nach Vorlage aus grafik_4.png
-        const standardLebensmittel = [
-            { name: "Joghurt", tage: 1, mhd: "16.05.2024", img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=120&auto=format&fit=crop&q=60" },
-            { name: "Spinat", tage: 2, mhd: "18.05.2024", img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=120&auto=format&fit=crop&q=60" },
-            { name: "Karotten", tage: 6, mhd: "22.05.2024", img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=120&auto=format&fit=crop&q=60" },
-            { name: "Apfel", tage: 12, mhd: "30.05.2024", img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=120&auto=format&fit=crop&q=60" }
-        ];
- 
-        // Rezept-Datenbank exakt nach Vorlage aus grafik_4.png
+    <script>
         const rezeptDatenbank = [
-            { title: "Cremige Spinat-Pasta", zeit: "20 Min.", diff: "Einfach", zutat: "Spinat", img: "https://images.unsplash.com/photo-1621510456681-23a23cfb5f57?w=300&auto=format&fit=crop&q=80" },
-            { title: "Spinat-Kartoffel Suppe", zeit: "30 Min.", diff: "Einfach", zutat: "Spinat", img: "https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=300&auto=format&fit=crop&q=80" },
-            { title: "Gemüsebratlinge mit Joghurt-Dip", zeit: "25 Min.", diff: "Einfach", zutat: "Karotten", img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&auto=format&fit=crop&q=80" },
-            { title: "Apfel-Zimt Pfannkuchen", zeit: "15 Min.", diff: "Einfach", zutat: "Apfel", img: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=300&auto=format&fit=crop&q=80" }
+            { 
+                id: 0,
+                title: "Cremige Spinat-Pasta", 
+                zeit: "20 Min.", 
+                diff: "Einfach", 
+                zutat: "Spinat", 
+                zutatenListe: ["200g Pasta deiner Wahl", "150g frischer Spinat", "1 Knoblauchzehe", "100ml Kochsahne", "Salz, Pfeffer & Muskatnuss"],
+                anleitung: "1. Koche die Nudeln bissfest.\n2. Hacke den Knoblauch fein und dünste ihn kurz an.\n3. Gib den Spinat hinzu, bis er zusammenfällt.\n4. Gieße die Sahne an, würze kräftig mit Salz, Pfeffer und Muskatnuss.\n5. Nudeln abgießen und unterrühren.",
+                img: "https://images.unsplash.com/photo-1621510456681-23a23cfb5f57?w=300&auto=format&fit=crop&q=80" 
+            },
+            { 
+                id: 1,
+                title: "Spinat-Kartoffel Suppe", 
+                zeit: "30 Min.", 
+                diff: "Einfach", 
+                zutat: "Spinat", 
+                zutatenListe: ["200g Kartoffeln", "150g Spinat", "1 Zwiebel", "500ml Gemüsebrühe", "Salz & Pfeffer"],
+                anleitung: "1. Kartoffeln und Zwiebeln würfeln.\n2. Zwiebeln andünsten, Kartoffeln und Brühe dazugeben.\n3. 15 Min. köcheln lassen, kurz vor Schluss Spinat zufügen.\n4. Cremig pürieren und abschmecken.",
+                img: "https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=300&auto=format&fit=crop&q=80" 
+            },
+            { 
+                id: 2,
+                title: "Gemüsebratlinge mit Joghurt-Dip", 
+                zeit: "25 Min.", 
+                diff: "Einfach", 
+                zutat: "Karotten", 
+                zutatenListe: ["2 Karotten", "1 Ei", "4 EL Haferflocken", "150g Naturjoghurt", "Salz & Pfeffer"],
+                anleitung: "1. Karotten fein raspeln.\n2. Mit Ei und Haferflocken vermengen, würzen und 5 Min. quellen lassen.\n3. Kleine Bratlinge formen und beidseitig braten.\n4. Joghurt mit Kräutern verrühren und dazu servieren.",
+                img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&auto=format&fit=crop&q=80" 
+            },
+            { 
+                id: 3,
+                title: "Apfel-Zimt Pfannkuchen", 
+                zeit: "15 Min.", 
+                diff: "Einfach", 
+                zutat: "Apfel", 
+                zutatenListe: ["1 Apfel", "150g Mehl", "200ml Milch", "1 Ei", "Zimt & Zucker"],
+                anleitung: "1. Mehl, Milch und Ei glattrühren.\n2. Apfel entkernen und in sehr feine Scheiben schneiden.\n3. Äpfel in die Pfanne legen, Teig darüber gießen, mit Zimt/Zucker bestreuen.\n4. Wenden und goldbraun ausbacken.",
+                img: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=300&auto=format&fit=crop&q=80" 
+            }
         ];
  
-        let kuehlschrank = JSON.parse(localStorage.getItem('refowa_fridge')) || [...standardLebensmittel];
-        let stats = JSON.parse(localStorage.getItem('refowa_stats')) || { savedKg: 1.2, wastedKg: 0.0, xp: 120 };
+        const belohnungsDefinitionen = [
+            { lvl: 5, name: "Kochmütze", icon: "👨‍🍳" },
+            { lvl: 10, name: "Kochschürze", icon: "🎽" },
+            { lvl: 20, name: "Rote Kochmütze", icon: "🔴" },
+            { lvl: 30, name: "Rote Kochschürze", icon: "🎒" },
+            { lvl: 40, name: "Pose: Hält eine Bratpfanne", icon: "🍳" },
+            { lvl: 50, name: "Pose: Gekreuzte Arme (Pfanne & Messer)", icon: "⚔️" },
+            { lvl: 75, name: "Pose: Steht am Herd", icon: "🔥" },
+            { lvl: 100, name: "Schulter-Begleiter: Kleiner Lauch", icon: "🌱" }
+        ];
+
+        let kuehlschrank = JSON.parse(localStorage.getItem('refowa_fridge')) || [
+            { name: "Spinat", tage: 1, mhd: "Heute", img: "" },
+            { name: "Karotten", tage: 4, mhd: "In 4 Tagen", img: "" }
+        ];
+        
+        let stats = JSON.parse(localStorage.getItem('refowa_stats')) || { savedKg: 0.0, wastedKg: 0.0, xp: 0 };
+        
+        // Custom Avatar Einstellungen
+        let avatarCustomization = JSON.parse(localStorage.getItem('refowa_avatar')) || {
+            face: "👦",
+            hair: "",
+            eyes: "•  •",
+            glasses: "",
+            clothing: "👕"
+        };
  
         window.onload = () => {
             renderAll();
             lucide.createIcons();
         };
  
-        // Render-Pipeline für alle Ansichten
         function renderAll() {
             renderDashboardExpiry();
             renderDashboardRecipes();
             renderFridgeTab();
             renderRecipesTab();
             renderProfileTab();
-            // Sync Speicherung
+            
             localStorage.setItem('refowa_fridge', JSON.stringify(kuehlschrank));
             localStorage.setItem('refowa_stats', JSON.stringify(stats));
-            // Update Notification Dot
+            localStorage.setItem('refowa_avatar', JSON.stringify(avatarCustomization));
+            
             const dringend = kuehlschrank.some(i => i.tage <= 2);
             document.getElementById('notif-dot').style.display = dringend ? 'block' : 'none';
         }
  
-        // Farb- & Badge-Konfigurator passend zu grafik_4.png
         function getStyleConfig(tage) {
-            if (tage <= 1) return { bg: 'bg-[#8D2A2A]', text: 'text-white', badgeBg: 'bg-[#A33838]', badgeText: 'Sehr dringend', icon: 'alert-circle' };
-            if (tage === 2) return { bg: 'bg-[#DC4A38]', text: 'text-white', badgeBg: 'bg-[#E56353]', badgeText: 'Dringend', icon: 'alert-circle' };
-            if (tage <= 7) return { bg: 'bg-[#F2C965]', text: 'text-[#5A3E1A]', badgeBg: 'bg-[#E9B949]', badgeText: 'Bald fällig', icon: 'alert-circle' };
-            return { bg: 'bg-[#5C9E6E]', text: 'text-white', badgeBg: 'bg-[#4B8B5D]', badgeText: 'Gut', icon: 'check-circle' };
+            if (tage <= 1) return { bg: 'bg-[#8D2A2A]', text: 'text-white', badgeBg: 'bg-[#A33838]', badgeText: 'Sehr dringend' };
+            if (tage === 2) return { bg: 'bg-[#DC4A38]', text: 'text-white', badgeBg: 'bg-[#E56353]', badgeText: 'Dringend' };
+            if (tage <= 7) return { bg: 'bg-[#F2C965]', text: 'text-[#5A3E1A]', badgeBg: 'bg-[#E9B949]', badgeText: 'Bald fällig' };
+            return { bg: 'bg-[#5C9E6E]', text: 'text-white', badgeBg: 'bg-[#4B8B5D]', badgeText: 'Gut' };
         }
  
-        // Dashboard Ablaufliste rendern
         function renderDashboardExpiry() {
             const list = document.getElementById('dashboard-expiry-list');
             list.innerHTML = '';
- 
-            // Sortieren nach Dringlichkeit
             kuehlschrank.sort((a,b) => a.tage - b.tage);
  
             if(kuehlschrank.length === 0) {
@@ -303,123 +440,84 @@
                 return;
             }
  
-            kuehlschrank.slice(0, 4).forEach((item, index) => {
+            kuehlschrank.slice(0, 3).forEach((item, index) => {
                 const conf = getStyleConfig(item.tage);
-                let tText = `Läuft in ${item.tage} Tagen ab`;
-                if(item.tage === 1) tText = "Läuft in 1 Tag ab";
-                if(item.tage === 0) tText = "Läuft heute ab!";
-                if(item.tage < 0) tText = `Seit ${Math.abs(item.tage)} Tagen überfällig`;
- 
                 list.innerHTML += `
-<div onclick="openActionModal(${index})" class="${conf.bg} ${conf.text} p-3.5 rounded-2xl flex justify-between items-center shadow-xs cursor-pointer hover:scale-[1.01] transition-transform">
-<div class="flex items-center gap-3.5">
-<img src="${item.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100'}" class="w-12 h-12 rounded-xl object-cover bg-white shadow-inner">
+<div onclick="openActionModal(${index})" class="${conf.bg} ${conf.text} p-3.5 rounded-2xl flex justify-between items-center cursor-pointer hover:scale-[1.01] transition-transform">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl">🥗</div>
 <div>
-<h3 class="font-bold text-[15px]">${item.name}</h3>
-<p class="text-[11px] opacity-80 font-medium mt-0.5">MHD: ${item.mhd}</p>
-<p class="text-[11px] opacity-95 font-bold mt-0.5">${tText}</p>
+<h3 class="font-bold text-[14px]">${item.name}</h3>
+<p class="text-[11px] opacity-90 font-bold">${item.mhd}</p>
 </div>
 </div>
-<div class="flex items-center gap-2">
-<span class="${conf.badgeBg} text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">${conf.badgeText}</span>
-<i data-lucide="${conf.icon}" class="w-5 h-5 opacity-90"></i>
-</div>
+<span class="${conf.badgeBg} text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">${conf.badgeText}</span>
 </div>
                 `;
             });
             lucide.createIcons();
         }
  
-        // Dashboard Rezept Slider rendern
         function renderDashboardRecipes() {
             const slider = document.getElementById('dashboard-recipe-slider');
             slider.innerHTML = '';
- 
-            // Finde Rezepte, für die Zutaten da sind
             const verfuegbareZutaten = kuehlschrank.map(i => i.name.toLowerCase());
             let passendeRezepte = rezeptDatenbank.filter(r => verfuegbareZutaten.includes(r.zutat.toLowerCase()));
- 
-            // Fallback auf alle Rezepte falls Kühlschrank leer
             if(passendeRezepte.length === 0) passendeRezepte = rezeptDatenbank;
  
             passendeRezepte.forEach(rezept => {
                 slider.innerHTML += `
-<div onclick="kocheRezept('${rezept.title}')" class="bg-white rounded-2xl overflow-hidden w-40 flex-shrink-0 shadow-xs border border-gray-100 cursor-pointer hover:shadow-md transition">
-<div class="relative h-28 w-full bg-gray-100">
-<img src="${rezept.img}" class="w-full h-full object-cover">
-<button class="absolute top-2 right-2 bg-white/80 backdrop-blur-xs p-1.5 rounded-full shadow-xs text-gray-400 hover:text-red-500 transition">
-<i data-lucide="heart" class="w-3.5 h-3.5"></i>
-</button>
-</div>
-<div class="p-3 space-y-2">
-<h4 class="font-bold text-[12px] text-black leading-tight h-8 line-clamp-2">${rezept.title}</h4>
-<div class="flex justify-between items-center text-[10px] text-gray-400 font-bold">
-<span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> ${rezept.zeit}</span>
-<span class="flex items-center gap-1"><i data-lucide="bar-chart-2" class="w-3 h-3"></i> ${rezept.diff}</span>
-</div>
+<div onclick="openRecipeModal(${rezept.id})" class="bg-white rounded-2xl overflow-hidden w-40 flex-shrink-0 shadow-xs border border-gray-100 cursor-pointer hover:shadow-md transition">
+<img src="${rezept.img}" class="w-full h-24 object-cover">
+<div class="p-2.5">
+<h4 class="font-bold text-[12px] text-black line-clamp-1">${rezept.title}</h4>
+<span class="text-[10px] text-gray-400 font-medium">${rezept.zeit}</span>
 </div>
 </div>
                 `;
             });
-            lucide.createIcons();
         }
  
-        // Kühlschrank Tab Inhalt rendern
         function renderFridgeTab() {
             const container = document.getElementById('full-fridge-list');
             container.innerHTML = '';
- 
+            if(kuehlschrank.length === 0) {
+                container.innerHTML = `<div class="p-12 text-center text-xs font-bold text-gray-400">Dein Kühlschrank ist leer.</div>`;
+                return;
+            }
             kuehlschrank.forEach((item, index) => {
                 container.innerHTML += `
-<div class="bg-white p-3.5 rounded-2xl border border-gray-100 flex justify-between items-center shadow-xs">
-<div class="flex items-center gap-3">
-<img src="${item.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100'}" class="w-10 h-10 rounded-xl object-cover bg-gray-50">
+<div class="bg-white p-3 rounded-2xl border border-gray-100 flex justify-between items-center shadow-xs">
 <div>
 <h4 class="font-bold text-sm text-black">${item.name}</h4>
-<p class="text-[11px] text-gray-400 font-medium">MHD: ${item.mhd} (${item.tage} Tage übrig)</p>
+<p class="text-[11px] text-gray-400">${item.mhd} (${item.tage} Tage)</p>
 </div>
-</div>
-<div class="flex gap-1.5">
-<button onclick="openActionModal(${index})" class="bg-[#2D5A27]/10 hover:bg-[#2D5A27]/20 text-[#2D5A27] text-xs font-bold py-2 px-3.5 rounded-xl transition">
-                                Verwalten
-</button>
-</div>
+<button onclick="openActionModal(${index})" class="bg-[#2D5A27]/10 text-[#2D5A27] text-xs font-bold py-1.5 px-3 rounded-xl">Verwalten</button>
 </div>
                 `;
             });
         }
  
-        // Rezepte Tab rendern
         function renderRecipesTab() {
             const grid = document.getElementById('full-recipes-grid');
             grid.innerHTML = '';
- 
             rezeptDatenbank.forEach(rezept => {
                 const imBesitz = kuehlschrank.some(i => i.name.toLowerCase() === rezept.zutat.toLowerCase());
                 grid.innerHTML += `
-<div onclick="kocheRezept('${rezept.title}')" class="bg-white rounded-2xl overflow-hidden shadow-xs border border-gray-100 p-3 flex gap-4 cursor-pointer hover:shadow-md transition">
-<img src="${rezept.img}" class="w-20 h-20 rounded-xl object-cover bg-gray-50 flex-shrink-0">
-<div class="flex-1 flex flex-col justify-between py-0.5">
-<div>
+<div onclick="openRecipeModal(${rezept.id})" class="bg-white rounded-2xl overflow-hidden p-3 flex gap-4 cursor-pointer hover:shadow-md transition">
+<img src="${rezept.img}" class="w-16 h-16 rounded-xl object-cover bg-gray-50 flex-shrink-0">
+<div class="flex-1 flex flex-col justify-between">
 <div class="flex justify-between items-start">
-<h3 class="font-bold text-sm text-black">${rezept.title}</h3>
-<span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${imBesitz ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-400'}">
-                                        ${imBesitz ? 'Zutaten da' : 'Zutaten fehlen'}
-</span>
+<h3 class="font-bold text-sm text-black leading-tight">${rezept.title}</h3>
+<span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${imBesitz ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-400'}">${imBesitz ? 'Zutaten da' : 'Fehlen'}</span>
 </div>
-<p class="text-[11px] text-gray-400 font-medium mt-1">Hauptzutat: ${rezept.zutat}</p>
-</div>
-<div class="flex gap-4 text-[11px] text-gray-400 font-bold">
-<span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> ${rezept.zeit}</span>
-<span class="flex items-center gap-1"><i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> ${rezept.diff}</span>
-</div>
+<div class="text-[10px] text-gray-400 font-medium">Dauer: ${rezept.zeit}</div>
 </div>
 </div>
                 `;
             });
         }
  
-        // Profil Tab rendern
         function renderProfileTab() {
             document.getElementById('banner-weight').innerText = `${stats.savedKg.toFixed(1)} kg`;
             document.getElementById('stat-saved').innerText = `${stats.savedKg.toFixed(1)} kg`;
@@ -430,50 +528,168 @@
             let progressPercent = (currentXp / 500) * 100;
  
             document.getElementById('profile-level').innerText = level;
-            document.getElementById('profile-xp-text').innerText = `${currentXp} / 500`;
+            document.getElementById('profile-xp-text').innerText = `${currentXp} / 500 XP`;
             document.getElementById('profile-xp-bar').style.width = `${progressPercent}%`;
+
+            let titel = "Hobbykoch";
+            if(level >= 10) titel = "Küchen-Assistent";
+            if(level >= 30) titel = "Meister-Chef";
+            if(level >= 50) titel = "Küchen-Legende";
+            if(level >= 100) titel = "Gott der Kochkunst 👑";
+            document.getElementById('current-title-badge').innerText = titel;
+
+            // --- LAYER-SYSTEM FÜR INTERAKTIVEN & FREIGESCHALTETEN AVATAR ---
+            // Basis Custom-Einstellungen laden
+            document.getElementById('layer-face').innerText = avatarCustomization.face;
+            document.getElementById('layer-hair').innerText = avatarCustomization.hair;
+            document.getElementById('layer-eyes').innerText = avatarCustomization.eyes;
+            document.getElementById('layer-glasses').innerText = avatarCustomization.glasses;
+            document.getElementById('layer-clothing').innerText = avatarCustomization.clothing;
+
+            // Zurücksetzen von Level-Overlays
+            let levelHat = "";
+            let shoulderCompanion = "";
+            let backScene = "";
+
+            // Level 5 & 20: Kochmützen-Overlays über die Haare
+            if(level >= 5) levelHat = "👨‍🍳"; 
+            if(level >= 20) levelHat = "🍒"; // Symbolischer roter Überzug / Mütze
+            
+            // Level 10 & 30: Schürzen verändern oder überlagern Kleidung
+            if(level >= 10 && level < 30) document.getElementById('layer-clothing').innerText = "🎽"; // Kochschürze
+            if(level >= 30) document.getElementById('layer-clothing').innerText = "🎒"; // Rote Schürze
+            
+            // Level 40, 50, 75: Posen / Hintergrund-Objekte
+            if(level >= 40 && level < 50) levelHat = "🍳"; // Hält Pfanne
+            if(level >= 50 && level < 75) levelHat = "⚔️"; // Gekreuzte Arme (Pfanne & Messer)
+            if(level >= 75) {
+                backScene = "🔥"; // Steht am heißen Herd im Hintergrund
+            }
+            
+            // Level 100: Lauch auf der Schulter
+            if(level >= 100) shoulderCompanion = "🌱";
+
+            document.getElementById('layer-level-hat').innerText = levelHat;
+            document.getElementById('layer-shoulder').innerText = shoulderCompanion;
+            document.getElementById('layer-back').innerText = backScene;
+
+            // Medaillen ab Level 100 (alle 50 Level)
+            const medalsContainer = document.getElementById('medals-display');
+            medalsContainer.innerHTML = '';
+            if(level >= 100) {
+                let anzahlMedaillen = Math.floor((level - 100) / 50) + 1;
+                for(let i = 0; i < anzahlMedaillen; i++) {
+                    medalsContainer.innerHTML += '🏅';
+                }
+            }
+
+            // Timeline rendern
+            const timeline = document.getElementById('rewards-timeline');
+            timeline.innerHTML = '';
+
+            belohnungsDefinitionen.forEach(item => {
+                const freigeschaltet = level >= item.lvl;
+                timeline.innerHTML += `
+<div class="flex items-center justify-between p-1.5 rounded-xl text-[11px] ${freigeschaltet ? 'bg-emerald-50 border border-emerald-200 text-emerald-900 font-bold' : 'bg-gray-50 text-gray-400 opacity-60'}" style="${!freigeschaltet ? 'text-decoration: line-through;' : ''}">
+<div class="flex items-center gap-2">
+<span class="text-sm">${item.icon}</span>
+<span>Level ${item.lvl}: ${item.name}</span>
+</div>
+<span>${freigeschaltet ? 'Aktiv ✓' : 'Gesperrt'}</span>
+</div>
+                `;
+            });
+        }
+
+        // Editor Steuerungsfunktionen
+        function openAvatarModal() { document.getElementById('avatar-modal').classList.remove('hidden'); }
+        function closeAvatarModal() { document.getElementById('avatar-modal').classList.add('hidden'); }
+        
+        function changeAvatarFeature(category, element) {
+            avatarCustomization[category] = element;
+            renderAll(); // Aktualisiert die Live-Ansicht sofort
         }
  
-        // Modals & Actions Logic
         let activeIndex = null;
- 
         function openActionModal(index) {
             activeIndex = index;
             document.getElementById('modal-item-name').innerText = kuehlschrank[index].name;
-            // Setup Dynamic Triggers
             document.getElementById('modal-btn-rescue').onclick = () => executeAction('rescue');
             document.getElementById('modal-btn-waste').onclick = () => executeAction('waste');
             document.getElementById('action-modal').classList.remove('hidden');
         }
- 
-        function closeActionModal() {
-            document.getElementById('action-modal').classList.add('hidden');
-        }
+        function closeActionModal() { document.getElementById('action-modal').classList.add('hidden'); }
  
         function executeAction(actionType) {
             if(activeIndex === null) return;
             const item = kuehlschrank[activeIndex];
             if(actionType === 'rescue') {
-                stats.savedKg += 0.3; // Standardgewicht-Wertzuwachs pro Rettung
+                stats.savedKg += 0.3; 
                 stats.xp += 150;
-                confetti({ particleCount: 80, spread: 60, origin: { y: 0.8 }, colors: ['#2D5A27', '#F2C965'] });
-                zeigeToast(`"${item.name}" erfolgreich verbraucht! +150 XP`, 'success');
+                confetti({ particleCount: 50, spread: 40, colors: ['#2D5A27', '#F2C965'] });
+                zeigeToast(`"${item.name}" gerettet! +150 XP`, 'success');
             } else {
                 stats.wastedKg += 0.3;
-                stats.xp = Math.max(0, stats.xp - 50); // Kleiner XP Malus
-                zeigeToast(`"${item.name}" wurde als entsorgt markiert.`, 'error');
+                stats.xp = Math.max(0, stats.xp - 50); 
+                zeigeToast(`Als entsorgt markiert. -50 XP`, 'error');
             }
- 
             kuehlschrank.splice(activeIndex, 1);
             closeActionModal();
             renderAll();
         }
+
+        function openRecipeModal(recipeId) {
+            const rezept = rezeptDatenbank.find(r => r.id === recipeId);
+            if(!rezept) return;
+            const imBesitz = kuehlschrank.some(i => i.name.toLowerCase() === rezept.zutat.toLowerCase());
+
+            document.getElementById('recipe-modal-img').src = rezept.img;
+            document.getElementById('recipe-modal-title').innerText = rezept.title;
+            document.getElementById('recipe-modal-zeit').innerText = rezept.zeit;
+            document.getElementById('recipe-modal-diff').innerText = rezept.diff;
+            document.getElementById('recipe-modal-anleitung').innerText = rezept.anleitung;
+
+            const zutatenListeContainer = document.getElementById('recipe-modal-zutaten');
+            zutatenListeContainer.innerHTML = '';
+            rezept.zutatenListe.forEach(z => { zutatenListeContainer.innerHTML += `<li>${z}</li>`; });
+
+            const badge = document.getElementById('recipe-modal-badge');
+            badge.innerText = imBesitz ? 'Zutaten da' : 'Zutaten fehlen';
+            badge.className = `text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md inline-block ${imBesitz ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-400'}`;
+
+            document.getElementById('recipe-modal-cook-btn').onclick = () => {
+                closeRecipeModal();
+                kocheRezept(rezept.title, rezept.zutat);
+            };
+            document.getElementById('recipe-modal').classList.remove('hidden');
+        }
+
+        function closeRecipeModal() { document.getElementById('recipe-modal').classList.add('hidden'); }
  
-        function kocheRezept(title) {
-            confetti({ particleCount: 40, angle: 60, spread: 55, origin: { x: 0 } });
-            confetti({ particleCount: 40, angle: 120, spread: 55, origin: { x: 1 } });
-            zeigeToast(`Guten Appetit! Rezept "${title}" gekocht.`, 'success');
-            stats.xp += 200;
+        function kocheRezept(title, hauptzutat) {
+            confetti({ particleCount: 60, angle: 60, spread: 60, origin: { x: 0 } });
+            confetti({ particleCount: 60, angle: 120, spread: 60, origin: { x: 1 } });
+            
+            const oldLevel = Math.floor(stats.xp / 500) + 1;
+            const zutatIndex = kuehlschrank.findIndex(i => i.name.toLowerCase() === hauptzutat.toLowerCase());
+            
+            if (zutatIndex !== -1) {
+                kuehlschrank.splice(zutatIndex, 1);
+                stats.savedKg += 0.4;
+                zeigeToast(`Nachgekocht! "${hauptzutat}" verwendet. +200 XP`, 'success');
+            } else {
+                zeigeToast(`Rezept "${title}" nachgekocht! +200 XP`, 'success');
+            }
+
+            stats.xp += 200; 
+            const newLevel = Math.floor(stats.xp / 500) + 1;
+            
+            if(newLevel > oldLevel) {
+                setTimeout(() => {
+                    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+                    zeigeToast(`🎉 LEVEL UP! Du bist jetzt Level ${newLevel}! Neue Outfits freigeschaltet.`, 'success');
+                }, 800);
+            }
             renderAll();
         }
  
@@ -486,29 +702,26 @@
             const days = parseInt(document.getElementById('input-days').value);
             const heute = new Date();
             heute.setDate(heute.getDate() + days);
-            const mhdString = heute.toLocaleDateString('de-DE');
  
             kuehlschrank.push({
                 name: name,
                 tage: days,
-                mhd: mhdString,
-                img: "" // Fallback Platzhalter
+                mhd: heute.toLocaleDateString('de-DE'),
+                img: "" 
             });
  
-            zeigeToast(`"${name}" hinzugefügt.`, 'success');
+            zeigeToast(`"${name}" eingeräumt.`, 'success');
             closeAddModal();
-            // Input Reset
             document.getElementById('input-name').value = '';
             document.getElementById('input-days').value = '';
             renderAll();
         }
  
-        // Custom Toast Notification System
         function zeigeToast(text, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             let bg = 'bg-black text-white';
-            if(type === 'success') bg = 'bg-[#2D5A27] text-white shadow-md shadow-emerald-900/20';
+            if(type === 'success') bg = 'bg-[#2D5A27] text-white shadow-md';
             if(type === 'error') bg = 'bg-red-600 text-white';
  
             toast.className = `${bg} px-4 py-3 rounded-2xl text-[11px] font-bold text-center shadow-lg transition-all duration-300 transform translate-y-4 opacity-0`;
@@ -518,10 +731,9 @@
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-2');
                 setTimeout(() => toast.remove(), 300);
-            }, 2500);
+            }, 3000);
         }
  
-        // Navigation Tabs Controller
         function showView(viewId) {
             document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
             document.getElementById('view-' + viewId).classList.remove('hidden');
