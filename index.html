@@ -49,7 +49,7 @@
                 <div class="font-black text-emerald-800 tracking-tight text-base uppercase flex items-center gap-1.5">
                     <i data-lucide="barcode" class="w-5 h-5"></i> ReFoWa
                 </div>
-                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">v1.1.0</div>
+                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">v1.2.0</div>
             </div>
             <div class="flex items-center gap-2">
                 <div class="flex items-center gap-1 bg-amber-50 border border-amber-200/60 px-2 py-1 rounded-xl text-xs font-black text-amber-700 shadow-xs">
@@ -69,7 +69,7 @@
                         <h1 class="text-3xl font-black tracking-tight text-black leading-none">Guten Tag!</h1>
                         <p class="text-xs font-semibold text-gray-500">Scanne Produkte mit ReFoWa, um Lebensmittel zu retten.</p>
                     </div>
-                    <div class="w-12 h-12 bg-emerald-800 text-white rounded-xl flex items-center justify-center text-2xl shadow-md font-bold select-none" id="dashboard-avatar-preview">🧑‍🍳</div>
+                    <div class="w-12 h-12 bg-emerald-800 text-white rounded-xl flex items-center justify-center text-2xl shadow-md font-bold select-none" id="dashboard-avatar-preview">🍳</div>
                 </div>
 
                 <button onclick="AppEngine.openScanModal()" class="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-3 shadow-md transition-all active:scale-[0.99]">
@@ -140,11 +140,12 @@
                 <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs space-y-4">
                     <div class="flex items-center gap-5">
                         <div class="w-20 h-20 bg-[#E4EFE3] rounded-2xl relative overflow-hidden border border-emerald-100 grid items-center justify-items-center">
-                            <span id="layer-face" class="text-4xl">🧑</span>
+                            <span id="profile-avatar-large" class="text-4xl">🍳</span>
                         </div>
                         <div class="flex-1 space-y-1">
                             <h3 class="text-base font-black text-gray-900 leading-none">Level <span id="profile-level">1</span></h3>
-                            <p id="profile-xp-text" class="text-xs text-emerald-800 font-bold">0 / 500 XP</p>
+                            <p id="profile-rank-title" class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Küchen-Lehrling</p>
+                            <p id="profile-xp-text" class="text-xs text-gray-500 font-medium">0 / 500 XP</p>
                         </div>
                     </div>
                 </div>
@@ -181,8 +182,6 @@
                     <p>• <span class="font-bold text-emerald-800">40012345</span> : Frischer Spinat 🥦</p>
                     <p>• <span class="font-bold text-emerald-800">40056789</span> : Bio-Milch 🥛</p>
                     <p>• <span class="font-bold text-emerald-800">42011223</span> : Weizenbrot 🍞</p>
-                    <p>• <span class="font-bold text-emerald-800">40099001</span> : Erdbeeren 🍓</p>
-                    <p>• <span class="font-bold text-emerald-800">40099005</span> : Gouda Käse 🧀</p>
                 </div>
 
                 <button onclick="AppEngine.processScannedBarcode()" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-900 transition flex items-center justify-center gap-2">
@@ -291,6 +290,21 @@
             </div>
         </div>
 
+        <div id="levelup-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-5">
+            <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 text-center shadow-2xl border-2 border-amber-400 animate-fadeIn">
+                <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-sm">🎉</div>
+                <div class="space-y-1">
+                    <h3 class="text-2xl font-black text-black">LEVEL UP!</h3>
+                    <p class="text-xs text-gray-500 font-semibold">Du hast ein neues Level in ReFoWa erreicht!</p>
+                </div>
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-200">
+                    <p class="text-[10px] font-bold text-amber-800 uppercase tracking-widest">Freigeschaltete Belohnung</p>
+                    <p id="levelup-reward-title" class="text-base font-black text-gray-900 mt-1">Neuer Rang & Avatar</p>
+                </div>
+                <button onclick="AppEngine.closeLevelUpModal()" class="w-full bg-emerald-800 text-white p-3 rounded-xl font-bold text-xs shadow-md">Klasse! Weiterretten</button>
+            </div>
+        </div>
+
         <div id="toast-container" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4 pointer-events-none flex flex-col gap-2"></div>
  
         <nav class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200/50 flex justify-around py-3 z-40 rounded-t-3xl shadow-lg">
@@ -358,61 +372,27 @@
             }
         ];
 
-        // Die erweiterte Produktdatenbank für schnelles Scannen / Testen
         const BarcodeDatenbank = {
-            // Klassiker aus dem vorigen Schritt
             "40012345": { name: "Frischer Spinat", cat: "🥦", tage: 3 },
             "40056789": { name: "Bio-Milch", cat: "🥛", tage: 5 },
             "42011223": { name: "Weizenbrot", cat: "🍞", tage: 6 },
-            
-            // 🥦 Frischgemüse
             "40099001": { name: "Rispentomaten", cat: "🥦", tage: 5 },
-            "40099002": { name: "Gurke", cat: "🥦", tage: 4 },
-            "40099003": { name: "Brokkoli", cat: "🥦", tage: 3 },
-            "40099004": { name: "Avocado", cat: "🥦", tage: 2 },
-            "40099021": { name: "Knoblauch", cat: "🥦", tage: 30 },
-            "40099022": { name: "Speisezwiebeln", cat: "🥦", tage: 20 },
-            "40099023": { name: "Kartoffeln", cat: "🥦", tage: 14 },
-            "40099024": { name: "Zucchini", cat: "🥦", tage: 6 },
-            
-            // 🍎 Obst
             "40099005": { name: "Bio-Bananen", cat: "🍎", tage: 4 },
-            "40099006": { name: "Äpfel (Elstar)", cat: "🍎", tage: 12 },
-            "40099007": { name: "Erdbeeren", cat: "🍎", tage: 2 },
-            "40099008": { name: "Heidelbeeren", cat: "🍎", tage: 3 },
-            "40099025": { name: "Zitronen", cat: "🍎", tage: 10 },
-            "40099026": { name: "Weintrauben", cat: "🍎", tage: 5 },
-            
-            // 🥛 Milchprodukte / Alternativen
-            "40099009": { name: "Gouda (gerieben)", cat: "🥛", tage: 8 },
-            "40099010": { name: "Naturjoghurt", cat: "🥛", tage: 7 },
-            "40099011": { name: "Speisequark", cat: "🥛", tage: 6 },
-            "40099012": { name: "Haferdrink Barista", cat: "🥛", tage: 10 },
-            "40099027": { name: "Schmand", cat: "🥛", tage: 9 },
-            "40099028": { name: "Feta-Käse", cat: "🥛", tage: 12 },
-            "40099029": { name: "Butter", cat: "🥛", tage: 14 },
-            
-            // 🍞 Backwaren
-            "40099013": { name: "Toastbrot", cat: "🍞", tage: 7 },
-            "40099014": { name: "Aufbackbrötchen", cat: "🍞", tage: 20 },
-            "40099030": { name: "Tortilla Wraps", cat: "🍞", tage: 15 },
-            
-            // 🥩 Fleisch & Protein
-            "40099015": { name: "Bio-Hähnchenbrust", cat: "🥩", tage: 2 },
-            "40099016": { name: "Rinderhackfleisch", cat: "🥩", tage: 1 },
-            "40099017": { name: "Räuchertofu", cat: "🥩", tage: 14 },
-            "40099018": { name: "Frische Eier (6er)", cat: "🥩", tage: 10 },
-            "40099031": { name: "Lachsfilet", cat: "🥩", tage: 2 },
-            
-            // 🍪 Snacks, Süßes & Vorrat
-            "40099019": { name: "Zartbitterschokolade", cat: "🍪", tage: 60 },
-            "40099020": { name: "Studentenfutter", cat: "🍪", tage: 45 },
-            "40099032": { name: "Kartoffelchips", cat: "🍪", tage: 30 },
-            
-            // 🥤 Getränke
-            "40099033": { name: "Apfelsaft", cat: "🥤", tage: 14 },
-            "40099034": { name: "Mineralwasser Sprudel", cat: "🥤", tage: 90 },
-            "40099035": { name: "Cola", cat: "🥤", tage: 60 }
+            "40099009": { name: "Gouda (gerieben)", cat: "🥛", tage: 8 }
+        };
+
+        // Konfiguration für Level-Belohnungen & Ränge
+        const LevelBelohnungen = {
+            1: { titel: "Küchen-Lehrling", avatar: "🍳" },
+            2: { titel: "Reste-Retter", avatar: "🌱" },
+            3: { titel: "Hobby-Einkäufer", avatar: "🛒" },
+            4: { titel: "Kühlschrank-Meister", avatar: "🥦" },
+            5: { titel: "Suppen-Spezialist", avatar: "🍲" },
+            6: { titel: "Sterne-Restekoch", avatar: "🧑‍🍳" },
+            7: { titel: "Nachhaltigkeits-Fan", avatar: "🌍" },
+            8: { titel: "Lebensmittel-Held", avatar: "🦸" },
+            9: { titel: "Eco-Aktivist", avatar: "🌳" },
+            10: { titel: "Zero-Waste-Guru", avatar: "👑" }
         };
  
         const AppEngine = {
@@ -446,6 +426,39 @@
                 localStorage.setItem('es_log', JSON.stringify(this.state.historyLog));
             },
 
+            calculateLevel: function(xp) {
+                return Math.floor(xp / 500) + 1;
+            },
+
+            getRewardConfig: function(level) {
+                return LevelBelohnungen[level] || { titel: "Zero-Waste-Profi", avatar: "💎" };
+            },
+
+            addXp: function(amount) {
+                const altesLevel = this.calculateLevel(this.state.stats.xp);
+                this.state.stats.xp += amount;
+                const neuesLevel = this.calculateLevel(this.state.stats.xp);
+                
+                if (neuesLevel > altesLevel) {
+                    this.triggerLevelUp(neuesLevel);
+                }
+            },
+
+            triggerLevelUp: function(level) {
+                const config = this.getRewardConfig(level);
+                document.getElementById('levelup-reward-title').innerText = `${config.avatar} ${config.titel}`;
+                document.getElementById('levelup-modal').classList.remove('hidden');
+                
+                if(typeof confetti === 'function') {
+                    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+                }
+                this.state.historyLog.push(`Level-Up! Du bist jetzt: ${config.titel}`);
+            },
+
+            closeLevelUpModal: function() {
+                document.getElementById('levelup-modal').classList.add('hidden');
+            },
+
             getColorClass: function(tage) {
                 if (tage <= 1) return "bg-[#800020]";
                 if (tage >= 2 && tage <= 3) return "bg-red-600";
@@ -462,8 +475,14 @@
 
             renderAll: function() {
                 this.saveState();
+                
+                const level = this.calculateLevel(this.state.stats.xp);
+                const reward = this.getRewardConfig(level);
+                
                 document.getElementById('global-streak-counter').innerText = this.state.stats.streak;
                 document.getElementById('dash-fridge-count').innerText = this.state.kuehlschrank.length;
+                document.getElementById('dashboard-avatar-preview').innerText = reward.avatar;
+                
                 this.renderDashboardExpiry();
                 this.renderDashboardRecipes();
                 this.renderFridgeTab();
@@ -542,9 +561,13 @@
             },
 
             renderProfileTab: function() {
-                let level = Math.floor(this.state.stats.xp / 500) + 1;
-                let currentXp = this.state.stats.xp % 500;
+                const level = this.calculateLevel(this.state.stats.xp);
+                const currentXp = this.state.stats.xp % 500;
+                const reward = this.getRewardConfig(level);
+
                 document.getElementById('profile-level').innerText = level;
+                document.getElementById('profile-rank-title').innerText = reward.titel;
+                document.getElementById('profile-avatar-large').innerText = reward.avatar;
                 document.getElementById('profile-xp-text').innerText = `${currentXp} / 500 XP`;
 
                 const logContainer = document.getElementById('activity-log');
@@ -623,10 +646,12 @@
                 const item = this.state.kuehlschrank[index];
                 this.state.kuehlschrank.splice(index, 1);
                 if(wasSaved) {
-                    this.state.stats.xp += 150;
+                    this.addXp(150);
                     this.state.historyLog.push(`Verbraucht: ${item.name}`);
                     this.zeigeToast("+150 XP!", "success");
-                    if(typeof confetti === 'function') confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } });
+                    if(typeof confetti === 'function' && !document.getElementById('levelup-modal').classList.contains('hidden') === false) {
+                        confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } });
+                    }
                 } else {
                     this.state.historyLog.push(`Tonne: ${item.name}`);
                     this.zeigeToast("In Abfall gebucht.", "info");
@@ -679,7 +704,7 @@
                 
                 document.getElementById('recipe-modal').classList.remove('hidden');
                 document.getElementById('recipe-modal-cook-btn').onclick = () => {
-                    this.state.stats.xp += 200;
+                    this.addXp(200);
                     this.state.historyLog.push(`Gekocht: ${rec.title} (${this.state.currentSelectedPortions} Pers.)`);
                     this.zeigeToast("Lecker! +200 XP", "success");
                     this.closeRecipeModal();
