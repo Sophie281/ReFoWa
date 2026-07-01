@@ -176,8 +176,8 @@
                         </div>
                         <div class="flex-1 space-y-1">
                             <h3 class="text-base font-black text-gray-900 leading-none" id="profile-name-title">User</h3>
-                            <h4 class="text-xs font-bold text-gray-400">Level <span id="profile-level">1</span></h4>
-                            <p id="profile-rank-title" class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Lade Rang...</p>
+                            <h4 class="text-xs font-bold text-gray-400">Level <span class="dash-level-text">1</span></h4>
+                            <p id="profile-rank-title" class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Retter-Neuling</p>
                             
                             <div class="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden mt-2 border border-gray-200/50">
                                 <div id="profile-xp-bar" class="bg-gradient-to-r from-emerald-600 to-teal-500 h-full transition-all duration-500" style="width: 0%"></div>
@@ -288,6 +288,7 @@
     </div>
  
     <script>
+        // Integrierte Rezeptdatenbank aus beiden Systemen
         const RezepteKochbuch = [
             {
                 id: 1,
@@ -488,149 +489,200 @@
                 document.getElementById('profile-avatar-large').innerText = p.avatar;
                 document.getElementById('dashboard-avatar-preview').innerText = p.avatar;
                 
-                document.getElementById('profile-level').innerText = stats.level;
                 document.querySelectorAll('.dash-level-text').forEach(el => el.innerText = stats.level);
                 document.querySelectorAll('.dash-xp-text').forEach(el => el.innerText = stats.xp);
-                
-                let rang = "Nachhaltigkeits-Pionier";
-                if(stats.level >= 3) rang = "Meister-Rettungskoch";
-                if(stats.level >= 5) rang = "Zero-Waste Champion 👑";
-                document.getElementById('profile-rank-title').innerText = rang;
-                
-                const prozent = (stats.xp / 500) * 100;
-                document.getElementById('profile-xp-bar').style.width = `${prozent}%`;
                 document.getElementById('profile-xp-text').innerText = `${stats.xp} / 500 XP`;
+                
+                const percent = (stats.xp / 500) * 100;
+                document.getElementById('profile-xp-bar').style.width = `${percent}%`;
+
+                let rank = "Retter-Neuling";
+                if(stats.level >= 3) rank = "Hobby-Lebensmittelretter";
+                if(stats.level >= 6) rank = "Küchen-Alchemist";
+                if(stats.level >= 10) rank = "Zero-Waste Legende";
+                document.getElementById('profile-rank-title').innerText = rank;
             },
 
             renderAvatarSelector() {
-                const container = document.getElementById('avatar-selector-grid');
-                const currentAvatar = this.state.profile.avatar;
-
-                container.innerHTML = AvailableAvatars.map(av => {
-                    const isSelected = av === currentAvatar;
-                    return `
-                        <button onclick="AppEngine.selectAvatar('${av}')" class="text-2xl p-2 rounded-xl transition border-2 flex items-center justify-center ${isSelected ? 'bg-emerald-50 border-emerald-600 scale-105 shadow-2xs' : 'bg-gray-50 border-gray-100 hover:border-gray-300'}">
-                            ${av}
-                        </button>
-                    `;
-                }).join('');
-            },
-
-            selectAvatar(newAvatar) {
-                this.state.profile.avatar = newAvatar;
-                localStorage.setItem('refowa_avatar', newAvatar);
-                this.loadProfileUi();
-                this.renderAvatarSelector();
-                this.showToast(`Avatar erfolgreich zu ${newAvatar} gewechselt!`);
+                const grid = document.getElementById('avatar-selector-grid');
+                grid.innerHTML = '';
+                AvailableAvatars.forEach(av => {
+                    const btn = document.createElement('button');
+                    btn.className = "text-2xl p-2 bg-gray-50 border rounded-xl hover:bg-emerald-50 transition";
+                    btn.innerText = av;
+                    btn.onclick = () => {
+                        this.state.profile.avatar = av;
+                        localStorage.setItem('refowa_avatar', av);
+                        this.loadProfileUi();
+                        this.showToast("Avatar aktualisiert!");
+                    };
+                    grid.appendChild(btn);
+                });
             },
 
             saveProfileData() {
-                this.state.profile.username = document.getElementById('setting-username').value.trim() || "User";
-                localStorage.setItem('refowa_username', this.state.profile.username);
-                this.loadProfileUi();
-                this.showToast("Profil erfolgreich aktualisiert! ✨");
+                const newName = document.getElementById('setting-username').value.trim();
+                if(newName) {
+                    this.state.profile.username = newName;
+                    localStorage.setItem('refowa_username', newName);
+                    this.loadProfileUi();
+                    this.showToast("Profilname gespeichert!");
+                }
             },
 
             renderFridgeTab() {
-                const searchVal = document.getElementById('fridge-search').value.toLowerCase();
-                const sortVal = document.getElementById('fridge-sort').value;
-
-                let items = this.state.kuehlschrank.filter(i => i.name.toLowerCase().includes(searchVal));
-                if(sortVal === 'days') items.sort((a,b) => a.tage - b.tage);
-                if(sortVal === 'alpha') items.sort((a,b) => a.name.localeCompare(b.name));
-
-                document.getElementById('dash-fridge-count').innerText = this.state.kuehlschrank.length;
-
-                const fridgeContainer = document.getElementById('full-fridge-list');
-                const dashExpiryContainer = document.getElementById('dashboard-expiry-list');
-
-                if(items.length === 0) {
-                    fridgeContainer.innerHTML = `<p class="text-xs text-gray-400 font-medium text-center py-4">Keine Produkte im Kühlschrank.</p>`;
+                const query = document.getElementById('fridge-search').value.toLowerCase();
+                const sort = document.getElementById('fridge-sort').value;
+                const fullList = document.getElementById('full-fridge-list');
+                const dashList = document.getElementById('dashboard-expiry-list');
+                
+                let items = [...this.state.kuehlschrank].filter(i => i.name.toLowerCase().includes(query));
+                
+                if(sort === 'alpha') {
+                    items.sort((a,b) => a.name.localeCompare(b.name));
                 } else {
-                    fridgeContainer.innerHTML = items.map(item => `
-                        <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-2xs flex justify-between items-center">
-                            <div class="flex items-center gap-2.5">
+                    items.sort((a,b) => a.tage - b.tage);
+                }
+
+                // Render Hauptliste
+                fullList.innerHTML = items.length ? '' : '<p class="text-xs text-gray-400 font-bold py-4 text-center">Dein Kühlschrank ist leer.</p>';
+                items.forEach(item => {
+                    let color = "bg-emerald-100 text-emerald-800 border-emerald-200";
+                    if(item.tage <= 2) color = "bg-red-100 text-red-800 border-red-200 animate-pulse";
+                    else if(item.tage <= 4) color = "bg-amber-100 text-amber-800 border-amber-200";
+
+                    fullList.innerHTML += `
+                        <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-2xs flex justify-between items-center">
+                            <div class="flex items-center gap-3">
                                 <span class="text-xl">${item.cat || '📦'}</span>
                                 <div>
-                                    <p class="text-xs font-bold text-gray-900">${item.name}</p>
-                                    <p class="text-[10px] font-semibold ${item.tage <= 2 ? 'text-red-500' : 'text-gray-400'}">MHD: noch ${item.tage} Tage</p>
+                                    <h4 class="text-xs font-black text-gray-900">${item.name}</h4>
+                                    <span class="text-[9px] font-bold px-2 py-0.5 rounded-md border ${color}">MHD: ${item.tage} Tage</span>
                                 </div>
                             </div>
-                            <button onclick="AppEngine.removeFridgeItem(${item.id})" class="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50">
+                            <button onclick="AppEngine.deleteItem(${item.id})" class="p-1.5 text-gray-400 hover:text-red-600 transition">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
-                    `).join('');
-                }
+                    `;
+                });
 
-                // Höchste Priorität Liste auf dem Dashboard rendern
-                const urgentItems = [...this.state.kuehlschrank].sort((a,b) => a.tage - b.tage).slice(0, 3);
-                if(urgentItems.length === 0) {
-                    dashExpiryContainer.innerHTML = `<p class="text-xs text-gray-400 font-medium italic">Alles sicher! Keine ablaufenden Produkte.</p>`;
-                } else {
-                    dashExpiryContainer.innerHTML = urgentItems.map(item => `
-                        <div class="bg-white p-3 rounded-xl border-l-4 ${item.tage <= 2 ? 'border-l-red-500' : 'border-l-amber-500'} border-y border-r border-gray-100 shadow-2xs flex justify-between items-center">
+                // Render Dashboard Höchste Priorität (MHD <= 2)
+                const urgentItems = [...this.state.kuehlschrank].filter(i => i.tage <= 2).sort((a,b) => a.tage - b.tage);
+                document.getElementById('dash-fridge-count').innerText = this.state.kuehlschrank.length;
+                dashList.innerHTML = urgentItems.length ? '' : '<p class="text-xs text-emerald-700 font-bold bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">Alles sicher! Keine akute Ablaufgefahr. 🎉</p>';
+                
+                urgentItems.slice(0, 3).forEach(item => {
+                    dashList.innerHTML += `
+                        <div class="bg-red-50/60 p-2.5 rounded-xl border border-red-100 flex justify-between items-center">
                             <div class="flex items-center gap-2">
-                                <span class="text-lg">${item.cat || '📦'}</span>
-                                <div>
-                                    <p class="text-xs font-bold text-gray-900">${item.name}</p>
-                                    <p class="text-[10px] font-semibold text-red-600">Ablauf in ${item.tage} Tagen!</p>
-                                </div>
+                                <span class="text-lg">${item.cat || '🥛'}</span>
+                                <span class="text-xs font-black text-gray-900">${item.name}</span>
                             </div>
+                            <span class="text-[10px] font-black text-red-700 bg-white border border-red-200 px-2 py-0.5 rounded-lg animate-pulse">In ${item.tage} Tagen ablaufend!</span>
                         </div>
-                    `).join('');
-                }
+                    `;
+                });
                 lucide.createIcons();
-            },
-
-            removeFridgeItem(id) {
-                this.state.kuehlschrank = this.state.kuehlschrank.filter(i => i.id !== id);
-                this.renderFridgeTab();
-                this.showToast("Produkt verbraucht / entfernt! ♻️");
             },
 
             renderRecipesTab() {
-                const container = document.getElementById('full-recipes-grid');
-                const servings = this.state.selectedServings;
+                const grid = document.getElementById('full-recipes-grid');
+                grid.innerHTML = '';
 
-                container.innerHTML = RezepteKochbuch.map(recipe => {
-                    const factor = servings / recipe.basisPersonen;
-                    const zutatenHtml = recipe.zutaten.map(z => {
-                        const berechneteMenge = (z.menge * factor).toFixed(z.menge % 1 === 0 ? 0 : 1);
-                        return `<li>• ${berechneteMenge}${z.einheit} ${z.name}</li>`;
-                    }).join('');
+                RezepteKochbuch.forEach(rez => {
+                    let zutatenHTML = '';
+                    rez.zutaten.forEach(z => {
+                        const berechneteMenge = ((z.menge / rez.basisPersonen) * this.state.selectedServings).toFixed(z.menge % 1 === 0 ? 0 : 1);
+                        zutatenHTML += `<span class="bg-gray-100 text-gray-700 text-[10px] px-2 py-0.5 rounded-md font-bold">${berechneteMenge}${z.einheit} ${z.name}</span>`;
+                    });
 
-                    return `
-                        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs space-y-3">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-2xl">${recipe.icon}</span>
-                                    <h3 class="text-sm font-black text-gray-900">${recipe.name}</h3>
+                    grid.innerHTML += `
+                        <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-2xs space-y-3">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-3xl">${rez.icon || '🧑‍🍳'}</span>
+                                    <div>
+                                        <h3 class="text-sm font-black text-gray-900 leading-tight">${rez.name}</h3>
+                                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Rezept #${rez.id}</p>
+                                    </div>
                                 </div>
-                                <button onclick="AppEngine.cookRecipe(${recipe.id})" class="bg-emerald-800 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-black shadow-xs hover:bg-emerald-900 flex items-center gap-1">
-                                    <i data-lucide="cooking-pot" class="w-3 h-3"></i> Nachkochen (+100 XP)
+                                <button onclick="AppEngine.cookRecipe(${rez.id})" class="bg-emerald-800 text-white px-3 py-1.5 rounded-xl font-black text-[10px] shadow-xs hover:bg-emerald-900 transition flex items-center gap-1">
+                                    🍳 Nachkochen (+100 XP)
                                 </button>
                             </div>
-                            <div class="text-[11px] text-gray-600 font-semibold bg-gray-50 p-2.5 rounded-xl">
-                                <p class="font-bold text-emerald-800 mb-1 uppercase tracking-wider text-[9px]">Zutaten (${servings} Port.):</p>
-                                <ul class="grid grid-cols-2 gap-x-2 gap-y-0.5">${zutatenHtml}</ul>
+                            <div class="flex flex-wrap gap-1.5 pt-1">
+                                ${zutatenHTML}
                             </div>
-                            <p class="text-[11px] text-gray-500 font-medium leading-relaxed bg-amber-50/40 p-2.5 rounded-xl border border-amber-100/40"><b class="text-amber-900">Schritt für Schritt:</b> ${recipe.anleitung}</p>
+                            <div class="p-3 bg-[#FBFBFA] border border-gray-100 rounded-2xl text-[11px] font-medium text-gray-600 leading-relaxed">
+                                <p class="font-extrabold text-black text-[11px] mb-0.5">Anleitung:</p>
+                                ${rez.anleitung}
+                            </div>
                         </div>
                     `;
-                }).join('');
-                lucide.createIcons();
+                });
             },
 
             changeServings(val) {
                 this.state.selectedServings = parseInt(val) || 2;
                 this.renderRecipesTab();
+                this.showToast(`Mengen auf ${val} Personen angepasst!`);
             },
 
             cookRecipe(id) {
-                const r = RezepteKochbuch.find(recipe => recipe.id === id);
+                const r = RezepteKochbuch.find(x => x.id === id);
                 this.addXp(100);
-                this.showToast(`🍳 ${r.name} gekocht! +100 XP ergattert.`);
+                this.showToast(`Yum! „${r.name}“ gekocht. +100 XP generiert!`);
+            },
+
+            deleteItem(id) {
+                this.state.kuehlschrank = this.state.kuehlschrank.filter(x => x.id !== id);
+                this.renderFridgeTab();
+                this.showToast("Produkt entfernt.");
+            },
+
+            handleFormSubmit(e) {
+                e.preventDefault();
+                const name = document.getElementById('input-name').value.trim();
+                const days = parseInt(document.getElementById('input-days').value);
+                
+                if(name && days) {
+                    const newItem = {
+                        id: Date.now(),
+                        name: name,
+                        cat: "📦",
+                        tage: days
+                    };
+                    this.state.kuehlschrank.push(newItem);
+                    this.addXp(50);
+                    this.renderFridgeTab();
+                    this.closeAddModal();
+                    this.showToast(`Erfolgreich gebucht! +50 XP`);
+                    e.target.reset();
+                }
+            },
+
+            simulateScan() {
+                const demoItems = [
+                    { name: "Bio-Tomaten (Rispe)", cat: "🍅", tage: 3 },
+                    { name: "Milch 3.5%", cat: "🥛", tage: 1 },
+                    { name: "Avocado verzehrbereit", cat: "🥑", tage: 2 }
+                ];
+                const picked = demoItems[Math.floor(Math.random() * demoItems.length)];
+                picked.id = Date.now();
+                
+                this.state.kuehlschrank.push(picked);
+                this.addXp(50);
+                this.renderFridgeTab();
+                this.closeScanModal();
+                this.showToast(`Eingescannt: ${picked.name} (+50 XP)`);
+            },
+
+            handleManualBarcodeSubmit() {
+                const val = document.getElementById('manual-barcode-input').value.trim();
+                if(!val) return;
+                this.simulateScan();
+                document.getElementById('manual-barcode-input').value = '';
             },
 
             openScanModal() { document.getElementById('scan-modal').classList.remove('hidden'); },
@@ -639,79 +691,21 @@
             closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); },
             toggleInfoModal(show) { document.getElementById('info-modal').classList[show ? 'remove' : 'add']('hidden'); },
 
-            handleFormSubmit(e) {
-                e.preventDefault();
-                const name = document.getElementById('input-name').value.trim();
-                const tage = parseInt(document.getElementById('input-days').value) || 5;
-
-                const newItem = {
-                    id: Date.now(),
-                    name: name,
-                    cat: "📦",
-                    tage: tage
-                };
-
-                this.state.kuehlschrank.push(newItem);
-                this.addXp(50);
-                this.renderFridgeTab();
-                this.closeAddModal();
-                this.showToast(`➕ ${name} eingebucht! (+50 XP)`);
-                e.target.reset();
-            },
-
-            handleManualBarcodeSubmit() {
-                const code = document.getElementById('manual-barcode-input').value.trim();
-                if(!code) return;
-                this.processBarcode(code);
-                document.getElementById('manual-barcode-input').value = '';
-            },
-
-            simulateScan() {
-                const demoCodes = ["4008400200123", "4311501429156", "4045800001234"];
-                const randomCode = demoCodes[Math.floor(Math.random() * demoCodes.length)];
-                this.processBarcode(randomCode);
-            },
-
-            processBarcode(code) {
-                let pName = "Unbekanntes Produkt";
-                let pCat = "🥫";
-
-                if(code.includes("123")) { pName = "Nutella Haselnusscreme"; pCat = "🥣"; }
-                else if(code.includes("156")) { pName = "Frische Vollmilch"; pCat = "🥛"; }
-                else { pName = `Produkt (${code.slice(-4)})`; pCat = "🍏"; }
-
-                const newItem = {
-                    id: Date.now(),
-                    name: pName,
-                    cat: pCat,
-                    tage: Math.floor(Math.random() * 6) + 2
-                };
-
-                this.state.kuehlschrank.push(newItem);
-                this.addXp(50);
-                this.renderFridgeTab();
-                this.closeScanModal();
-                this.showToast(`📸 ${pName} gescannt! (+50 XP)`);
-            },
-
             showToast(msg) {
                 const container = document.getElementById('toast-container');
-                const toast = document.createElement('div');
-                toast.className = "bg-black/90 backdrop-blur-md text-white text-center py-2.5 px-4 rounded-xl font-bold text-xs shadow-md transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto border border-white/10";
-                toast.innerText = msg;
-                container.appendChild(toast);
-
+                const t = document.createElement('div');
+                t.className = "bg-black/90 backdrop-blur-md text-white text-xs font-black px-4 py-3 rounded-2xl shadow-xl transition-all duration-300 pointer-events-auto flex items-center justify-center text-center page-view";
+                t.innerText = msg;
+                container.appendChild(t);
                 setTimeout(() => {
-                    toast.classList.remove('translate-y-2', 'opacity-0');
-                }, 50);
-
-                setTimeout(() => {
-                    toast.classList.add('translate-y-2', 'opacity-0');
-                    setTimeout(() => toast.remove(), 300);
-                }, 3000);
+                    t.style.opacity = '0';
+                    t.style.transform = 'translateY(10px)';
+                    setTimeout(() => t.remove(), 300);
+                }, 2500);
             }
         };
 
+        // Anwendung starten
         window.addEventListener('DOMContentLoaded', () => AppEngine.init());
     </script>
 </body>
