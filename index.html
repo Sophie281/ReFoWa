@@ -86,8 +86,8 @@
                 <button onclick="AppEngine.openScanModal()" class="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-3 shadow-md transition-all active:scale-[0.99]">
                     <i data-lucide="scan-line" class="w-5 h-5"></i>
                     <div class="text-left">
-                        <p class="font-extrabold text-sm">Produkt einscannen</p>
-                        <p class="text-[10px] text-emerald-200 font-medium">Kamera aktivieren oder Test-Code nutzen</p>
+                        <p class="font-extrabold text-sm">Produkt erfassen</p>
+                        <p class="text-[10px] text-emerald-200 font-medium">Kamera, Nummerneingabe oder Test-Code</p>
                     </div>
                 </button>
  
@@ -220,12 +220,24 @@
                     </h3>
                     <button onclick="AppEngine.closeScanModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
+                
                 <div class="w-full h-44 bg-zinc-900 rounded-2xl relative overflow-hidden border-2 border-emerald-800 flex items-center justify-center">
                     <div id="interactive-camera-feed" class="w-full h-full"></div>
                     <div class="absolute inset-x-0 h-0.5 bg-red-500 shadow-[0_0_8px_#ef4444] scanner-laser top-0 pointer-events-none"></div>
                 </div>
-                <button onclick="AppEngine.simulateScan()" class="w-full bg-amber-500 text-white p-2.5 rounded-xl font-bold text-[11px] shadow-xs hover:bg-amber-600 transition">Test-Produkt scannen (Demo)</button>
-                <button onclick="AppEngine.closeScanModal()" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-900 transition">Schließen</button>
+
+                <div class="pt-2 border-t border-gray-100">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Oder Artikelnummer eingeben</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="manual-barcode-input" placeholder="z.B. 4008400200123" class="flex-1 p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold text-xs focus:outline-none focus:border-emerald-800">
+                        <button onclick="AppEngine.handleManualBarcodeSubmit()" class="bg-emerald-800 text-white px-4 rounded-xl font-bold text-xs hover:bg-emerald-900 transition">Hinzufügen</button>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 pt-1">
+                    <button onclick="AppEngine.simulateScan()" class="flex-1 bg-amber-500 text-white p-2.5 rounded-xl font-bold text-[10px] shadow-xs hover:bg-amber-600 transition">Test-Code (Demo)</button>
+                    <button onclick="AppEngine.closeScanModal()" class="flex-1 bg-gray-200 text-gray-700 p-2.5 rounded-xl font-bold text-[10px] transition hover:bg-gray-300">Schließen</button>
+                </div>
             </div>
         </div>
 
@@ -529,11 +541,15 @@
                 this.showToast("Aus dem Bestand entfernt.");
             },
 
-            // --- CAMERA LIVE SCANNER LOGIC ---
+            toggleInfoModal(show) {
+                document.getElementById('info-modal').classList.toggle('hidden', !show);
+            },
+
+            // --- SCANNER LOGIC WITH MANUAL OVERRIDE ---
             openScanModal() {
                 document.getElementById('scan-modal').classList.remove('hidden');
+                document.getElementById('manual-barcode-input').value = ''; // Input zurücksetzen
                 
-                // Scanner initialisieren und starten
                 setTimeout(() => {
                     try {
                         this.html5QrcodeScanner = new Html5Qrcode("interactive-camera-feed");
@@ -541,17 +557,14 @@
                             { facingMode: "environment" }, 
                             {
                                 fps: 10,
-                                qrbox: { width: 250, height: 150 } // Optimiert für Barcodes
+                                qrbox: { width: 250, height: 150 }
                             },
-                            (decodedText, decodedResult) => {
-                                // Erfolg: Code erkannt
+                            (decodedText) => {
                                 this.handleScanSuccess(decodedText);
                             },
-                            (errorMessage) => {
-                                // Fehler beim Scannen (kann ignoriert werden, da er permanent sucht)
-                            }
+                            () => {}
                         ).catch(err => {
-                            console.warn("Kamera konnte nicht gestartet werden: ", err);
+                            console.warn("Kamera-Start blockiert oder nicht vorhanden:", err);
                         });
                     } catch (e) {
                         console.error("Scanner Error: ", e);
@@ -564,13 +577,26 @@
                 if (this.html5QrcodeScanner) {
                     this.html5QrcodeScanner.stop().then(() => {
                         this.html5QrcodeScanner = null;
-                    }).catch(err => console.error("Fehler beim Stoppen der Kamera: ", err));
+                    }).catch(err => console.error("Fehler beim Kamera-Stopp:", err));
                 }
+            },
+
+            // NEU: Verarbeitet die manuell eingetippte Artikelnummer
+            handleManualBarcodeSubmit() {
+                const inputEl = document.getElementById('manual-barcode-input');
+                const code = inputEl.value.trim();
+                
+                if (code.length < 3) {
+                    this.showToast("Bitte gib eine gültige Artikelnummer ein.");
+                    return;
+                }
+                
+                this.handleScanSuccess(code);
             },
 
             handleScanSuccess(code) {
                 this.closeScanModal();
-                // Generiere zufällige Demodaten passend zum gescannten Code
+                
                 const mockProducts = [
                     { name: "Frischmilch 1L", cat: "🥛", tage: 3 },
                     { name: "Naturjoghurt", cat: "🥛", tage: 5 },
@@ -581,7 +607,7 @@
                 
                 const newItem = {
                     id: Date.now(),
-                    name: `${randomProduct.name} (${code.substring(0, 5)})`,
+                    name: `${randomProduct.name} (${code})`,
                     cat: randomProduct.cat,
                     tage: randomProduct.tage
                 };
@@ -589,17 +615,16 @@
                 this.state.kuehlschrank.push(newItem);
                 this.addXp(50);
                 this.renderFridgeTab();
-                this.showToast(`📸 Code ${code} erkannt! ${newItem.name} hinzugefügt! (+50 XP)`);
+                this.showToast(`📥 Code ${code} gebucht! ${randomProduct.name} hinzugefügt! (+50 XP)`);
             },
 
             simulateScan() {
-                // Ermöglicht das Testen ohne echte Kamera
                 const mockCodes = ["4008400200123", "4105600012345", "4001234567890"];
                 const randomCode = mockCodes[Math.floor(Math.random() * mockCodes.length)];
                 this.handleScanSuccess(randomCode);
             },
 
-            // --- MANUELLE BUCHUNG ---
+            // --- MANUELLE VOLLBUCHUNG ---
             openAddModal() {
                 document.getElementById('add-modal').classList.remove('hidden');
             },
@@ -620,7 +645,7 @@
                 const newItem = {
                     id: Date.now(),
                     name: name,
-                    cat: "🍎", // Standard-Icon für manuelle Eintragungen
+                    cat: "🍎",
                     tage: tage
                 };
 
@@ -649,7 +674,6 @@
             }
         };
 
-        // Starten bei Seitenaufruf
         window.addEventListener('DOMContentLoaded', () => AppEngine.init());
     </script>
 </body>
