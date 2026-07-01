@@ -322,7 +322,10 @@
 
         const AppEngine = {
             state: {
-                kuehlschrank: [],
+                kuehlschrank: [
+                    { id: 1, name: "Magerquark (500g)", cat: "🥛", tage: 2 },
+                    { id: 2, name: "Spinat", cat: "🥦", tage: 4 }
+                ],
                 stats: { xp: 120, streak: 3 },
                 profile: {
                     username: localStorage.getItem('refowa_username') || "EcoRetter",
@@ -335,6 +338,7 @@
             init() {
                 lucide.createIcons();
                 this.loadProfileUi();
+                this.renderFridgeTab();
                 this.showToast("Willkommen zurück bei ReFoWa!");
                 document.getElementById('global-streak-counter').innerText = this.state.stats.streak;
             },
@@ -392,6 +396,110 @@
                 this.showToast(`Avatar zu ${emoji} geändert!`);
             },
 
+            // RENDER SYSTEM FÜR BESTAND, PRÄFERENZEN UND REZEPTE
+            renderFridgeTab() {
+                const searchVal = document.getElementById('fridge-search').value.toLowerCase();
+                const sortVal = document.getElementById('fridge-sort').value;
+
+                let items = this.state.kuehlschrank.filter(i => i.name.toLowerCase().includes(searchVal));
+                if(sortVal === 'days') items.sort((a,b) => a.tage - b.tage);
+                if(sortVal === 'alpha') items.sort((a,b) => a.name.localeCompare(b.name));
+
+                // Counter auf Dashboard & Nav-Punkte aktualisieren
+                document.getElementById('dash-fridge-count').innerText = this.state.kuehlschrank.length;
+
+                // 1. Eigentliche Bestandsliste rendern
+                const fridgeContainer = document.getElementById('full-fridge-list');
+                if(items.length === 0) {
+                    fridgeContainer.innerHTML = `<p class="text-xs text-gray-400 font-medium text-center py-4">Keine Produkte im Kühlschrank.</p>`;
+                } else {
+                    fridgeContainer.innerHTML = items.map(item => `
+                        <div class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-2xs">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">${item.cat}</span>
+                                <div>
+                                    <h4 class="text-xs font-bold text-black">${item.name}</h4>
+                                    <p class="text-[10px] font-semibold ${item.tage <= 3 ? 'text-red-600' : 'text-gray-400'}">MHD: noch ${item.tage} Tage</p>
+                                </div>
+                            </div>
+                            <button onclick="AppEngine.deleteItem(${item.id})" class="text-gray-300 hover:text-red-600 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    `).join('');
+                }
+
+                // 2. Dashboard Ablauf-Warnungen (Weniger als 5 Tage Restzeit)
+                const prioContainer = document.getElementById('dashboard-expiry-list');
+                const prioItems = [...this.state.kuehlschrank].filter(i => i.tage <= 4).sort((a,b) => a.tage - b.tage);
+                
+                if(prioItems.length === 0) {
+                    prioContainer.innerHTML = `<p class="text-xs text-emerald-700 font-bold bg-emerald-50/50 p-3 rounded-xl border border-dashed border-emerald-200 text-center">Alles sicher! Keine dringenden Reste. 🎉</p>`;
+                } else {
+                    prioContainer.innerHTML = prioItems.map(item => `
+                        <div class="bg-red-50 border border-red-100 p-3 rounded-xl flex justify-between items-center">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-lg">${item.cat}</span>
+                                <div>
+                                    <h4 class="text-xs font-extrabold text-gray-900">${item.name}</h4>
+                                    <p class="text-[10px] text-red-700 font-bold">Ablaufgefahr! Noch ${item.tage} Tage.</p>
+                                </div>
+                            </div>
+                            <button onclick="AppEngine.deleteItem(${item.id}, true)" class="bg-white text-red-700 border border-red-200 px-2.5 py-1 rounded-lg text-[10px] font-black shadow-2xs hover:bg-red-100">Verbraucht</button>
+                        </div>
+                    `).join('');
+                }
+
+                // 3. Rezepte updaten
+                this.renderRecipes();
+                lucide.createIcons();
+            },
+
+            renderRecipes() {
+                const recipes = [
+                    { name: "Sahnige Quark-Bowl", ingredients: ["🥛", "🍞"], desc: "Magerquark mit Haferflocken verrühren und frisch genießen." },
+                    { name: "Gedünsteter Vital-Spinat", ingredients: ["🥦"], desc: "Spinat kurz in einer Pfanne schwenken, würzen und servieren." },
+                    { name: "Süßer Snack-Teller", ingredients: ["🍪", "🍎"], desc: "Frische Früchte klein schneiden und als Dip-Beilage reichen." }
+                ];
+
+                // Dashboard Rezept-Slider rendern
+                const sliderContainer = document.getElementById('dashboard-recipe-slider');
+                sliderContainer.innerHTML = recipes.map(r => `
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-3xs min-w-[220px] max-w-[220px] space-y-2 flex flex-col justify-between">
+                        <div>
+                            <span class="flex gap-1">${r.ingredients.map(i=>`<span>${i}</span>`).join('')}</span>
+                            <h4 class="text-xs font-black text-black mt-1 tracking-tight">${r.name}</h4>
+                            <p class="text-[10px] text-gray-400 font-medium line-clamp-2 mt-0.5">${r.desc}</p>
+                        </div>
+                        <button onclick="AppEngine.switchView('recipes')" class="w-full bg-emerald-50 text-emerald-800 font-bold text-[10px] py-1.5 rounded-lg text-center mt-2">Rezept öffnen</button>
+                    </div>
+                `).join('');
+
+                // Großes Kochbuch-Grid rendern
+                const gridContainer = document.getElementById('full-recipes-grid');
+                gridContainer.innerHTML = recipes.map(r => `
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-sm font-black text-black tracking-tight">${r.name}</h4>
+                            <span class="flex gap-1">${r.ingredients.map(i=>`<span class="bg-gray-100 px-1.5 py-0.5 rounded text-xs">${i}</span>`).join('')}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 font-medium leading-relaxed">${r.desc}</p>
+                    </div>
+                `).join('');
+            },
+
+            deleteItem(id, wasConsumed = false) {
+                this.state.kuehlschrank = this.state.kuehlschrank.filter(i => i.id !== id);
+                if(wasConsumed) {
+                    this.state.stats.xp += 30;
+                    this.showToast("Lebensmittel erfolgreich verwertet! +30 XP 🌟");
+                    if(typeof confetti === 'function') confetti({ particleCount: 30, spread: 40 });
+                } else {
+                    this.showToast("Produkt gelöscht.");
+                }
+                this.logActivity(`Produkt entfernt.`);
+                this.loadProfileUi();
+                this.renderFridgeTab();
+            },
+
             openScanModal() { document.getElementById('scan-modal').classList.remove('hidden'); },
             closeScanModal() { document.getElementById('scan-modal').classList.add('hidden'); },
             openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); },
@@ -404,10 +512,27 @@
             },
 
             processScannedBarcode() {
-                const ean = document.getElementById('scan-ean-input').value;
+                const ean = document.getElementById('scan-ean-input').value.trim();
                 if(BarcodeDatenbank[ean]) {
-                    this.showToast(`Erkannt: ${BarcodeDatenbank[ean].name}!`);
+                    const prod = BarcodeDatenbank[ean];
+                    
+                    // Element in das State-Array einfügen
+                    this.state.kuehlschrank.push({
+                        id: Date.now(),
+                        name: prod.name,
+                        cat: prod.cat,
+                        tage: prod.tage
+                    });
+                    
+                    this.state.stats.xp += 50;
+                    this.showToast(`Erkannt & Gespeichert: ${prod.name}! (+50 XP)`);
+                    this.logActivity(`Eingescannt: ${prod.name}`);
                     this.closeScanModal();
+                    document.getElementById('scan-ean-input').value = '';
+                    
+                    // Interface Updates
+                    this.loadProfileUi();
+                    this.renderFridgeTab();
                 } else {
                     this.showToast("Code unbekannt. Bitte manuell eintragen.");
                 }
@@ -415,9 +540,35 @@
 
             handleFormSubmit(e) {
                 e.preventDefault();
-                this.showToast(`${document.getElementById('input-name').value} hinzugefügt!`);
-                this.closeAddModal();
-                e.target.reset();
+                const name = document.getElementById('input-name').value.trim();
+                const cat = document.getElementById('input-category').value;
+                const tage = parseInt(document.getElementById('input-days').value);
+
+                if(name) {
+                    this.state.kuehlschrank.push({
+                        id: Date.now(),
+                        name: name,
+                        cat: cat,
+                        tage: tage
+                    });
+                    
+                    this.state.stats.xp += 50;
+                    this.showToast(`${name} hinzugefügt! (+50 XP)`);
+                    this.logActivity(`Eingebucht: ${name}`);
+                    this.closeAddModal();
+                    
+                    this.loadProfileUi();
+                    this.renderFridgeTab();
+                    e.target.reset();
+                }
+            },
+
+            logActivity(text) {
+                const log = document.getElementById('activity-log');
+                if(log) {
+                    const time = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                    log.innerHTML = `<p class="border-b border-gray-100 py-1"><span class="text-emerald-800">[${time}]</span> ${text}</p>` + log.innerHTML;
+                }
             },
 
             showToast(msg) {
@@ -433,7 +584,7 @@
                 }, 2500);
             },
             
-            checkNotifications() { this.showToast("Keine neuen Benachrichtigungen."); }
+            checkNotifications() { this.showToast("Kene neuen Benachrichtigungen."); }
         };
 
         window.addEventListener('DOMContentLoaded', () => AppEngine.init());
