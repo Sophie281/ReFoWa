@@ -1,365 +1,538 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReFoWa - Reduce Food Waste</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/html5-qrcode"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Reduce Food Waste App</title>
+<!-- Tailwind CSS & Lucide Icons -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<!-- Confetti Effects -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+ 
     <style>
-        /* Spezifische Ampelfarben laut Vorgabe */
-        .status-weinrot { color: #800020; background-color: #fce7f3; }
-        .status-rot { color: #ef4444; background-color: #fee2e2; }
-        .status-gelb { color: #eab308; background-color: #fef9c3; }
-        .status-gruen { color: #22c55e; background-color: #dcfce7; }
-    </style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #EAE5DB;
+            -webkit-tap-highlight-color: transparent; 
+        }
+        .custom-scrollbar::-webkit-scrollbar { display: none; }
+        .page-view { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800 min-h-screen flex flex-col">
-
-    <header class="bg-emerald-600 text-white p-4 shadow-md sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold tracking-wide flex items-center">
-                <i class="fa-solid fa-fridge mr-3"></i>ReFoWa
-            </h1>
-            <p class="text-sm italic hidden sm:block">Reduce Food Waste – Schütze deine Lebensmittel</p>
-        </div>
-    </header>
-
-    <main class="container mx-auto p-4 max-w-4xl flex-grow">
-
-        <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-            <h2 class="text-xl font-semibold mb-4 text-emerald-700 flex items-center">
-                <i class="fa-solid fa-plus-circle mr-2"></i>Lebensmittel hinzufügen
-            </h2>
-            
-            <div id="scanner-wrapper" class="hidden mb-4 p-4 bg-gray-100 rounded-lg text-center">
-                <div id="reader" class="w-full max-w-sm mx-auto overflow-hidden rounded-lg border-2 border-emerald-500 bg-black"></div>
-                <button onclick="stopScanner()" class="mt-3 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium py-1.5 px-4 rounded-lg transition">
-                    <i class="fa-solid fa-xmark mr-2"></i>Scanner schließen
-                </button>
-            </div>
-            
-            <div class="flex flex-wrap gap-3 justify-center mb-6">
-                <button id="btn-start-scanner" onclick="startScanner()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-5 rounded-lg transition shadow-sm flex items-center">
-                    <i class="fa-solid fa-camera mr-2"></i>Kamera-Scanner starten
-                </button>
-                <button onclick="simulateScan()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-5 rounded-lg transition shadow-sm flex items-center">
-                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Demo-Produkt scannen
-                </button>
-            </div>
-
-            <div class="relative flex py-2 items-center mb-4">
-                <div class="flex-grow border-t border-gray-200"></div>
-                <span class="flex-shrink mx-4 text-gray-400 text-xs uppercase tracking-wider">Oder manuell eintragen</span>
-                <div class="flex-grow border-t border-gray-200"></div>
-            </div>
-
-            <form id="manuelles-form" onsubmit="handleManuellesHinzufuegen(event)" class="grid gap-3 sm:grid-cols-3 items-end">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Produktname</label>
-                    <input type="text" id="manual-name" placeholder="z.B. Butter, Salat..." required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Ablaufdatum (MHD)</label>
-                    <input type="date" id="manual-date" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-emerald-500">
-                </div>
-                <button type="submit" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-medium py-2 px-4 rounded-lg transition h-[42px]">
-                    <i class="fa-solid fa-arrow-down-to-bracket mr-2"></i>Speichern
-                </button>
-            </form>
-        </section>
-
-        <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-emerald-700 flex items-center">
-                    <i class="fa-solid fa-box-tissue mr-2"></i>Mein Kühlschrank
-                </h2>
-                <span id="inventar-zaehler" class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full">0 Produkte</span>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
-                            <th class="pb-3 pl-2 w-12">Status</th>
-                            <th class="pb-3 pl-2">Produkt</th>
-                            <th class="pb-3">Ablaufdatum / Zustand</th>
-                            <th class="pb-3 text-right pr-2">Aktion</th>
-                        </tr>
-                    </thead>
-                    <tbody id="kuehlschrank-liste">
-                        </tbody>
-                </table>
-            </div>
-            <p id="leerer-kuehlschrank" class="text-gray-400 text-center py-8 hidden">
-                <i class="fa-solid fa-basket-shopping text-3xl block mb-2 text-gray-300"></i>
-                Dein Kühlschrank ist leer. Scanne ein Produkt oder trage es manuell ein!
-            </p>
-        </section>
-
-        <section class="bg-emerald-50 border border-emerald-200 rounded-xl p-6">
-            <h2 class="text-xl font-semibold mb-2 text-emerald-800 flex items-center">
-                <i class="fa-solid fa-utensils mr-2"></i>Rezept-Vorschläge
-            </h2>
-            <p class="text-xs text-emerald-700 mb-4 font-medium">Automatisch generiert basierend auf den am dringendsten ablaufenden Zutaten.</p>
-            <div id="rezept-container" class="grid gap-4 md:grid-cols-2">
-                </div>
-        </section>
-
-    </main>
-
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
-
-    <script>
-        // Datenbank für Demo-Barcodes
-        const produktDatenbank = {
-            "4000123456789": { name: "Milch", tageBisAblauf: 3 },
-            "4000987654321": { name: "Frischkäse", tageBisAblauf: 1 },
-            "4001122334455": { name: "Tomaten", tageBisAblauf: 6 },
-            "4005566778899": { name: "Naturjoghurt", tageBisAblauf: 12 }
+<body class="text-[#2C2520] min-h-screen antialiased">
+ 
+    <!-- MAIN APP CONTAINER (Zentriertes Smartphone-Layout) -->
+<div class="max-w-md mx-auto min-h-screen flex flex-col relative bg-[#F4F1EA] shadow-2xl pb-24 border-x border-gray-200/30">
+<!-- ========================================== -->
+<!-- TOP NAVIGATION BAR                         -->
+<!-- ========================================== -->
+<header class="p-5 pb-2 flex justify-between items-center bg-[#F4F1EA] sticky top-0 z-30">
+<button onclick="zeigeToast('Menü geöffnet (Demo)', 'info')" class="p-1 hover:opacity-70 transition">
+<i data-lucide="menu" class="w-6 h-6 text-[#2D5A27]"></i>
+</button>
+<!-- Logo aus grafik_3.png / grafik_4.png -->
+<div class="flex items-center justify-center flex-1 mx-4">
+<img src="grafik_3.png" alt="Reduce Food Waste Logo" class="h-10 w-auto object-contain mix-blend-multiply" onerror="this.style.display='none'; document.getElementById('logo-fallback').classList.remove('hidden');">
+<div id="logo-fallback" class="hidden font-black text-emerald-800 tracking-tight text-sm">reduce food waste</div>
+</div>
+ 
+            <div class="flex items-center gap-3">
+<span class="text-xl">🦤</span> <!-- Möwen-Illustration Annäherung -->
+<button onclick="zeigeToast('Keine neuen Benachrichtigungen', 'info')" class="p-1 hover:opacity-70 transition relative">
+<i data-lucide="bell" class="w-5 h-5 text-gray-700"></i>
+<span id="notif-dot" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full hidden"></span>
+</button>
+</div>
+</header>
+ 
+        <!-- ========================================== -->
+<!-- PAGES CONTAINER                            -->
+<!-- ========================================== -->
+<main class="flex-1 px-5 pt-2">
+<!-- TAB 1: ÜBERSICHT (HOME) -->
+<div id="view-dashboard" class="page-view space-y-6">
+<!-- Hero Greeting -->
+<div class="flex justify-between items-center pt-2">
+<div class="space-y-1">
+<h1 class="text-[36px] font-black tracking-tight text-black leading-tight">Halli Hallo!</h1>
+<p class="text-[15px] font-medium text-gray-700 flex items-center gap-1">
+                            Wer Essen rettet, rettet Leben <span class="text-lg">🌱</span>
+</p>
+</div>
+<div class="w-20 h-20 bg-[#E6E2D8] rounded-full flex items-center justify-center text-3xl shadow-inner relative">
+                        🧺
+<span class="absolute -bottom-1 text-xs bg-white px-1.5 py-0.5 rounded-full font-bold text-emerald-800 shadow-xs border">App</span>
+</div>
+</div>
+ 
+                <!-- Section: Bald ablaufende Lebensmittel -->
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<h2 class="font-bold text-[16px] text-black">Bald ablaufende Lebensmittel</h2>
+<button onclick="showView('fridge')" class="text-[#2D5A27] text-xs font-bold hover:underline">Alle anzeigen</button>
+</div>
+<!-- Dynamische Ablaufliste -->
+<div id="dashboard-expiry-list" class="space-y-3">
+<!-- Wird via JavaScript befüllt (Siehe Struktur grafik_4.png) -->
+</div>
+</div>
+ 
+                <!-- Section: Passende Kochideen für dich -->
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<h2 class="font-bold text-[16px] text-black">Passende Kochideen für dich</h2>
+<button onclick="showView('recipes')" class="text-[#2D5A27] text-xs font-bold hover:underline">Alle anzeigen</button>
+</div>
+<!-- Horizontaler Rezept-Slider -->
+<div id="dashboard-recipe-slider" class="flex gap-4 overflow-x-auto custom-scrollbar pb-3 -mx-5 px-5">
+<!-- Wird via JavaScript befüllt -->
+</div>
+</div>
+ 
+                <!-- Section: Eco Impact Banner -->
+<div onclick="showView('profile')" class="bg-[#E4EFE3] p-4 rounded-2xl flex justify-between items-center cursor-pointer hover:opacity-95 transition border border-[#CCE2CA] shadow-xs">
+<div class="flex items-center gap-4">
+<div class="text-3xl text-[#2D5A27]">🌿</div>
+<div>
+<h4 class="font-bold text-[14px] text-[#2D5A27]">Du machst einen Unterschied!</h4>
+<p class="text-[12px] text-[#4A6B45] font-medium mt-0.5">So hast du diese Woche bereits <span id="banner-weight">1,2 kg</span> Lebensmittel gerettet.</p>
+</div>
+</div>
+<i data-lucide="chevron-right" class="w-5 h-5 text-[#2D5A27]"></i>
+</div>
+</div>
+ 
+ 
+            <!-- TAB 2: KÜHLSCHRANK (INHALT & VERWALTUNG) -->
+<div id="view-fridge" class="page-view hidden space-y-4">
+<div class="flex justify-between items-center">
+<div>
+<h2 class="text-2xl font-black text-black">Dein Kühlschrank</h2>
+<p class="text-xs text-gray-500 font-medium">Verwalte, koche oder sortiere deine Vorräte aus.</p>
+</div>
+<button onclick="openAddModal()" class="bg-[#2D5A27] text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md hover:bg-emerald-800 transition">
+<i data-lucide="plus" class="w-4 h-4"></i> Hinzufügen
+</button>
+</div>
+ 
+                <div id="full-fridge-list" class="space-y-2.5">
+<!-- Volle Inhaltsliste -->
+</div>
+</div>
+ 
+ 
+            <!-- TAB 3: REZEPTE (KOCHIDEEN-ZENTRALE) -->
+<div id="view-recipes" class="page-view hidden space-y-4">
+<div>
+<h2 class="text-2xl font-black text-black">Rezepte-Zentrale 🪄</h2>
+<p class="text-xs text-gray-500 font-medium">Diese Gerichte kannst du mit deinen aktuellen Zutaten kochen.</p>
+</div>
+<div id="full-recipes-grid" class="grid grid-cols-1 gap-4">
+<!-- Alle Rezepte -->
+</div>
+</div>
+ 
+ 
+            <!-- TAB 4: PROFIL (ECO STATS) -->
+<div id="view-profile" class="page-view hidden space-y-5">
+<div>
+<h2 class="text-2xl font-black text-black">Dein Eco-Impact</h2>
+<p class="text-xs text-gray-500 font-medium">Deine persönliche Nachhaltigkeits-Statistik.</p>
+</div>
+ 
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs text-center relative overflow-hidden">
+<div class="w-16 h-16 bg-[#E4EFE3] rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-inner mb-2">🦸‍♀️</div>
+<h3 class="text-lg font-black text-gray-900">Food-Retter Held</h3>
+<p class="text-xs text-emerald-700 font-extrabold tracking-widest uppercase mt-0.5">Level <span id="profile-level">1</span></p>
+<div class="mt-4 text-left">
+<div class="flex justify-between text-[10px] font-bold text-gray-400 mb-1">
+<span>NÄCHSTES LEVEL XP</span><span id="profile-xp-text" class="text-emerald-700">120 / 500</span>
+</div>
+<div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+<div id="profile-xp-bar" class="h-full bg-[#2D5A27] rounded-full transition-all duration-500" style="width: 24%"></div>
+</div>
+</div>
+</div>
+ 
+                <div class="grid grid-cols-2 gap-3">
+<div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
+<span id="stat-saved" class="text-2xl font-black text-[#2D5A27]">1.2 kg</span>
+<p class="text-[10px] text-gray-400 font-bold uppercase mt-1">Gerettet insgesamt</p>
+</div>
+<div class="bg-white p-4 rounded-2xl border border-gray-100 text-center">
+<span id="stat-wasted" class="text-2xl font-black text-red-600">0.0 kg</span>
+<p class="text-[10px] text-gray-400 font-bold uppercase mt-1">Verdorben / Entsorgt</p>
+</div>
+</div>
+</div>
+ 
+        </main>
+ 
+        <!-- ========================================== -->
+<!-- OVERLAYS & MODALS                          -->
+<!-- ========================================== -->
+<!-- Detail & Action Modal für Lebensmittel -->
+<div id="action-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
+<div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+<div class="flex justify-between items-start">
+<h3 id="modal-item-name" class="text-xl font-black text-black">Lebensmittel</h3>
+<button onclick="closeActionModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
+</div>
+<p class="text-xs text-gray-500 font-medium">Was möchtest du mit diesem Lebensmittel tun?</p>
+<div class="grid grid-cols-1 gap-2.5 pt-2">
+<button id="modal-btn-rescue" class="w-full bg-[#2D5A27] hover:bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition shadow-sm">
+<i data-lucide="check" class="w-4 h-4"></i> Erfolgreich gegessen / gerettet
+</button>
+<button id="modal-btn-waste" class="w-full bg-red-50 hover:bg-red-100 text-red-600 p-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition">
+<i data-lucide="trash-2" class="w-4 h-4"></i> Leider schlecht geworden / entsorgt
+</button>
+</div>
+</div>
+</div>
+ 
+        <!-- Hinzufügen Modal -->
+<div id="add-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
+<div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+<div class="flex justify-between items-start">
+<h3 class="text-lg font-black text-black">Zutat hinzufügen</h3>
+<button onclick="closeAddModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
+</div>
+<form onsubmit="handleFormSubmit(event)" class="space-y-3">
+<div>
+<label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Name</label>
+<input type="text" id="input-name" placeholder="z.B. Tomaten, Milch..." required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2D5A27]">
+</div>
+<div>
+<label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tage bis Ablauf</label>
+<input type="number" id="input-days" placeholder="z.B. 3" min="-10" max="100" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2D5A27]">
+</div>
+<button type="submit" class="w-full bg-black text-white p-3.5 rounded-xl font-bold text-xs shadow-md transition pt-3">
+                        In den Kühlschrank legen
+</button>
+</form>
+</div>
+</div>
+ 
+        <!-- Toast Notification Container -->
+<div id="toast-container" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4 pointer-events-none flex flex-col gap-2"></div>
+ 
+        <!-- ========================================== -->
+<!-- BOTTOM NAVIGATION TAB BAR                  -->
+<!-- ========================================== -->
+<nav class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200/50 flex justify-around py-3 z-40 rounded-t-3xl shadow-lg">
+<button onclick="showView('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-1 text-[#2D5A27] transition-all">
+<i data-lucide="home" class="w-5 h-5"></i><span class="text-[10px] font-bold">Übersicht</span>
+</button>
+<button onclick="showView('fridge')" id="nav-fridge" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 transition-all">
+<i data-lucide="refrigerator" class="w-5 h-5"></i><span class="text-[10px] font-bold">Kühlschrank</span>
+</button>
+<button onclick="showView('recipes')" id="nav-recipes" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 transition-all">
+<i data-lucide="chef-hat" class="w-5 h-5"></i><span class="text-[10px] font-bold">Rezepte</span>
+</button>
+<button onclick="showView('profile')" id="nav-profile" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 transition-all">
+<i data-lucide="user" class="w-5 h-5"></i><span class="text-[10px] font-bold">Profil</span>
+</button>
+</nav>
+ 
+    </div>
+ 
+    <!-- ========================================== -->
+<!-- JAVASCRIPT APPLICATION CORE ENGINE         -->
+<!-- ========================================== -->
+<script>
+        // Initialer Datenbestand exakt nach Vorlage aus grafik_4.png
+        const standardLebensmittel = [
+            { name: "Joghurt", tage: 1, mhd: "16.05.2024", img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=120&auto=format&fit=crop&q=60" },
+            { name: "Spinat", tage: 2, mhd: "18.05.2024", img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=120&auto=format&fit=crop&q=60" },
+            { name: "Karotten", tage: 6, mhd: "22.05.2024", img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=120&auto=format&fit=crop&q=60" },
+            { name: "Apfel", tage: 12, mhd: "30.05.2024", img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=120&auto=format&fit=crop&q=60" }
+        ];
+ 
+        // Rezept-Datenbank exakt nach Vorlage aus grafik_4.png
+        const rezeptDatenbank = [
+            { title: "Cremige Spinat-Pasta", zeit: "20 Min.", diff: "Einfach", zutat: "Spinat", img: "https://images.unsplash.com/photo-1621510456681-23a23cfb5f57?w=300&auto=format&fit=crop&q=80" },
+            { title: "Spinat-Kartoffel Suppe", zeit: "30 Min.", diff: "Einfach", zutat: "Spinat", img: "https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=300&auto=format&fit=crop&q=80" },
+            { title: "Gemüsebratlinge mit Joghurt-Dip", zeit: "25 Min.", diff: "Einfach", zutat: "Karotten", img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&auto=format&fit=crop&q=80" },
+            { title: "Apfel-Zimt Pfannkuchen", zeit: "15 Min.", diff: "Einfach", zutat: "Apfel", img: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=300&auto=format&fit=crop&q=80" }
+        ];
+ 
+        let kuehlschrank = JSON.parse(localStorage.getItem('refowa_fridge')) || [...standardLebensmittel];
+        let stats = JSON.parse(localStorage.getItem('refowa_stats')) || { savedKg: 1.2, wastedKg: 0.0, xp: 120 };
+ 
+        window.onload = () => {
+            renderAll();
+            lucide.createIcons();
         };
-
-        let kuehlschrank = JSON.parse(localStorage.getItem('kuehlschrank')) || [];
-        let html5QrCode = null;
-
-        // Custom Toast-Meldungen statt hässlichen Alerts
-        function zeigeToast(nachricht, typ = 'success') {
+ 
+        // Render-Pipeline für alle Ansichten
+        function renderAll() {
+            renderDashboardExpiry();
+            renderDashboardRecipes();
+            renderFridgeTab();
+            renderRecipesTab();
+            renderProfileTab();
+            // Sync Speicherung
+            localStorage.setItem('refowa_fridge', JSON.stringify(kuehlschrank));
+            localStorage.setItem('refowa_stats', JSON.stringify(stats));
+            // Update Notification Dot
+            const dringend = kuehlschrank.some(i => i.tage <= 2);
+            document.getElementById('notif-dot').style.display = dringend ? 'block' : 'none';
+        }
+ 
+        // Farb- & Badge-Konfigurator passend zu grafik_4.png
+        function getStyleConfig(tage) {
+            if (tage <= 1) return { bg: 'bg-[#8D2A2A]', text: 'text-white', badgeBg: 'bg-[#A33838]', badgeText: 'Sehr dringend', icon: 'alert-circle' };
+            if (tage === 2) return { bg: 'bg-[#DC4A38]', text: 'text-white', badgeBg: 'bg-[#E56353]', badgeText: 'Dringend', icon: 'alert-circle' };
+            if (tage <= 7) return { bg: 'bg-[#F2C965]', text: 'text-[#5A3E1A]', badgeBg: 'bg-[#E9B949]', badgeText: 'Bald fällig', icon: 'alert-circle' };
+            return { bg: 'bg-[#5C9E6E]', text: 'text-white', badgeBg: 'bg-[#4B8B5D]', badgeText: 'Gut', icon: 'check-circle' };
+        }
+ 
+        // Dashboard Ablaufliste rendern
+        function renderDashboardExpiry() {
+            const list = document.getElementById('dashboard-expiry-list');
+            list.innerHTML = '';
+ 
+            // Sortieren nach Dringlichkeit
+            kuehlschrank.sort((a,b) => a.tage - b.tage);
+ 
+            if(kuehlschrank.length === 0) {
+                list.innerHTML = `<div class="p-8 bg-white/50 border border-dashed rounded-2xl text-center text-xs font-bold text-gray-400">Dein Kühlschrank ist leer! 🧺</div>`;
+                return;
+            }
+ 
+            kuehlschrank.slice(0, 4).forEach((item, index) => {
+                const conf = getStyleConfig(item.tage);
+                let tText = `Läuft in ${item.tage} Tagen ab`;
+                if(item.tage === 1) tText = "Läuft in 1 Tag ab";
+                if(item.tage === 0) tText = "Läuft heute ab!";
+                if(item.tage < 0) tText = `Seit ${Math.abs(item.tage)} Tagen überfällig`;
+ 
+                list.innerHTML += `
+<div onclick="openActionModal(${index})" class="${conf.bg} ${conf.text} p-3.5 rounded-2xl flex justify-between items-center shadow-xs cursor-pointer hover:scale-[1.01] transition-transform">
+<div class="flex items-center gap-3.5">
+<img src="${item.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100'}" class="w-12 h-12 rounded-xl object-cover bg-white shadow-inner">
+<div>
+<h3 class="font-bold text-[15px]">${item.name}</h3>
+<p class="text-[11px] opacity-80 font-medium mt-0.5">MHD: ${item.mhd}</p>
+<p class="text-[11px] opacity-95 font-bold mt-0.5">${tText}</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="${conf.badgeBg} text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">${conf.badgeText}</span>
+<i data-lucide="${conf.icon}" class="w-5 h-5 opacity-90"></i>
+</div>
+</div>
+                `;
+            });
+            lucide.createIcons();
+        }
+ 
+        // Dashboard Rezept Slider rendern
+        function renderDashboardRecipes() {
+            const slider = document.getElementById('dashboard-recipe-slider');
+            slider.innerHTML = '';
+ 
+            // Finde Rezepte, für die Zutaten da sind
+            const verfuegbareZutaten = kuehlschrank.map(i => i.name.toLowerCase());
+            let passendeRezepte = rezeptDatenbank.filter(r => verfuegbareZutaten.includes(r.zutat.toLowerCase()));
+ 
+            // Fallback auf alle Rezepte falls Kühlschrank leer
+            if(passendeRezepte.length === 0) passendeRezepte = rezeptDatenbank;
+ 
+            passendeRezepte.forEach(rezept => {
+                slider.innerHTML += `
+<div onclick="kocheRezept('${rezept.title}')" class="bg-white rounded-2xl overflow-hidden w-40 flex-shrink-0 shadow-xs border border-gray-100 cursor-pointer hover:shadow-md transition">
+<div class="relative h-28 w-full bg-gray-100">
+<img src="${rezept.img}" class="w-full h-full object-cover">
+<button class="absolute top-2 right-2 bg-white/80 backdrop-blur-xs p-1.5 rounded-full shadow-xs text-gray-400 hover:text-red-500 transition">
+<i data-lucide="heart" class="w-3.5 h-3.5"></i>
+</button>
+</div>
+<div class="p-3 space-y-2">
+<h4 class="font-bold text-[12px] text-black leading-tight h-8 line-clamp-2">${rezept.title}</h4>
+<div class="flex justify-between items-center text-[10px] text-gray-400 font-bold">
+<span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> ${rezept.zeit}</span>
+<span class="flex items-center gap-1"><i data-lucide="bar-chart-2" class="w-3 h-3"></i> ${rezept.diff}</span>
+</div>
+</div>
+</div>
+                `;
+            });
+            lucide.createIcons();
+        }
+ 
+        // Kühlschrank Tab Inhalt rendern
+        function renderFridgeTab() {
+            const container = document.getElementById('full-fridge-list');
+            container.innerHTML = '';
+ 
+            kuehlschrank.forEach((item, index) => {
+                container.innerHTML += `
+<div class="bg-white p-3.5 rounded-2xl border border-gray-100 flex justify-between items-center shadow-xs">
+<div class="flex items-center gap-3">
+<img src="${item.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100'}" class="w-10 h-10 rounded-xl object-cover bg-gray-50">
+<div>
+<h4 class="font-bold text-sm text-black">${item.name}</h4>
+<p class="text-[11px] text-gray-400 font-medium">MHD: ${item.mhd} (${item.tage} Tage übrig)</p>
+</div>
+</div>
+<div class="flex gap-1.5">
+<button onclick="openActionModal(${index})" class="bg-[#2D5A27]/10 hover:bg-[#2D5A27]/20 text-[#2D5A27] text-xs font-bold py-2 px-3.5 rounded-xl transition">
+                                Verwalten
+</button>
+</div>
+</div>
+                `;
+            });
+        }
+ 
+        // Rezepte Tab rendern
+        function renderRecipesTab() {
+            const grid = document.getElementById('full-recipes-grid');
+            grid.innerHTML = '';
+ 
+            rezeptDatenbank.forEach(rezept => {
+                const imBesitz = kuehlschrank.some(i => i.name.toLowerCase() === rezept.zutat.toLowerCase());
+                grid.innerHTML += `
+<div onclick="kocheRezept('${rezept.title}')" class="bg-white rounded-2xl overflow-hidden shadow-xs border border-gray-100 p-3 flex gap-4 cursor-pointer hover:shadow-md transition">
+<img src="${rezept.img}" class="w-20 h-20 rounded-xl object-cover bg-gray-50 flex-shrink-0">
+<div class="flex-1 flex flex-col justify-between py-0.5">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-sm text-black">${rezept.title}</h3>
+<span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${imBesitz ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-400'}">
+                                        ${imBesitz ? 'Zutaten da' : 'Zutaten fehlen'}
+</span>
+</div>
+<p class="text-[11px] text-gray-400 font-medium mt-1">Hauptzutat: ${rezept.zutat}</p>
+</div>
+<div class="flex gap-4 text-[11px] text-gray-400 font-bold">
+<span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> ${rezept.zeit}</span>
+<span class="flex items-center gap-1"><i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> ${rezept.diff}</span>
+</div>
+</div>
+</div>
+                `;
+            });
+        }
+ 
+        // Profil Tab rendern
+        function renderProfileTab() {
+            document.getElementById('banner-weight').innerText = `${stats.savedKg.toFixed(1)} kg`;
+            document.getElementById('stat-saved').innerText = `${stats.savedKg.toFixed(1)} kg`;
+            document.getElementById('stat-wasted').innerText = `${stats.wastedKg.toFixed(1)} kg`;
+ 
+            let level = Math.floor(stats.xp / 500) + 1;
+            let currentXp = stats.xp % 500;
+            let progressPercent = (currentXp / 500) * 100;
+ 
+            document.getElementById('profile-level').innerText = level;
+            document.getElementById('profile-xp-text').innerText = `${currentXp} / 500`;
+            document.getElementById('profile-xp-bar').style.width = `${progressPercent}%`;
+        }
+ 
+        // Modals & Actions Logic
+        let activeIndex = null;
+ 
+        function openActionModal(index) {
+            activeIndex = index;
+            document.getElementById('modal-item-name').innerText = kuehlschrank[index].name;
+            // Setup Dynamic Triggers
+            document.getElementById('modal-btn-rescue').onclick = () => executeAction('rescue');
+            document.getElementById('modal-btn-waste').onclick = () => executeAction('waste');
+            document.getElementById('action-modal').classList.remove('hidden');
+        }
+ 
+        function closeActionModal() {
+            document.getElementById('action-modal').classList.add('hidden');
+        }
+ 
+        function executeAction(actionType) {
+            if(activeIndex === null) return;
+            const item = kuehlschrank[activeIndex];
+            if(actionType === 'rescue') {
+                stats.savedKg += 0.3; // Standardgewicht-Wertzuwachs pro Rettung
+                stats.xp += 150;
+                confetti({ particleCount: 80, spread: 60, origin: { y: 0.8 }, colors: ['#2D5A27', '#F2C965'] });
+                zeigeToast(`"${item.name}" erfolgreich verbraucht! +150 XP`, 'success');
+            } else {
+                stats.wastedKg += 0.3;
+                stats.xp = Math.max(0, stats.xp - 50); // Kleiner XP Malus
+                zeigeToast(`"${item.name}" wurde als entsorgt markiert.`, 'error');
+            }
+ 
+            kuehlschrank.splice(activeIndex, 1);
+            closeActionModal();
+            renderAll();
+        }
+ 
+        function kocheRezept(title) {
+            confetti({ particleCount: 40, angle: 60, spread: 55, origin: { x: 0 } });
+            confetti({ particleCount: 40, angle: 120, spread: 55, origin: { x: 1 } });
+            zeigeToast(`Guten Appetit! Rezept "${title}" gekocht.`, 'success');
+            stats.xp += 200;
+            renderAll();
+        }
+ 
+        function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); }
+        function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); }
+ 
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('input-name').value;
+            const days = parseInt(document.getElementById('input-days').value);
+            const heute = new Date();
+            heute.setDate(heute.getDate() + days);
+            const mhdString = heute.toLocaleDateString('de-DE');
+ 
+            kuehlschrank.push({
+                name: name,
+                tage: days,
+                mhd: mhdString,
+                img: "" // Fallback Platzhalter
+            });
+ 
+            zeigeToast(`"${name}" hinzugefügt.`, 'success');
+            closeAddModal();
+            // Input Reset
+            document.getElementById('input-name').value = '';
+            document.getElementById('input-days').value = '';
+            renderAll();
+        }
+ 
+        // Custom Toast Notification System
+        function zeigeToast(text, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            const farbe = typ === 'success' ? 'bg-emerald-600' : (typ === 'error' ? 'bg-red-600' : 'bg-blue-600');
-            
-            toast.className = `${farbe} text-white px-4 py-3 rounded-lg shadow-lg text-sm flex items-center gap-2 transform translate-y-5 opacity-0 transition-all duration-300`;
-            toast.innerHTML = `<i class="fa-solid ${typ === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i> <span>${nachricht}</span>`;
-            
+            let bg = 'bg-black text-white';
+            if(type === 'success') bg = 'bg-[#2D5A27] text-white shadow-md shadow-emerald-900/20';
+            if(type === 'error') bg = 'bg-red-600 text-white';
+ 
+            toast.className = `${bg} px-4 py-3 rounded-2xl text-[11px] font-bold text-center shadow-lg transition-all duration-300 transform translate-y-4 opacity-0`;
+            toast.innerText = text;
             container.appendChild(toast);
-            setTimeout(() => {
-                toast.classList.remove('translate-y-5', 'opacity-0');
-            }, 10);
-
+            setTimeout(() => toast.classList.remove('translate-y-4', 'opacity-0'), 10);
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-2');
                 setTimeout(() => toast.remove(), 300);
-            }, 3500);
+            }, 2500);
         }
-
-        // Resttage berechnen
-        function berechneRestTage(ablaufDatumStr) {
-            const heute = new Date();
-            heute.setHours(0,0,0,0);
-            const ablauf = new Date(ablaufDatumStr);
-            ablauf.setHours(0,0,0,0);
-            
-            const unterschiedZeit = ablauf - heute;
-            return Math.ceil(unterschiedZeit / (1000 * 60 * 60 * 24));
-        }
-
-        // Statusfarbe ermitteln
-        function holeStatusKlasse(tage) {
-            if (tage <= 1) return 'status-weinrot';
-            if (tage >= 2 && tage <= 3) return 'status-rot';
-            if (tage >= 4 && tage <= 8) return 'status-gelb';
-            return 'status-gruen';
-        }
-
-        // HTML-Ansicht rendern
-        function updateKuehlschrankAnsicht() {
-            const liste = document.getElementById('kuehlschrank-liste');
-            const leererHinweis = document.getElementById('leerer-kuehlschrank');
-            const zaehler = document.getElementById('inventar-zaehler');
-            
-            liste.innerHTML = '';
-            zaehler.innerText = `${kuehlschrank.length} ${kuehlschrank.length === 1 ? 'Produkt' : 'Produkte'}`;
-
-            // Sortierung: Kritischste Produkte zuerst
-            kuehlschrank.sort((a, b) => new Date(a.ablaufDatum) - new Date(b.ablaufDatum));
-
-            if (kuehlschrank.length === 0) {
-                leererHinweis.classList.remove('hidden');
-            } else {
-                leererHinweis.classList.add('hidden');
-                
-                kuehlschrank.forEach((item, index) => {
-                    const tage = berechneRestTage(item.ablaufDatum);
-                    const statusKlasse = holeStatusKlasse(tage);
-                    
-                    let statusText = `${tage} Tage übrig`;
-                    if (tage === 0) statusText = "Heute läuft es ab!";
-                    if (tage === 1) statusText = "Morgen läuft es ab!";
-                    if (tage < 0) statusText = `Seit ${Math.abs(tage)} Tagen abgelaufen`;
-
-                    const tr = document.createElement('tr');
-                    tr.className = "border-b border-gray-100 hover:bg-gray-50/80 transition text-sm md:text-base";
-                    tr.innerHTML = `
-                        <td class="py-3 pl-2">
-                            <span class="${statusKlasse} p-1.5 rounded-full inline-flex items-center justify-center">
-                                <i class="fa-solid fa-circle text-xs"></i>
-                            </span>
-                        </td>
-                        <td class="py-3 pl-2 font-semibold text-gray-900">${item.name}</td>
-                        <td class="py-3 text-sm text-gray-600">
-                            <span class="block font-medium">${new Date(item.ablaufDatum).toLocaleDateString('de-DE')}</span>
-                            <span class="text-xs text-gray-400">${statusText}</span>
-                        </td>
-                        <td class="py-3 text-right pr-2">
-                            <button onclick="loescheProdukt(${index})" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition" title="Produkt entfernen">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </td>
-                    `;
-                    liste.appendChild(tr);
-                });
-            }
-            speichereDaten();
-            generiereRezeptVorschlaege();
-        }
-
-        // Produkt-Logik
-        function fuegeProduktHinzu(name, tageBisAblauf) {
-            const ablaufDatum = new Date();
-            ablaufDatum.setDate(ablaufDatum.getDate() + tageBisAblauf);
-            
-            kuehlschrank.push({
-                name: name,
-                ablaufDatum: ablaufDatum.toISOString().split('T')[0]
+ 
+        // Navigation Tabs Controller
+        function showView(viewId) {
+            document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
+            document.getElementById('view-' + viewId).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-[#2D5A27]');
+                btn.classList.add('text-gray-400');
             });
-            updateKuehlschrankAnsicht();
+            document.getElementById('nav-' + viewId).classList.add('text-[#2D5A27]');
+            document.getElementById('nav-' + viewId).classList.remove('text-gray-400');
+            renderAll();
         }
-
-        function handleManuellesHinzufuegen(event) {
-            event.preventDefault();
-            const nameInput = document.getElementById('manual-name');
-            const dateInput = document.getElementById('manual-date');
-            
-            const ablaufDatum = new Date(dateInput.value);
-            const heute = new Date();
-            heute.setHours(0,0,0,0);
-            
-            const diffZeit = ablaufDatum - heute;
-            const tageDiff = Math.ceil(diffZeit / (1000 * 60 * 60 * 24));
-
-            kuehlschrank.push({
-                name: nameInput.value,
-                ablaufDatum: dateInput.value
-            });
-
-            zeigeToast(`"${nameInput.value}" wurde hinzugefügt.`);
-            nameInput.value = '';
-            dateInput.value = '';
-            
-            updateKuehlschrankAnsicht();
-        }
-
-        function loescheProdukt(index) {
-            const name = kuehlschrank[index].name;
-            kuehlschrank.splice(index, 1);
-            zeigeToast(`"${name}" wurde aufgebraucht/entfernt.`, 'info');
-            updateKuehlschrankAnsicht();
-        }
-
-        function speichereDaten() {
-            localStorage.setItem('kuehlschrank', JSON.stringify(kuehlschrank));
-        }
-
-        // Simulierter Scan
-        function simulateScan() {
-            const barcodes = Object.keys(produktDatenbank);
-            const zufallsBarcode = barcodes[Math.floor(Math.random() * barcodes.length)];
-            const produkt = produktDatenbank[zufallsBarcode];
-            
-            zeigeToast(`Gescannt: ${produkt.name}`);
-            fuegeProduktHinzu(produkt.name, produkt.tageBisAblauf);
-        }
-
-        // Rezeptgenerator
-        function generiereRezeptVorschlaege() {
-            const container = document.getElementById('rezept-container');
-            container.innerHTML = '';
-
-            if (kuehlschrank.length === 0) {
-                container.innerHTML = '<p class="text-emerald-700 italic text-sm">Füge Lebensmittel hinzu, um smarte Rezeptvorschläge zu erhalten.</p>';
-                return;
-            }
-
-            // Filtere alle ablaufenden Zutaten heraus (höchstens die ersten 3)
-            const dringendeZutaten = kuehlschrank.slice(0, 3).map(i => i.name);
-            let zutatenText = dringendeZutaten.join(' und ');
-            if (dringendeZutaten.length > 2) {
-                zutatenText = `${dringendeZutaten[0]}, ${dringendeZutaten[1]} und ${dringendeZutaten[2]}`;
-            }
-
-            let rezepte = [
-                { title: "Smarte Reste-Pfanne", beschreibung: `Erhitze etwas Öl und brate deine ablaufenden Zutaten (${zutatenText}) scharf an. Schmecke es mit Kräutern der Saison ab.`, icon: "fa-fire-burner" },
-                { title: "Kreativer Reste-Auflauf", beschreibung: `Schneide ${dringendeZutaten.join(' / ')} in mundgerechte Stücke, gib sie in eine Form, gieße etwas Pflanzendrink/Milch darüber und überbacke das Ganze.`, icon: "fa-bowl-food" }
-            ];
-
-            rezepte.forEach(rezept => {
-                const div = document.createElement('div');
-                div.className = "bg-white p-4 rounded-lg shadow-sm border border-emerald-100 flex gap-3 items-start hover:shadow-md transition";
-                div.innerHTML = `
-                    <div class="text-emerald-600 text-2xl mt-0.5">
-                        <i class="fa-solid ${rezept.icon}"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-emerald-950">${rezept.title}</h3>
-                        <p class="text-xs md:text-sm text-gray-600 mt-1 leading-relaxed">${rezept.beschreibung}</p>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        // Live-Kamera-Scanner
-        function startScanner() {
-            document.getElementById('scanner-wrapper').classList.remove('hidden');
-            document.getElementById('btn-start-scanner').disabled = true;
-            
-            html5QrCode = new Html5Qrcode("reader");
-            
-            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-                if (produktDatenbank[decodedText]) {
-                    const prod = produktDatenbank[decodedText];
-                    fuegeProduktHinzu(prod.name, prod.tageBisAblauf);
-                    zeigeToast(`Erfolgreich erfasst: ${prod.name}`);
-                } else {
-                    // Falls unbekannter Barcode, öffne Prompt-Abfrage
-                    const name = prompt(`Unbekannter Barcode (${decodedText}). Name des Produkts?`);
-                    if(name) {
-                        fuegeProduktHinzu(name, 5);
-                        zeigeToast(`"${name}" registriert.`);
-                    }
-                }
-                stopScanner();
-            };
-            
-            const config = { fps: 10, qrbox: { width: 260, height: 160 } };
-            
-            html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
-            .catch(err => {
-                zeigeToast("Kamera-Zugriff verweigert oder nicht verfügbar.", "error");
-                console.error(err);
-                stopScanner();
-            });
-        }
-
-        function stopScanner() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    document.getElementById('scanner-wrapper').classList.add('hidden');
-                    document.getElementById('btn-start-scanner').disabled = false;
-                }).catch(err => console.error("Fehler beim Stoppen des Scanners:", err));
-            } else {
-                document.getElementById('scanner-wrapper').classList.add('hidden');
-                document.getElementById('btn-start-scanner').disabled = false;
-            }
-        }
-
-        // Initialisierung beim Laden
-        document.addEventListener("DOMContentLoaded", () => {
-            updateKuehlschrankAnsicht();
-        });
-    </script>
+</script>
 </body>
 </html>
