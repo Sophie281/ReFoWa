@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ReFoWa - Smart Scan & Save</title>
+    <title>ReFoWa - Smart Scan & Save (Pro)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -28,7 +28,6 @@
             50% { top: 100%; }
             100% { top: 0%; }
         }
-        /* Video-Feed Styling anpassen */
         #interactive-camera-feed video {
             width: 100% !important;
             height: 100% !important;
@@ -49,11 +48,11 @@
                 <div class="font-black text-emerald-800 tracking-tight text-base uppercase flex items-center gap-1.5">
                     <i data-lucide="barcode" class="w-5 h-5"></i> ReFoWa
                 </div>
-                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">v1.2.0</div>
+                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">v1.3.0 Ultimate</div>
             </div>
             <div class="flex items-center gap-2">
                 <div class="flex items-center gap-1 bg-amber-50 border border-amber-200/60 px-2 py-1 rounded-xl text-xs font-black text-amber-700 shadow-xs">
-                    <span>🔥</span> <span id="global-streak-counter">0</span>
+                    <span>🔥</span> <span id="global-streak-counter">0</span> Days
                 </div>
                 <button onclick="AppEngine.checkNotifications()" class="p-2 bg-white/80 rounded-xl shadow-xs hover:opacity-70 transition relative">
                     <i data-lucide="bell" class="w-4 h-4 text-gray-700"></i>
@@ -67,23 +66,23 @@
                 <div class="flex justify-between items-center pt-1">
                     <div class="space-y-0.5">
                         <h1 class="text-3xl font-black tracking-tight text-black leading-none">Guten Tag!</h1>
-                        <p class="text-xs font-semibold text-gray-500">Scanne Produkte mit ReFoWa, um Lebensmittel zu retten.</p>
+                        <p class="text-xs font-semibold text-gray-500">Scanne Produkte, um Lebensmittel aktiv vor der Tonne zu retten.</p>
                     </div>
-                    <div class="w-12 h-12 bg-emerald-800 text-white rounded-xl flex items-center justify-center text-2xl shadow-md font-bold select-none" id="dashboard-avatar-preview">🍳</div>
+                    <div class="w-12 h-12 bg-emerald-800 text-white rounded-xl flex items-center justify-center text-2xl shadow-md font-bold select-none animate-bounce" id="dashboard-avatar-preview">🍳</div>
                 </div>
 
                 <button onclick="AppEngine.openScanModal()" class="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-3 shadow-md transition-all active:scale-[0.99]">
                     <i data-lucide="scan-line" class="w-5 h-5"></i>
                     <div class="text-left">
-                        <p class="font-extrabold text-sm">Lebensmittel scannen</p>
-                        <p class="text-[10px] text-emerald-200 font-medium">Kamera öffnen & Barcode erfassen</p>
+                        <p class="font-extrabold text-sm">Produkt einscannen</p>
+                        <p class="text-[10px] text-emerald-200 font-medium">Kamera aktivieren oder Test-Code nutzen</p>
                     </div>
                 </button>
  
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
-                        <h2 class="font-extrabold text-[14px] text-black uppercase tracking-wider flex items-center gap-1.5 text-red-700">
-                            <i data-lucide="alert-triangle" class="w-4 h-4"></i> Akuter Handlungsbedarf
+                        <h2 class="font-extrabold text-[12px] text-black uppercase tracking-wider flex items-center gap-1.5 text-red-700">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 animate-pulse"></i> Höchste Priorität (Ablaufgefahr)
                         </h2>
                         <button onclick="AppEngine.switchView('fridge')" class="text-emerald-800 text-xs font-bold hover:underline flex items-center gap-0.5">
                             Kühlschrank (<span id="dash-fridge-count">0</span>) <i data-lucide="chevron-right" class="w-3 h-3"></i>
@@ -94,10 +93,10 @@
  
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
-                        <h2 class="font-extrabold text-[14px] text-black uppercase tracking-wider flex items-center gap-1.5">
-                            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-700"></i> AI-Rezept-Matches
+                        <h2 class="font-extrabold text-[12px] text-black uppercase tracking-wider flex items-center gap-1.5">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-700"></i> Verfügbare Reste-Rezepte
                         </h2>
-                        <button onclick="AppEngine.switchView('recipes')" class="text-emerald-800 text-xs font-bold hover:underline">Alle Rezepte</button>
+                        <button onclick="AppEngine.switchView('recipes')" class="text-emerald-800 text-xs font-bold hover:underline">Gesamtes Kochbuch</button>
                     </div>
                     <div id="dashboard-recipe-slider" class="flex gap-4 overflow-x-auto custom-scrollbar pb-2 -mx-5 px-5"></div>
                 </div>
@@ -109,9 +108,9 @@
                         <h2 class="text-2xl font-black text-black tracking-tight">Kühlschrank-Inventar</h2>
                     </div>
                     <div class="flex gap-1.5">
-                        <button onclick="AppEngine.openScanModal()" class="bg-emerald-800 text-white p-2 rounded-xl text-xs font-bold shadow-md"><i data-lucide="barcode" class="w-4 h-4"></i></button>
-                        <button onclick="AppEngine.openAddModal()" class="bg-emerald-800 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md">
-                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Manuell
+                        <button onclick="AppEngine.openScanModal()" class="bg-emerald-800 text-white p-2 rounded-xl text-xs font-bold shadow-md hover:bg-emerald-900"><i data-lucide="barcode" class="w-4 h-4"></i></button>
+                        <button onclick="AppEngine.openAddModal()" class="bg-emerald-800 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md hover:bg-emerald-900">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Manuell hinzufügen
                         </button>
                     </div>
                 </div>
@@ -119,24 +118,26 @@
                 <div class="bg-white p-2.5 rounded-2xl border border-gray-100 shadow-xs flex gap-2">
                     <div class="relative flex-1">
                         <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-2.5"></i>
-                        <input type="text" id="fridge-search" oninput="AppEngine.renderFridgeTab()" placeholder="Bestand durchsuchen..." class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-xs font-semibold focus:outline-none">
+                        <input type="text" id="fridge-search" oninput="AppEngine.renderFridgeTab()" placeholder="Bestand filtern..." class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-xs font-semibold focus:outline-none">
                     </div>
                     <select id="fridge-sort" onchange="AppEngine.renderFridgeTab()" class="bg-gray-50 border border-gray-100 rounded-xl px-2.5 text-xs font-bold text-gray-600 focus:outline-none">
-                        <option value="days">Haltbarkeit</option>
-                        <option value="alpha">A - Z</option>
+                        <option value="days">MHD (Aufsteigend)</option>
+                        <option value="alpha">Alphabetisch A-Z</option>
                     </select>
                 </div>
 
-                <div id="full-fridge-list" class="space-y-3"></div>
+                <div id="full-fridge-list" class="space-y-2.5"></div>
             </div>
 
             <div id="view-recipes" class="page-view hidden space-y-4">
                 <h2 class="text-2xl font-black text-black tracking-tight">Reste-Kochbuch 🧑‍🍳</h2>
-                <div id="full-recipes-grid" class="grid grid-cols-1 gap-3"></div>
+                <p class="text-xs text-gray-500 font-semibold -mt-2">Rezepte basieren auf den Gegenständen in deinem Kühlschrank.</p>
+                <div id="full-recipes-grid" class="grid grid-cols-1 gap-3.5"></div>
             </div>
 
             <div id="view-profile" class="page-view hidden space-y-5">
                 <h2 class="text-2xl font-black text-black tracking-tight">Dein Profil-Hub</h2>
+                
                 <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs space-y-4">
                     <div class="flex items-center gap-5">
                         <div class="w-20 h-20 bg-[#E4EFE3] rounded-2xl relative overflow-hidden border border-emerald-100 grid items-center justify-items-center">
@@ -144,14 +145,21 @@
                         </div>
                         <div class="flex-1 space-y-1">
                             <h3 class="text-base font-black text-gray-900 leading-none">Level <span id="profile-level">1</span></h3>
-                            <p id="profile-rank-title" class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Küchen-Lehrling</p>
-                            <p id="profile-xp-text" class="text-xs text-gray-500 font-medium">0 / 500 XP</p>
+                            <p id="profile-rank-title" class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Lade Rang...</p>
+                            
+                            <div class="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden mt-2 border border-gray-200/50">
+                                <div id="profile-xp-bar" class="bg-gradient-to-r from-emerald-600 to-teal-500 h-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                            <p id="profile-xp-text" class="text-[10px] text-gray-400 font-bold uppercase tracking-wider pt-0.5">0 / 500 XP</p>
                         </div>
                     </div>
                 </div>
+
                 <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs space-y-2">
-                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Live-Küchenprotokoll</h4>
-                    <div id="activity-log" class="space-y-1.5 max-h-28 overflow-y-auto text-[11px] font-semibold text-gray-600"></div>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="history" class="w-3.5 h-3.5"></i> Live-Küchenprotokoll
+                    </h4>
+                    <div id="activity-log" class="space-y-1.5 max-h-40 overflow-y-auto text-[11px] font-semibold text-gray-600 custom-scrollbar"></div>
                 </div>
             </div>
         </main>
@@ -165,7 +173,7 @@
                     <button onclick="AppEngine.closeScanModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
 
-                <div class="w-full h-48 bg-zinc-900 rounded-2xl relative overflow-hidden border-2 border-emerald-800 flex items-center justify-center">
+                <div class="w-full h-44 bg-zinc-900 rounded-2xl relative overflow-hidden border-2 border-emerald-800 flex items-center justify-center">
                     <div id="interactive-camera-feed" class="w-full h-full"></div>
                     <div class="absolute inset-x-0 h-0.5 bg-red-500 shadow-[0_0_8px_#ef4444] scanner-laser top-0 pointer-events-none"></div>
                 </div>
@@ -174,14 +182,18 @@
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Manueller Code / Test-Eingabe</label>
                     <div class="flex gap-2">
                         <input type="text" id="scan-ean-input" placeholder="z.B. 40012345" class="flex-1 p-3 bg-gray-50 border rounded-xl text-xs font-bold tracking-widest text-center focus:outline-none focus:border-emerald-800">
-                        <button onclick="AppEngine.generateRandomEan()" class="bg-gray-100 hover:bg-gray-200 px-3 rounded-xl text-xs font-bold">🎲 Random</button>
+                        <button onclick="AppEngine.generateRandomEan()" class="bg-gray-100 hover:bg-gray-200 px-3 rounded-xl text-xs font-bold flex items-center gap-1">🎲 Mix</button>
                     </div>
                 </div>
 
-                <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-[10px] text-gray-500 max-h-24 overflow-y-auto space-y-1 custom-scrollbar">
-                    <p>• <span class="font-bold text-emerald-800">40012345</span> : Frischer Spinat 🥦</p>
-                    <p>• <span class="font-bold text-emerald-800">40056789</span> : Bio-Milch 🥛</p>
-                    <p>• <span class="font-bold text-emerald-800">42011223</span> : Weizenbrot 🍞</p>
+                <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-[10px] text-gray-500 max-h-32 overflow-y-auto space-y-1 custom-scrollbar">
+                    <p class="font-bold text-gray-400 border-b pb-0.5 mb-1">Klickbare Vorlagen:</p>
+                    <div class="grid grid-cols-1 gap-1.5">
+                        <button onclick="document.getElementById('scan-ean-input').value='4008400204712'" class="text-left font-medium text-emerald-800 bg-emerald-50/50 p-1 rounded hover:bg-emerald-50">🍫 4008400204712: Nutella</button>
+                        <button onclick="document.getElementById('scan-ean-input').value='40012345'" class="text-left font-medium text-emerald-800 bg-emerald-50/50 p-1 rounded hover:bg-emerald-50">🥦 40012345: Frischer Spinat</button>
+                        <button onclick="document.getElementById('scan-ean-input').value='4014400924107'" class="text-left font-medium text-emerald-800 bg-emerald-50/50 p-1 rounded hover:bg-emerald-50">🥛 4014400924107: Magerquark</button>
+                        <button onclick="document.getElementById('scan-ean-input').value='4004172400155'" class="text-left font-medium text-emerald-800 bg-emerald-50/50 p-1 rounded hover:bg-emerald-50">🌾 4004172400155: Haferflocken</button>
+                    </div>
                 </div>
 
                 <button onclick="AppEngine.processScannedBarcode()" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-900 transition flex items-center justify-center gap-2">
@@ -197,11 +209,11 @@
                     <button onclick="AppEngine.closeActionModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
                 <div class="grid grid-cols-1 gap-2 pt-1">
-                    <button id="modal-btn-rescue" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2">
+                    <button id="modal-btn-rescue" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm hover:bg-emerald-900">
                         <i data-lucide="check-circle" class="w-4 h-4"></i> Erfolgreich verbraucht (+150 XP)
                     </button>
-                    <button id="modal-btn-waste" class="w-full bg-red-50 text-red-600 p-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i> In die Tonne geworfen
+                    <button id="modal-btn-waste" class="w-full bg-red-50 text-red-600 p-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-red-100/70">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> In die Tonne geworfen (0 XP)
                     </button>
                 </div>
             </div>
@@ -215,26 +227,26 @@
                 </div>
                 <form onsubmit="AppEngine.handleFormSubmit(event)" class="space-y-3">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Lebensmittelname</label>
-                        <input type="text" id="input-name" required class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Produktname</label>
+                        <input type="text" id="input-name" required placeholder="z.B. Bio-Tomaten" class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none focus:border-black">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kategorie</label>
                         <select id="input-category" class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none">
-                            <option value="🥦">🥦 Frischgemüse</option>
-                            <option value="🍎">🍎 Obst</option>
-                            <option value="🥛">🥛 Milchprodukte</option>
-                            <option value="🍞">🍞 Backwaren</option>
-                            <option value="🥩">🥩 Fleisch & Fisch</option>
-                            <option value="🍪">🍪 Snacks & Süßes</option>
-                            <option value="🥤">🥤 Getränke</option>
+                            <option value="🥦">🥦 Frischgemüse / Kräuter</option>
+                            <option value="🍎">🍎 Obst & Beeren</option>
+                            <option value="🥛">🥛 Milchprodukte & Alternativen</option>
+                            <option value="🍞">🍞 Backwaren & Getreide</option>
+                            <option value="🥩">🥩 Fleisch, Fisch & Proteine</option>
+                            <option value="💧">💧 Wasser & Säfte</option>
+                            <option value="🍪">🍪 Snacks & Süßwaren</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Haltbarkeit (Tage)</label>
-                        <input type="number" id="input-days" required class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Haltbarkeit (Tage ab heute)</label>
+                        <input type="number" id="input-days" required min="1" max="365" class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none focus:border-black">
                     </div>
-                    <button type="submit" class="w-full bg-black text-white p-3.5 rounded-xl font-bold text-xs shadow-md">Buchen</button>
+                    <button type="submit" class="w-full bg-black text-white p-3.5 rounded-xl font-bold text-xs shadow-md transition hover:bg-neutral-900">Bestand einbuchen (+50 XP)</button>
                 </form>
             </div>
         </div>
@@ -243,10 +255,10 @@
             <div class="bg-white rounded-3xl max-w-sm w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
                 <div class="relative h-36 w-full bg-gray-100 flex-shrink-0">
                     <img id="recipe-modal-img" src="" class="w-full h-full object-cover">
-                    <button onclick="AppEngine.closeRecipeModal()" class="absolute top-3 right-3 bg-white text-black p-2 rounded-full shadow-md"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    <button onclick="AppEngine.closeRecipeModal()" class="absolute top-3 right-3 bg-white text-black p-2 rounded-full shadow-md hover:scale-105 transition"><i data-lucide="x" class="w-4 h-4"></i></button>
                 </div>
                 <div class="p-5 flex-1 overflow-y-auto space-y-4 custom-scrollbar">
-                    <h3 id="recipe-modal-title" class="text-xl font-black text-black">Rezept</h3>
+                    <h3 id="recipe-modal-title" class="text-xl font-black text-black">Rezeptbezeichnung</h3>
                     
                     <div class="grid grid-cols-3 gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-center items-center">
                         <div>
@@ -259,49 +271,49 @@
                         </div>
                         <div>
                             <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Dauer</p>
-                            <p id="recipe-modal-zeit" class="text-xs font-black text-emerald-800">20 Min.</p>
+                            <p id="recipe-modal-zeit" class="text-xs font-black text-emerald-800">-- Min.</p>
                         </div>
                         <div>
-                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Level</p>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Schwierigkeit</p>
                             <p id="recipe-modal-level" class="text-xs font-black text-emerald-800">Einfach</p>
                         </div>
                     </div>
 
                     <div>
                         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                            <i data-lucide="wrench" class="w-3 h-3"></i> Was du brauchst
+                            <i data-lucide="wrench" class="w-3 h-3"></i> Zubehör & Utensilien
                         </h4>
                         <p id="recipe-modal-werkzeug" class="text-xs font-semibold text-zinc-600 bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 rounded-lg"></p>
                     </div>
                     
                     <div>
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Zutaten</h4>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Zutatenliste</h4>
                         <ul id="recipe-modal-zutaten" class="text-xs font-semibold space-y-1 text-gray-700 list-disc list-inside"></ul>
                     </div>
 
                     <div>
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Zubereitung</h4>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Zubereitungsschritte</h4>
                         <ol id="recipe-modal-anleitung" class="text-xs font-medium space-y-2 text-gray-600 list-decimal list-inside"></ol>
                     </div>
                 </div>
-                <div class="p-4 bg-gray-50 border-t border-gray-100 flex-shrink-0 flex gap-2">
-                    <button id="recipe-modal-cook-btn" class="flex-1 bg-emerald-800 hover:bg-emerald-900 text-white p-3 rounded-xl font-bold text-xs transition">Kochen & Reste abziehen</button>
+                <div class="p-4 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+                    <button id="recipe-modal-cook-btn" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white p-3 rounded-xl font-bold text-xs transition shadow-md">Gericht kochen & Zutaten abziehen (+200 XP)</button>
                 </div>
             </div>
         </div>
 
         <div id="levelup-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-5">
             <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 text-center shadow-2xl border-2 border-amber-400 animate-fadeIn">
-                <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-sm">🎉</div>
+                <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-sm animate-bounce">🎉</div>
                 <div class="space-y-1">
                     <h3 class="text-2xl font-black text-black">LEVEL UP!</h3>
-                    <p class="text-xs text-gray-500 font-semibold">Du hast ein neues Level in ReFoWa erreicht!</p>
+                    <p class="text-xs text-gray-500 font-semibold">Du hast deine Nachhaltigkeit gesteigert!</p>
                 </div>
                 <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-200">
-                    <p class="text-[10px] font-bold text-amber-800 uppercase tracking-widest">Freigeschaltete Belohnung</p>
-                    <p id="levelup-reward-title" class="text-base font-black text-gray-900 mt-1">Neuer Rang & Avatar</p>
+                    <p class="text-[10px] font-bold text-amber-800 uppercase tracking-widest">Neuer Meilenstein-Rang</p>
+                    <p id="levelup-reward-title" class="text-base font-black text-gray-900 mt-1">Gegenstand</p>
                 </div>
-                <button onclick="AppEngine.closeLevelUpModal()" class="w-full bg-emerald-800 text-white p-3 rounded-xl font-bold text-xs shadow-md">Klasse! Weiterretten</button>
+                <button onclick="AppEngine.closeLevelUpModal()" class="w-full bg-emerald-800 text-white p-3 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-900">Klasse! Weiterretten</button>
             </div>
         </div>
 
@@ -312,7 +324,7 @@
                 <i data-lucide="home" class="w-5 h-5"></i><span class="text-[10px] font-bold">Übersicht</span>
             </button>
             <button onclick="AppEngine.switchView('fridge')" id="nav-fridge" class="nav-btn flex flex-col items-center gap-1 text-gray-400 transition-all">
-                <i data-lucide="refrigerator" class="w-5 h-5"></i><span class="text-[10px] font-bold">Kühlschrank</span>
+                <i data-lucide="refrigerator" class="w-5 h-5"></i><span class="text-[10px] font-bold">Bestand</span>
             </button>
             <button onclick="AppEngine.switchView('recipes')" id="nav-recipes" class="nav-btn flex flex-col items-center gap-1 text-gray-400 transition-all">
                 <i data-lucide="chef-hat" class="w-5 h-5"></i><span class="text-[10px] font-bold">Rezepte</span>
@@ -324,6 +336,7 @@
     </div>
  
     <script>
+        // AUSFÜHRLICHE INTEGRATION DER REZEPT-DATENBANK
         const RezeptDatenbank = [
             { 
                 id: 0, 
@@ -343,64 +356,64 @@
                     "Die Pasta in reichlich gesalzenem Wasser bissfest kochen.",
                     "Knoblauch fein hacken und in etwas Öl in einer Pfanne andünsten.",
                     "Den gewaschenen Spinat dazugeben und zusammenfallen lassen.",
-                    "Mit Sahne ablöschen, mit Salz und Pfeffer abschmecken und kurz köcheln lassen.",
+                    "Mit Sahne ablöschen, mit Salz und Pfeffer abschmecken.",
                     "Die fertige Pasta direkt in die Sauce geben und gut vermengen."
                 ],
                 img: "https://images.unsplash.com/photo-1621510456681-23a23cfb5f57?w=300" 
             },
-            { 
-                id: 1, 
-                title: "Knusprige Karotten-Puffer", 
-                zutat: "Karotten", 
-                basisPersonen: 2,
-                zeit: "25 Min.",
-                level: "Medium",
-                werkzeug: "Gemüsereibe, Schüssel, Bratpfanne, Pfannenwender",
+            {
+                id: 1,
+                title: "Power-Frühstück Haferbrei",
+                zutat: "Vollkornhaferflocken",
+                basisPersonen: 1,
+                zeit: "8 Min.",
+                level: "Kinderleicht",
+                werkzeug: "Kleiner Topf, Rührlöffel",
                 zutatenMengen: [
-                    { wert: 300, einheit: "g", name: "Karotten" },
-                    { wert: 1, einheit: "Stk.", name: "Ei" },
-                    { wert: 50, einheit: "g", name: "Haferflocken" },
-                    { wert: 1, einheit: "Prise", name: "Salz & Gewürze" }
-                ], 
-                anleitung: [
-                    "Die Karotten schälen und fein raspeln.",
-                    "Geraspelte Karotten mit Ei und Haferflocken in einer Schüssel gut vermengen.",
-                    "Die Masse mit Salz, Pfeffer und optional Muskatnuss würzen.",
-                    "Etwas Öl in einer Pfanne erhitzen und die Puffer portionsweise von beiden Seiten goldbraun anbraten."
+                    { wert: 50, einheit: "g", name: "Vollkornhaferflocken" },
+                    { wert: 200, einheit: "ml", name: "Bio-Hafermilch (1L)" },
+                    { wert: 1, einheit: "TL", name: "Zimt / Nutella" }
                 ],
-                img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300" 
+                anleitung: [
+                    "Haferflocken zusammen mit der Hafermilch in einen kleinen Topf geben.",
+                    "Unter ständigem Rühren aufkochen lassen, bis eine cremige Konsistenz entsteht.",
+                    "In eine Schüssel füllen und nach Belieben mit Nutella oder Früchten garnieren."
+                ],
+                img: "https://images.unsplash.com/photo-1517686469429-8faf88b9f7af?w=300"
             }
         ];
 
+        // GLOBAL REGISTERED DATABASE
         const BarcodeDatenbank = {
-            "40012345": { name: "Frischer Spinat", cat: "🥦", tage: 3 },
+            "40012345": { name: "Spinat", cat: "🥦", tage: 3 },
             "40056789": { name: "Bio-Milch", cat: "🥛", tage: 5 },
             "42011223": { name: "Weizenbrot", cat: "🍞", tage: 6 },
+            "43001122": { name: "Mineralwasser", cat: "💧", tage: 30 },
             "40099001": { name: "Rispentomaten", cat: "🥦", tage: 5 },
-            "40099005": { name: "Bio-Bananen", cat: "🍎", tage: 4 },
-            "40099009": { name: "Gouda (gerieben)", cat: "🥛", tage: 8 }
+            "4008400204712": { name: "Nutella (450g)", cat: "🍪", tage: 60 },
+            "4001428001010": { name: "Apfelsaft naturtrüb (1L)", cat: "💧", tage: 14 },
+            "4260123456001": { name: "Bio-Hafermilch (1L)", cat: "🥛", tage: 10 },
+            "40084011": { name: "Kinder Schokolade", cat: "🍪", tage: 45 },
+            "4014400924107": { name: "Magerquark (500g)", cat: "🥛", tage: 7 },
+            "4004172400155": { name: "Vollkornhaferflocken", cat: "🍞", tage: 90 }
         };
 
-        // Konfiguration für Level-Belohnungen & Ränge
+        // GAMIFICATION ACHIEVEMENTS CONFIGURATION (Titles unlock every 10 levels)
         const LevelBelohnungen = {
             1: { titel: "Küchen-Lehrling", avatar: "🍳" },
-            2: { titel: "Reste-Retter", avatar: "🌱" },
-            3: { titel: "Hobby-Einkäufer", avatar: "🛒" },
-            4: { titel: "Kühlschrank-Meister", avatar: "🥦" },
-            5: { titel: "Suppen-Spezialist", avatar: "🍲" },
-            6: { titel: "Sterne-Restekoch", avatar: "🧑‍🍳" },
-            7: { titel: "Nachhaltigkeits-Fan", avatar: "🌍" },
-            8: { titel: "Lebensmittel-Held", avatar: "🦸" },
-            9: { titel: "Eco-Aktivist", avatar: "🌳" },
-            10: { titel: "Zero-Waste-Guru", avatar: "👑" }
+            10: { titel: "Barcode-Lehrling", avatar: "🛒" },
+            20: { titel: "Regal-Inspektor", avatar: "📦" },
+            30: { titel: "Scanner-Spezialist", avatar: "🔍" },
+            40: { titel: "Frische-Experte", avatar: "🍏" },
+            50: { titel: "Daten-Meister", avatar: "🏆" },
+            60: { titel: "Supermarkt-Legende", avatar: "👑" }
         };
  
         const AppEngine = {
             state: {
                 kuehlschrank: [],
-                stats: { savedKg: 0.0, wastedKg: 0.0, xp: 0, streak: 5 },
+                stats: { xp: 0, streak: 3 },
                 historyLog: [],
-                html5QrScanner: null,
                 currentActiveRecipe: null,
                 currentSelectedPortions: 2
             },
@@ -413,11 +426,11 @@
 
             loadState: function() {
                 this.state.kuehlschrank = JSON.parse(localStorage.getItem('es_fridge')) || [
-                    { name: "Spinat", tage: 1, cat: "🥦" },
-                    { name: "Karotten", tage: 4, cat: "🥦" }
+                    { name: "Spinat", tage: 2, cat: "🥦" },
+                    { name: "Vollkornhaferflocken", tage: 45, cat: "🍞" }
                 ];
-                this.state.stats = JSON.parse(localStorage.getItem('es_stats')) || { savedKg: 0.0, wastedKg: 0.0, xp: 0, streak: 5 };
-                this.state.historyLog = JSON.parse(localStorage.getItem('es_log')) || ["ReFoWa System geladen."];
+                this.state.stats = JSON.parse(localStorage.getItem('es_stats')) || { xp: 0, streak: 3 };
+                this.state.historyLog = JSON.parse(localStorage.getItem('es_log')) || ["ReFoWa System erfolgreich gestartet."];
             },
 
             saveState: function() {
@@ -431,7 +444,20 @@
             },
 
             getRewardConfig: function(level) {
-                return LevelBelohnungen[level] || { titel: "Zero-Waste-Profi", avatar: "💎" };
+                let passendesLevel = 1;
+                const keys = Object.keys(LevelBelohnungen).map(Number).sort((a,b) => a-b);
+                for (let lvl of keys) {
+                    if (level >= lvl) {
+                        passendesLevel = lvl;
+                    }
+                }
+                const base = LevelBelohnungen[passendesLevel];
+                if (passendesLevel !== level && passendesLevel === 1) {
+                    return { titel: `${base.titel} (Lvl ${level})`, avatar: base.avatar };
+                } else if (passendesLevel !== level) {
+                    return { titel: `${base.titel} (Lvl ${level})`, avatar: base.avatar };
+                }
+                return base;
             },
 
             addXp: function(amount) {
@@ -439,9 +465,11 @@
                 this.state.stats.xp += amount;
                 const neuesLevel = this.calculateLevel(this.state.stats.xp);
                 
+                this.showToast(`+${amount} XP generiert!`);
                 if (neuesLevel > altesLevel) {
                     this.triggerLevelUp(neuesLevel);
                 }
+                this.renderAll();
             },
 
             triggerLevelUp: function(level) {
@@ -450,32 +478,27 @@
                 document.getElementById('levelup-modal').classList.remove('hidden');
                 
                 if(typeof confetti === 'function') {
-                    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+                    confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } });
                 }
-                this.state.historyLog.push(`Level-Up! Du bist jetzt: ${config.titel}`);
+                this.state.historyLog.push(`🌟 LEVEL-UP: Aufgestiegen zu Level ${level}!`);
             },
 
-            closeLevelUpModal: function() {
-                document.getElementById('levelup-modal').classList.add('hidden');
-            },
+            closeLevelUpModal: function() { document.getElementById('levelup-modal').classList.add('hidden'); },
 
             getColorClass: function(tage) {
-                if (tage <= 1) return "bg-[#800020]";
-                if (tage >= 2 && tage <= 3) return "bg-red-600";
-                if (tage >= 4 && tage <= 8) return "bg-amber-400";
-                return "bg-emerald-600";
+                if (tage <= 2) return "bg-red-700 text-white animate-pulse";
+                if (tage > 2 && tage <= 5) return "bg-amber-500 text-white";
+                return "bg-emerald-700 text-white";
             },
 
             getStatusText: function(tage) {
-                if (tage <= 1) return "Heute verbrauchen!";
-                if (tage >= 2 && tage <= 3) return "Dringend";
-                if (tage >= 4 && tage <= 8) return "Gut haltbar";
-                return "Frisch";
+                if (tage <= 2) return "Dringend verbrauchen";
+                if (tage > 2 && tage <= 5) return "Demnächst ablaufen";
+                return "Haltbar";
             },
 
             renderAll: function() {
                 this.saveState();
-                
                 const level = this.calculateLevel(this.state.stats.xp);
                 const reward = this.getRewardConfig(level);
                 
@@ -488,27 +511,27 @@
                 this.renderFridgeTab();
                 this.renderRecipesTab();
                 this.renderProfileTab();
+                lucide.createIcons();
             },
 
             renderDashboardExpiry: function() {
                 const list = document.getElementById('dashboard-expiry-list');
                 list.innerHTML = '';
-                const sortedFridge = [...this.state.kuehlschrank].sort((a, b) => a.tage - b.tage);
-                const itemsToShow = sortedFridge.slice(0, 3);
+                const sorted = [...this.state.kuehlschrank].sort((a, b) => a.tage - b.tage);
+                const items = sorted.slice(0, 3);
 
-                if(itemsToShow.length === 0) {
-                    list.innerHTML = `<p class="text-xs text-gray-400 font-semibold text-center py-2">Dein Kühlschrank ist leer.</p>`;
+                if(items.length === 0) {
+                    list.innerHTML = `<p class="text-xs text-gray-400 font-bold text-center py-4 bg-white rounded-2xl border border-dashed border-gray-200">Dein Kühlschrank ist aktuell unbestückt.</p>`;
                     return;
                 }
 
-                itemsToShow.forEach((item) => {
-                    const originalIndex = this.state.kuehlschrank.findIndex(f => f.name === item.name && f.tage === item.tage);
-                    const colorClass = this.getColorClass(item.tage);
-                    const statusText = this.getStatusText(item.tage);
+                items.forEach((item) => {
+                    const idx = this.state.kuehlschrank.findIndex(f => f.name === item.name && f.tage === item.tage);
+                    const color = this.getColorClass(item.tage);
                     list.innerHTML += `
-                        <div onclick="AppEngine.openActionModal(${originalIndex}, '${item.name}')" class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center cursor-pointer hover:shadow-xs transition">
-                            <div class="flex items-center gap-3"><span>${item.cat}</span><h3 class="font-extrabold text-xs text-black">${item.name}</h3></div>
-                            <span class="${colorClass} text-white text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider">${statusText}</span>
+                        <div onclick="AppEngine.openActionModal(${idx}, '${item.name}')" class="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center cursor-pointer hover:scale-[1.01] transition-all">
+                            <div class="flex items-center gap-2.5"><span class="text-lg">${item.cat}</span><h3 class="font-extrabold text-xs text-black">${item.name}</h3></div>
+                            <span class="${color} text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider">${item.tage} Tage übrig</span>
                         </div>`;
                 });
             },
@@ -516,34 +539,55 @@
             renderDashboardRecipes: function() {
                 const slider = document.getElementById('dashboard-recipe-slider');
                 slider.innerHTML = '';
-                RezeptDatenbank.forEach(rezept => {
-                    slider.innerHTML += `
-                        <div onclick="AppEngine.openRecipeModal(${rezept.id})" class="bg-white rounded-xl overflow-hidden w-28 flex-shrink-0 border border-gray-100 shadow-xs cursor-pointer hover:scale-[1.02] transition-all">
-                            <img src="${rezept.img}" class="w-full h-14 object-cover"><div class="p-1.5"><h4 class="font-bold text-[10px] text-black line-clamp-1">${rezept.title}</h4></div>
-                        </div>`;
+                
+                let matches = 0;
+                RezeptDatenbank.forEach(recipe => {
+                    const hatZutat = this.state.kuehlschrank.some(i => i.name.toLowerCase().includes(recipe.zutat.toLowerCase()));
+                    if(hatZutat) {
+                        matches++;
+                        slider.innerHTML += `
+                            <div onclick="AppEngine.openRecipeModal(${recipe.id})" class="min-w-[200px] w-52 bg-white rounded-2xl border border-gray-100 p-2.5 space-y-2 flex-shrink-0 cursor-pointer shadow-xs">
+                                <img src="${recipe.img}" class="w-full h-24 object-cover rounded-xl">
+                                <h3 class="font-bold text-xs text-black line-clamp-1">${recipe.title}</h3>
+                                <p class="text-[10px] text-emerald-800 font-bold flex items-center gap-1">✨ Match: ${recipe.zutat}</p>
+                            </div>`;
+                    }
                 });
+
+                if(matches === 0) {
+                    slider.innerHTML = `<p class="text-xs text-gray-400 font-bold py-2">Füge Gegenstände wie 'Spinat' hinzu, um automatisierte Rezepte freizuschalten.</p>`;
+                }
             },
 
             renderFridgeTab: function() {
                 const container = document.getElementById('full-fridge-list');
                 container.innerHTML = '';
-                const query = document.getElementById('fridge-search').value.toLowerCase();
-                const sortType = document.getElementById('fridge-sort').value;
                 
-                let filtered = this.state.kuehlschrank.filter(item => item.name.toLowerCase().includes(query));
-                if(sortType === 'days') filtered.sort((a,b) => a.tage - b.tage);
-                else if(sortType === 'alpha') filtered.sort((a,b) => a.name.localeCompare(b.name));
+                const search = document.getElementById('fridge-search').value.toLowerCase();
+                const sort = document.getElementById('fridge-sort').value;
+                
+                let items = [...this.state.kuehlschrank].filter(i => i.name.toLowerCase().includes(search));
+                if(sort === 'alpha') items.sort((a,b) => a.name.localeCompare(b.name));
+                else items.sort((a,b) => a.tage - b.tage);
 
-                filtered.forEach((item) => {
-                    const originalIndex = this.state.kuehlschrank.findIndex(f => f.name === item.name && f.tage === item.tage);
-                    const colorClass = this.getColorClass(item.tage);
+                if(items.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-gray-400 font-bold text-center py-6">Keine Übereinstimmungen gefunden.</p>`;
+                    return;
+                }
+
+                items.forEach((item) => {
+                    const realIndex = this.state.kuehlschrank.findIndex(f => f.name === item.name && f.tage === item.tage);
+                    const color = this.getColorClass(item.tage);
                     container.innerHTML += `
-                        <div class="bg-white p-3.5 rounded-2xl border border-gray-100 shadow-xs flex justify-between items-center">
-                            <div class="flex items-center gap-2"><span>${item.cat}</span><div><h4 class="font-bold text-xs text-black">${item.name}</h4><p class="text-[10px] text-gray-400">${item.tage} Tage übrig</p></div></div>
-                            <div class="flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full ${colorClass} block"></span>
-                                <button onclick="AppEngine.openActionModal(${originalIndex}, '${item.name}')" class="bg-emerald-800 text-white text-[10px] font-black py-1 px-3 rounded-lg">Aktion</button>
+                        <div class="bg-white p-3.5 rounded-2xl border border-gray-100 flex justify-between items-center shadow-xs">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">${item.cat}</span>
+                                <div>
+                                    <h4 class="font-extrabold text-xs text-black leading-tight">${item.name}</h4>
+                                    <p class="text-[10px] text-gray-400 font-bold mt-0.5">${item.tage} Tage verbleibend</p>
+                                </div>
                             </div>
+                            <button onclick="AppEngine.openActionModal(${realIndex}, '${item.name}')" class="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-bold text-[11px] px-3 py-1.5 rounded-xl transition">Verwalten</button>
                         </div>`;
                 });
             },
@@ -551,65 +595,58 @@
             renderRecipesTab: function() {
                 const grid = document.getElementById('full-recipes-grid');
                 grid.innerHTML = '';
-                RezeptDatenbank.forEach(rezept => {
+
+                RezeptDatenbank.forEach(recipe => {
+                    const available = this.state.kuehlschrank.some(i => i.name.toLowerCase().includes(recipe.zutat.toLowerCase()));
                     grid.innerHTML += `
-                        <div onclick="AppEngine.openRecipeModal(${rezept.id})" class="bg-white rounded-2xl p-2.5 flex gap-3 border border-gray-100 shadow-xs cursor-pointer hover:scale-[1.01] transition-all">
-                            <img src="${rezept.img}" class="w-14 h-14 rounded-xl object-cover flex-shrink-0">
-                            <h3 class="font-extrabold text-xs text-black self-center">${rezept.title}</h3>
+                        <div onclick="AppEngine.openRecipeModal(${recipe.id})" class="bg-white p-3 rounded-2xl border border-gray-100 flex gap-4 cursor-pointer hover:shadow-md transition">
+                            <img src="${recipe.img}" class="w-20 h-20 object-cover rounded-xl flex-shrink-0">
+                            <div class="flex-1 flex flex-col justify-between py-0.5">
+                                <div>
+                                    <h3 class="font-black text-xs text-black">${recipe.title}</h3>
+                                    <p class="text-[10px] text-gray-400 font-bold mt-0.5">Dauer: ${recipe.zeit} | ${recipe.level}</p>
+                                </div>
+                                <span class="text-[9px] font-black uppercase tracking-wider self-start px-2 py-0.5 rounded ${available ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-400'}">
+                                    ${available ? '🟢 Bereit zum Kochen' : '⚪ Fehlende Reste'}
+                                </span>
+                            </div>
                         </div>`;
                 });
             },
 
             renderProfileTab: function() {
                 const level = this.calculateLevel(this.state.stats.xp);
-                const currentXp = this.state.stats.xp % 500;
                 const reward = this.getRewardConfig(level);
+                const currentXp = this.state.stats.xp % 500;
+                const percentage = (currentXp / 500) * 100;
 
                 document.getElementById('profile-level').innerText = level;
                 document.getElementById('profile-rank-title').innerText = reward.titel;
                 document.getElementById('profile-avatar-large').innerText = reward.avatar;
                 document.getElementById('profile-xp-text').innerText = `${currentXp} / 500 XP`;
+                document.getElementById('profile-xp-bar').style.width = `${percentage}%`;
 
-                const logContainer = document.getElementById('activity-log');
-                logContainer.innerHTML = '';
-                this.state.historyLog.slice().reverse().forEach(log => {
-                    logContainer.innerHTML += `<p class="border-l-2 pl-2 border-emerald-800/40 py-0.5">${log}</p>`;
+                const log = document.getElementById('activity-log');
+                log.innerHTML = '';
+                [...this.state.historyLog].reverse().forEach(entry => {
+                    log.innerHTML += `
+                        <div class="bg-gray-50 border border-gray-100 p-2 rounded-xl text-[10px] text-zinc-600 font-medium">
+                            ${entry}
+                        </div>`;
                 });
             },
 
-            openScanModal: function() {
-                document.getElementById('scan-ean-input').value = '';
-                document.getElementById('scan-modal').classList.remove('hidden');
-                
-                this.state.html5QrScanner = new Html5Qrcode("interactive-camera-feed");
-                
-                this.state.html5QrScanner.start(
-                    { facingMode: "environment" },
-                    {
-                        fps: 10,
-                        qrbox: function(viewfinderWidth, viewfinderHeight) {
-                            return { width: Math.floor(viewfinderWidth * 0.75), height: Math.floor(viewfinderHeight * 0.5) };
-                        }
-                    },
-                    (decodedText) => {
-                        document.getElementById('scan-ean-input').value = decodedText;
-                        this.processScannedBarcode();
-                    },
-                    (errorMessage) => { }
-                ).catch(err => {
-                    console.error("Kamerafehler:", err);
-                    this.zeigeToast("Kamera blockiert oder nicht gefunden.", "error");
-                });
+            switchView: function(viewId) {
+                document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
+                document.getElementById(`view-${viewId}`).classList.remove('hidden');
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-emerald-800', 'text-gray-400'));
+                document.getElementById(`nav-${viewId}`).classList.replace('text-gray-400', 'text-emerald-800');
             },
 
-            closeScanModal: function() {
-                document.getElementById('scan-modal').classList.add('hidden');
-                if (this.state.html5QrScanner) {
-                    this.state.html5QrScanner.stop().then(() => {
-                        document.getElementById('interactive-camera-feed').innerHTML = '';
-                    }).catch(err => console.error("Fehler beim Kamera-Stopp:", err));
-                }
-            },
+            openScanModal: function() { document.getElementById('scan-modal').classList.remove('hidden'); },
+            closeScanModal: function() { document.getElementById('scan-modal').classList.add('hidden'); },
+            openAddModal: function() { document.getElementById('add-modal').classList.remove('hidden'); },
+            closeAddModal: function() { document.getElementById('add-modal').classList.add('hidden'); },
 
             generateRandomEan: function() {
                 const keys = Object.keys(BarcodeDatenbank);
@@ -617,166 +654,120 @@
             },
 
             processScannedBarcode: function() {
-                const ean = document.getElementById('scan-ean-input').value.trim();
-                if(BarcodeDatenbank[ean]) {
-                    const prod = BarcodeDatenbank[ean];
+                const input = document.getElementById('scan-ean-input').value.trim();
+                if(BarcodeDatenbank[input]) {
+                    const prod = BarcodeDatenbank[input];
                     this.state.kuehlschrank.push({ name: prod.name, tage: prod.tage, cat: prod.cat });
-                    this.state.historyLog.push(`Gescanned: ${prod.name}`);
-                    this.zeigeToast(`${prod.name} hinzugefügt!`, "success");
+                    this.state.historyLog.push(`🛒 Eingescannt: ${prod.name} (+100 XP)`);
+                    this.addXp(100);
                     this.closeScanModal();
+                    document.getElementById('scan-ean-input').value = '';
                     this.renderAll();
                 } else {
-                    this.zeigeToast("Code nicht in Produktdatenbank vorhanden.", "error");
+                    this.showToast("Fehler: Barcode unbekannt!");
                 }
             },
 
             openActionModal: function(index, name) {
-                document.getElementById('modal-item-name').innerText = name;
                 document.getElementById('action-modal').classList.remove('hidden');
-                document.getElementById('modal-btn-rescue').onclick = () => this.consumeItem(index, true);
-                document.getElementById('modal-btn-waste').onclick = () => this.consumeItem(index, false);
-            },
-
-            closeActionModal: function() {
-                document.getElementById('action-modal').classList.add('hidden');
-            },
-
-            consumeItem: function(index, wasSaved) {
-                if(index < 0 || index >= this.state.kuehlschrank.length) return;
-                const item = this.state.kuehlschrank[index];
-                this.state.kuehlschrank.splice(index, 1);
-                if(wasSaved) {
+                document.getElementById('modal-item-name').innerText = name;
+                
+                document.getElementById('modal-btn-rescue').onclick = () => {
+                    this.state.kuehlschrank.splice(index, 1);
+                    this.state.historyLog.push(`✅ Gerettet & Verbraucht: ${name} (+150 XP)`);
                     this.addXp(150);
-                    this.state.historyLog.push(`Verbraucht: ${item.name}`);
-                    this.zeigeToast("+150 XP!", "success");
-                    if(typeof confetti === 'function' && !document.getElementById('levelup-modal').classList.contains('hidden') === false) {
-                        confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } });
-                    }
-                } else {
-                    this.state.historyLog.push(`Tonne: ${item.name}`);
-                    this.zeigeToast("In Abfall gebucht.", "info");
-                }
-                this.closeActionModal();
-                this.renderAll();
+                    this.closeActionModal();
+                };
+                
+                document.getElementById('modal-btn-waste').onclick = () => {
+                    this.state.kuehlschrank.splice(index, 1);
+                    this.state.historyLog.push(`❌ Weggeworfen: ${name} (0 XP)`);
+                    this.showToast("Lebensmittel weggeworfen");
+                    this.closeActionModal();
+                };
             },
+            closeActionModal: function() { document.getElementById('action-modal').classList.add('hidden'); },
 
-            openAddModal: function() {
-                document.getElementById('add-modal').classList.remove('hidden');
-            },
-
-            closeAddModal: function() {
-                document.getElementById('add-modal').classList.add('hidden');
-            },
-
-            handleFormSubmit: function(e) {
-                e.preventDefault();
-                const name = document.getElementById('input-name').value;
-                const cat = document.getElementById('input-category').value;
-                const days = parseInt(document.getElementById('input-days').value);
-                
-                this.state.kuehlschrank.push({ name: name, tage: days, cat: cat });
-                this.state.historyLog.push(`Manuell: ${name}`);
-                
-                document.getElementById('input-name').value = '';
-                document.getElementById('input-days').value = '';
-                
-                this.closeAddModal();
-                this.renderAll();
-                this.zeigeToast("Erfolgreich eingebucht!", "success");
-            },
-
-            openRecipeModal: function(id) {
-                const rec = RezeptDatenbank.find(r => r.id === id);
-                this.state.currentActiveRecipe = rec;
-                this.state.currentSelectedPortions = rec.basisPersonen;
-                
-                document.getElementById('recipe-modal-title').innerText = rec.title;
-                document.getElementById('recipe-modal-img').src = rec.img;
-                document.getElementById('recipe-modal-zeit').innerText = rec.zeit;
-                document.getElementById('recipe-modal-level').innerText = rec.level;
-                document.getElementById('recipe-modal-werkzeug').innerText = rec.werkzeug;
-                
-                this.renderCalculatedIngredients();
-
-                const ol = document.getElementById('recipe-modal-anleitung');
-                ol.innerHTML = '';
-                rec.anleitung.forEach(schritt => ol.innerHTML += `<li class="pl-1 py-0.5">${schritt}</li>`);
+            openRecipeModal: function(recipeId) {
+                const r = RezeptDatenbank.find(x => x.id === recipeId);
+                this.state.currentActiveRecipe = r;
+                this.state.currentSelectedPortions = r.basisPersonen;
                 
                 document.getElementById('recipe-modal').classList.remove('hidden');
+                this.renderRecipeModalContent();
+            },
+
+            renderRecipeModalContent: function() {
+                const r = this.state.currentActiveRecipe;
+                const portions = this.state.currentSelectedPortions;
+                const factor = portions / r.basisPersonen;
+
+                document.getElementById('recipe-modal-img').src = r.img;
+                document.getElementById('recipe-modal-title').innerText = r.title;
+                document.getElementById('recipe-modal-personen').innerText = portions;
+                document.getElementById('recipe-modal-zeit').innerText = r.zeit;
+                document.getElementById('recipe-modal-level').innerText = r.level;
+                document.getElementById('recipe-modal-werkzeug').innerText = r.werkzeug;
+
+                const zutatenContainer = document.getElementById('recipe-modal-zutaten');
+                zutatenContainer.innerHTML = '';
+                r.zutatenMengen.forEach(z => {
+                    zutatenContainer.innerHTML += `<li>${Math.round(z.wert * factor)} ${z.einheit} ${z.name}</li>`;
+                });
+
+                const anleitungContainer = document.getElementById('recipe-modal-anleitung');
+                anleitungContainer.innerHTML = '';
+                r.anleitung.forEach(step => {
+                    anleitungContainer.innerHTML += `<li>${step}</li>`;
+                });
+
                 document.getElementById('recipe-modal-cook-btn').onclick = () => {
+                    const idx = this.state.kuehlschrank.findIndex(i => i.name.toLowerCase().includes(r.zutat.toLowerCase()));
+                    if(idx !== -1) {
+                        this.state.kuehlschrank.splice(idx, 1);
+                    }
+                    this.state.historyLog.push(`🍳 Rezept gekocht: ${r.title} (+200 XP)`);
                     this.addXp(200);
-                    this.state.historyLog.push(`Gekocht: ${rec.title} (${this.state.currentSelectedPortions} Pers.)`);
-                    this.zeigeToast("Lecker! +200 XP", "success");
-                    this.closeRecipeModal();
-                    this.renderAll();
+                    document.getElementById('recipe-modal').classList.add('hidden');
                 };
             },
 
-            renderCalculatedIngredients: function() {
-                const rec = this.state.currentActiveRecipe;
-                if(!rec) return;
-
-                document.getElementById('recipe-modal-personen').innerText = this.state.currentSelectedPortions;
-                
-                const factor = this.state.currentSelectedPortions / rec.basisPersonen;
-                const ul = document.getElementById('recipe-modal-zutaten');
-                ul.innerHTML = '';
-                
-                rec.zutatenMengen.forEach(z => {
-                    let anzeigeMenge = "";
-                    if(typeof z.wert === 'number') {
-                        const berechneterWert = Math.round(z.wert * factor * 10) / 10;
-                        anzeigeMenge = `${berechneterWert} ${z.einheit} `;
-                    } else {
-                        anzeigeMenge = `${z.wert} `;
-                    }
-                    ul.innerHTML += `<li class="pl-1"><span class="font-black text-emerald-800">${anzeigeMenge}</span>${z.name}</li>`;
-                });
+            updatePortions: function(amount) {
+                const newVal = this.state.currentSelectedPortions + amount;
+                if(newVal >= 1 && newVal <= 12) {
+                    this.state.currentSelectedPortions = newVal;
+                    this.renderRecipeModalContent();
+                }
             },
 
-            updatePortions: function(change) {
-                let neuePortionen = this.state.currentSelectedPortions + change;
-                if (neuePortionen < 1) neuePortionen = 1;
-                if (neuePortionen > 12) neuePortionen = 12;
-                
-                this.state.currentSelectedPortions = neuePortionen;
-                this.renderCalculatedIngredients();
+            closeRecipeModal: function() { document.getElementById('recipe-modal').classList.add('hidden'); },
+
+            handleFormSubmit: function(e) {
+                e.preventDefault();
+                const name = document.getElementById('input-name').value.trim();
+                const cat = document.getElementById('input-category').value;
+                const tage = parseInt(document.getElementById('input-days').value);
+
+                this.state.kuehlschrank.push({ name, cat, tage });
+                this.state.historyLog.push(`📝 Manuell erfasst: ${name} (+50 XP)`);
+                this.addXp(50);
+                this.closeAddModal();
+                document.getElementById('input-name').value = '';
+                document.getElementById('input-days').value = '';
+                this.renderAll();
             },
 
-            closeRecipeModal: function() {
-                document.getElementById('recipe-modal').classList.add('hidden');
-                this.state.currentActiveRecipe = null;
-            },
-
-            switchView: function(viewId) {
-                document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
-                document.getElementById(`view-${viewId}`).classList.remove('hidden');
-                
-                document.querySelectorAll('.nav-btn').forEach(b => {
-                    b.classList.remove('text-emerald-800');
-                    b.classList.add('text-gray-400');
-                });
-                const activeNav = document.getElementById(`nav-${viewId}`);
-                activeNav.classList.remove('text-gray-400');
-                activeNav.classList.add('text-emerald-800');
-            },
-
-            zeigeToast: function(msg, type) {
+            showToast: function(msg) {
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
-                toast.className = `p-3 rounded-xl text-xs font-bold text-white shadow-md transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto bg-zinc-900`;
-                if(type === 'success') toast.className += ' bg-emerald-800';
-                if(type === 'error') toast.className += ' bg-red-600';
+                toast.className = "bg-black/90 text-white text-[11px] font-bold px-4 py-2.5 rounded-xl shadow-lg pointer-events-auto text-center border border-white/10 animate-fadeIn";
                 toast.innerText = msg;
                 container.appendChild(toast);
-                setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
-                setTimeout(() => {
-                    toast.classList.add('opacity-0', 'translate-y-2');
-                    setTimeout(() => toast.remove(), 300);
-                }, 2500);
+                setTimeout(() => toast.remove(), 2500);
             },
-            toggleInfoModal: function() { this.zeigeToast("Info-Hub kommt bald!", "info"); },
-            checkNotifications: function() { this.zeigeToast("Keine neuen Meldungen.", "info"); }
+
+            toggleInfoModal: function() { alert("ReFoWa Tracker: Scanne Strichcodes, verwalte Haltbarkeiten & koche Reste nachhaltig."); },
+            checkNotifications: function() { alert("Dein System läuft stabil. Keine kritischen Warnungen."); }
         };
 
         window.onload = () => AppEngine.init();
