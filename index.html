@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Kitchen - Live Scanner & Kochbuch</title>
+    <title>ReFoWa - Smart Scan & Save</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -46,10 +46,10 @@
                 <i data-lucide="help-circle" class="w-5 h-5 text-emerald-800"></i>
             </button>
             <div class="flex flex-col items-center justify-center flex-1 mx-4">
-                <div class="font-black text-emerald-800 tracking-tight text-xs uppercase flex items-center gap-1.5">
-                    <i data-lucide="barcode" class="w-4 h-4"></i> smart scan & save
+                <div class="font-black text-emerald-800 tracking-tight text-base uppercase flex items-center gap-1.5">
+                    <i data-lucide="barcode" class="w-5 h-5"></i> ReFoWa
                 </div>
-                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">Enterprise v5.5</div>
+                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">v1.1.0</div>
             </div>
             <div class="flex items-center gap-2">
                 <div class="flex items-center gap-1 bg-amber-50 border border-amber-200/60 px-2 py-1 rounded-xl text-xs font-black text-amber-700 shadow-xs">
@@ -67,7 +67,7 @@
                 <div class="flex justify-between items-center pt-1">
                     <div class="space-y-0.5">
                         <h1 class="text-3xl font-black tracking-tight text-black leading-none">Guten Tag!</h1>
-                        <p class="text-xs font-semibold text-gray-500">Scanne Produkte, um sie direkt zu erfassen.</p>
+                        <p class="text-xs font-semibold text-gray-500">Scanne Produkte mit ReFoWa, um Lebensmittel zu retten.</p>
                     </div>
                     <div class="w-12 h-12 bg-emerald-800 text-white rounded-xl flex items-center justify-center text-2xl shadow-md font-bold select-none" id="dashboard-avatar-preview">🧑‍🍳</div>
                 </div>
@@ -159,7 +159,7 @@
             <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-black text-black flex items-center gap-2">
-                        <i data-lucide="scan" class="w-5 h-5 text-emerald-800"></i> Barcode Live-Scanner
+                        <i data-lucide="scan" class="w-5 h-5 text-emerald-800"></i> ReFoWa Live-Scanner
                     </h3>
                     <button onclick="AppEngine.closeScanModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
@@ -173,14 +173,16 @@
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Manueller Code / Test-Eingabe</label>
                     <div class="flex gap-2">
                         <input type="text" id="scan-ean-input" placeholder="z.B. 40012345" class="flex-1 p-3 bg-gray-50 border rounded-xl text-xs font-bold tracking-widest text-center focus:outline-none focus:border-emerald-800">
-                        <button onclick="AppEngine.generateRandomEan()" class="bg-gray-100 hover:bg-gray-200 px-3 rounded-xl text-xs font-bold">🎲</button>
+                        <button onclick="AppEngine.generateRandomEan()" class="bg-gray-100 hover:bg-gray-200 px-3 rounded-xl text-xs font-bold">🎲 Random</button>
                     </div>
                 </div>
 
-                <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-[10px] text-gray-500 space-y-1">
+                <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-[10px] text-gray-500 max-h-24 overflow-y-auto space-y-1 custom-scrollbar">
                     <p>• <span class="font-bold text-emerald-800">40012345</span> : Frischer Spinat 🥦</p>
                     <p>• <span class="font-bold text-emerald-800">40056789</span> : Bio-Milch 🥛</p>
                     <p>• <span class="font-bold text-emerald-800">42011223</span> : Weizenbrot 🍞</p>
+                    <p>• <span class="font-bold text-emerald-800">40099001</span> : Erdbeeren 🍓</p>
+                    <p>• <span class="font-bold text-emerald-800">40099005</span> : Gouda Käse 🧀</p>
                 </div>
 
                 <button onclick="AppEngine.processScannedBarcode()" class="w-full bg-emerald-800 text-white p-3.5 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-900 transition flex items-center justify-center gap-2">
@@ -221,8 +223,12 @@
                         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kategorie</label>
                         <select id="input-category" class="w-full p-3 bg-gray-50 border rounded-xl text-sm font-semibold focus:outline-none">
                             <option value="🥦">🥦 Frischgemüse</option>
+                            <option value="🍎">🍎 Obst</option>
                             <option value="🥛">🥛 Milchprodukte</option>
                             <option value="🍞">🍞 Backwaren</option>
+                            <option value="🥩">🥩 Fleisch & Fisch</option>
+                            <option value="🍪">🍪 Snacks & Süßes</option>
+                            <option value="🥤">🥤 Getränke</option>
                         </select>
                     </div>
                     <div>
@@ -352,10 +358,61 @@
             }
         ];
 
+        // Die erweiterte Produktdatenbank für schnelles Scannen / Testen
         const BarcodeDatenbank = {
+            // Klassiker aus dem vorigen Schritt
             "40012345": { name: "Frischer Spinat", cat: "🥦", tage: 3 },
             "40056789": { name: "Bio-Milch", cat: "🥛", tage: 5 },
-            "42011223": { name: "Weizenbrot", cat: "🍞", tage: 6 }
+            "42011223": { name: "Weizenbrot", cat: "🍞", tage: 6 },
+            
+            // 🥦 Frischgemüse
+            "40099001": { name: "Rispentomaten", cat: "🥦", tage: 5 },
+            "40099002": { name: "Gurke", cat: "🥦", tage: 4 },
+            "40099003": { name: "Brokkoli", cat: "🥦", tage: 3 },
+            "40099004": { name: "Avocado", cat: "🥦", tage: 2 },
+            "40099021": { name: "Knoblauch", cat: "🥦", tage: 30 },
+            "40099022": { name: "Speisezwiebeln", cat: "🥦", tage: 20 },
+            "40099023": { name: "Kartoffeln", cat: "🥦", tage: 14 },
+            "40099024": { name: "Zucchini", cat: "🥦", tage: 6 },
+            
+            // 🍎 Obst
+            "40099005": { name: "Bio-Bananen", cat: "🍎", tage: 4 },
+            "40099006": { name: "Äpfel (Elstar)", cat: "🍎", tage: 12 },
+            "40099007": { name: "Erdbeeren", cat: "🍎", tage: 2 },
+            "40099008": { name: "Heidelbeeren", cat: "🍎", tage: 3 },
+            "40099025": { name: "Zitronen", cat: "🍎", tage: 10 },
+            "40099026": { name: "Weintrauben", cat: "🍎", tage: 5 },
+            
+            // 🥛 Milchprodukte / Alternativen
+            "40099009": { name: "Gouda (gerieben)", cat: "🥛", tage: 8 },
+            "40099010": { name: "Naturjoghurt", cat: "🥛", tage: 7 },
+            "40099011": { name: "Speisequark", cat: "🥛", tage: 6 },
+            "40099012": { name: "Haferdrink Barista", cat: "🥛", tage: 10 },
+            "40099027": { name: "Schmand", cat: "🥛", tage: 9 },
+            "40099028": { name: "Feta-Käse", cat: "🥛", tage: 12 },
+            "40099029": { name: "Butter", cat: "🥛", tage: 14 },
+            
+            // 🍞 Backwaren
+            "40099013": { name: "Toastbrot", cat: "🍞", tage: 7 },
+            "40099014": { name: "Aufbackbrötchen", cat: "🍞", tage: 20 },
+            "40099030": { name: "Tortilla Wraps", cat: "🍞", tage: 15 },
+            
+            // 🥩 Fleisch & Protein
+            "40099015": { name: "Bio-Hähnchenbrust", cat: "🥩", tage: 2 },
+            "40099016": { name: "Rinderhackfleisch", cat: "🥩", tage: 1 },
+            "40099017": { name: "Räuchertofu", cat: "🥩", tage: 14 },
+            "40099018": { name: "Frische Eier (6er)", cat: "🥩", tage: 10 },
+            "40099031": { name: "Lachsfilet", cat: "🥩", tage: 2 },
+            
+            // 🍪 Snacks, Süßes & Vorrat
+            "40099019": { name: "Zartbitterschokolade", cat: "🍪", tage: 60 },
+            "40099020": { name: "Studentenfutter", cat: "🍪", tage: 45 },
+            "40099032": { name: "Kartoffelchips", cat: "🍪", tage: 30 },
+            
+            // 🥤 Getränke
+            "40099033": { name: "Apfelsaft", cat: "🥤", tage: 14 },
+            "40099034": { name: "Mineralwasser Sprudel", cat: "🥤", tage: 90 },
+            "40099035": { name: "Cola", cat: "🥤", tage: 60 }
         };
  
         const AppEngine = {
@@ -380,7 +437,7 @@
                     { name: "Karotten", tage: 4, cat: "🥦" }
                 ];
                 this.state.stats = JSON.parse(localStorage.getItem('es_stats')) || { savedKg: 0.0, wastedKg: 0.0, xp: 0, streak: 5 };
-                this.state.historyLog = JSON.parse(localStorage.getItem('es_log')) || ["System geladen."];
+                this.state.historyLog = JSON.parse(localStorage.getItem('es_log')) || ["ReFoWa System geladen."];
             },
 
             saveState: function() {
@@ -497,7 +554,6 @@
                 });
             },
 
-            // STARTET DEN LIVE-SCANNER ÜBER DIE WEB-KAMERA
             openScanModal: function() {
                 document.getElementById('scan-ean-input').value = '';
                 document.getElementById('scan-modal').classList.remove('hidden');
@@ -516,7 +572,7 @@
                         document.getElementById('scan-ean-input').value = decodedText;
                         this.processScannedBarcode();
                     },
-                    (errorMessage) => { /* Fehlerfreie Frames ignorieren */ }
+                    (errorMessage) => { }
                 ).catch(err => {
                     console.error("Kamerafehler:", err);
                     this.zeigeToast("Kamera blockiert oder nicht gefunden.", "error");
@@ -604,7 +660,6 @@
                 this.zeigeToast("Erfolgreich eingebucht!", "success");
             },
 
-            // REZEPT-MODAL FUNKTIONEN MIT PORTIONSBERECHNUNG
             openRecipeModal: function(id) {
                 const rec = RezeptDatenbank.find(r => r.id === id);
                 this.state.currentActiveRecipe = rec;
