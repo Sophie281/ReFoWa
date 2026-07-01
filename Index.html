@@ -1,511 +1,240 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reduce Food Waste</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReFoWa - Reduce Food Waste</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
-    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #FAF6F0; -webkit-tap-highlight-color: transparent; }
-        .custom-scrollbar::-webkit-scrollbar { display: none; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-view { animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        /* Spezifische Ampelfarben laut Vorgabe */
+        .status-weinrot { color: #800020; }
+        .status-rot { color: #ef4444; }
+        .status-gelb { color: #eab308; }
+        .status-gruen { color: #22c55e; }
     </style>
 </head>
-<body class="text-[#2D2A26] min-h-screen select-none overflow-x-hidden">
- 
-    <div class="max-w-md mx-auto min-h-screen flex flex-col justify-between relative bg-[#FAF6F0] shadow-2xl pb-24">
+<body class="bg-gray-50 font-sans text-gray-800">
 
-        <div class="p-5 pb-2 flex justify-between items-center">
-            <button class="text-[#2D543A] hover:bg-black/5 p-2 rounded-full"><i data-lucide="menu" class="w-6 h-6"></i></button>
-            <div class="flex items-center gap-1.5">
-                <span class="text-emerald-600 text-lg">🍃</span>
-                <div class="flex flex-col text-[11px] font-black tracking-wider text-[#6E5545] leading-none uppercase">
-                    <span>reduce</span><span>food</span><span>waste</span>
-                </div>
-            </div>
-            <button class="text-[#2D543A] relative p-2 rounded-full">
-                <i data-lucide="bell" class="w-6 h-6"></i>
-                <span id="notif-badge" class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full hidden"></span>
-            </button>
+    <header class="bg-emerald-600 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-wide"><i class="fa-solid fa-fridge mr-2"></i>ReFoWa</h1>
+            <p class="text-sm italic hidden sm:block">Reduce Food Waste</p>
         </div>
- 
-        <div id="view-dashboard" class="page-view p-5 space-y-6 animate-view">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h1 id="greeting-title" class="text-3xl font-extrabold tracking-tight text-gray-900">Halli Hallo!</h1>
-                    <p class="text-sm text-[#544F49] font-medium mt-0.5">Wer Essen rettet, rettet Leben 🌱</p>
-                </div>
-                <div class="w-14 h-14 bg-[#EAE5DC] rounded-full flex items-center justify-center text-2xl shadow-inner">🧺</div>
-            </div>
- 
-            <div class="space-y-3">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-extrabold text-lg text-gray-900">Dringend verbrauchen!</h3>
-                    <button onclick="showView('fridge')" class="text-[#4D805E] text-xs font-bold">Alle sehen</button>
-                </div>
-                <div id="dashboard-urgent-list" class="space-y-2.5"></div>
-            </div>
- 
-            <div class="space-y-3">
-                <h3 class="font-extrabold text-lg text-gray-900">Smarte Kochideen</h3>
-                <div id="dashboard-recipe-scroll" class="flex gap-4 overflow-x-auto custom-scrollbar pb-1"></div>
-            </div>
- 
-            <div onclick="showView('profile')" class="bg-gradient-to-r from-[#E4ECE6] to-[#D5E1D8] p-4 rounded-2xl flex items-center justify-between border border-[#C5D4C9] cursor-pointer">
-                <div class="flex items-center gap-3">
-                    <span class="text-2xl">🌍</span>
-                    <div>
-                        <h4 class="font-extrabold text-[#2D543A] text-sm">Dein wöchentlicher Impact</h4>
-                        <p class="text-xs text-[#4D805E] font-semibold mt-0.5"><span id="stat-weight-banner" class="font-bold text-gray-900">0</span> kg CO₂ & Essen gerettet</p>
-                    </div>
-                </div>
-                <i data-lucide="chevron-right" class="w-5 h-5 text-[#2D543A]"></i>
-            </div>
-        </div>
- 
-        <div id="view-fridge" class="page-view p-5 space-y-5 hidden animate-view">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-2xl font-extrabold text-gray-900">Kühlschrank-Inhalt</h1>
-                    <p class="text-xs font-bold text-[#4D805E] mt-0.5"><span id="fridge-count-total">0</span> Produkte registriert</p>
-                </div>
-                <button onclick="openBottomSheet()" class="bg-[#4D805E] text-white p-2.5 rounded-xl shadow-md flex items-center gap-1 text-xs font-bold">
-                    <i data-lucide="plus" class="w-4 h-4"></i> Hinzufügen
-                </button>
-            </div>
- 
-            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center gap-3 text-gray-400">
-                <i data-lucide="search" class="w-4 h-4"></i>
-                <input type="text" id="fridge-search" onkeyup="renderLists()" placeholder="Inhalt durchsuchen..." class="bg-transparent focus:outline-none w-full text-xs font-medium text-gray-700">
-            </div>
- 
-            <div id="full-fridge-list" class="space-y-2.5"></div>
-        </div>
- 
-        <div id="view-recipes" class="page-view p-5 space-y-5 hidden animate-view">
-            <div>
-                <h1 class="text-2xl font-extrabold text-gray-900">Smart Recipes</h1>
-                <p class="text-xs text-gray-500 mt-0.5">Rezepte basierend auf deinen Resten im Kühlschrank.</p>
-            </div>
-            <div id="all-recipes-container" class="space-y-3"></div>
-        </div>
- 
-        <div id="view-profile" class="page-view p-5 space-y-5 hidden animate-view">
-            <h1 class="text-2xl font-extrabold text-gray-900">Dein Level & Erfolg</h1>
+    </header>
 
-            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm text-center">
-                <div class="w-16 h-16 bg-gradient-to-tr from-[#4D805E] to-emerald-400 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-md mb-3">🦸‍♂️</div>
-                <h2 class="text-xl font-bold text-gray-900">Food Waste Hero</h2>
-                <p class="text-xs text-gray-400 font-medium">Level <span id="user-level" class="text-[#4D805E] font-bold">1</span></p>
+    <main class="container mx-auto p-4 max-w-4xl">
 
-                <div class="mt-4 text-left">
-                    <div class="flex justify-between text-[10px] font-bold text-gray-400 mb-1">
-                        <span>ERFAHRUNG (XP)</span><span id="xp-text">0 / 500</span>
-                    </div>
-                    <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div id="xp-bar" class="h-full bg-gradient-to-r from-[#4D805E] to-emerald-400 rounded-full transition-all duration-500" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
- 
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-white p-4 rounded-xl shadow-sm text-center">
-                    <span id="stat-weight-profile" class="text-xl font-black text-gray-900">0 kg</span>
-                    <p class="text-[10px] text-gray-400 font-bold uppercase mt-0.5">Essen gerettet</p>
-                </div>
-                <div class="bg-white p-4 rounded-xl shadow-sm text-center">
-                    <span id="stat-meals-profile" class="text-xl font-black text-gray-900">0</span>
-                    <p class="text-[10px] text-gray-400 font-bold uppercase mt-0.5">Mahlzeiten gekocht</p>
-                </div>
-            </div>
-        </div>
- 
-        <div id="action-modal" class="fixed inset-0 bg-gray-900/40 backdrop-blur-xs flex items-center justify-center p-6 z-50 hidden">
-            <div class="bg-white w-full max-w-xs rounded-2xl p-5 text-center shadow-xl">
-                <h3 id="modal-product-title" class="font-bold text-lg text-gray-900">Produkt</h3>
-                <p class="text-xs text-gray-500 mt-1 mb-4">Hast du dieses Produkt gerettet?</p>
-                <div class="space-y-2">
-                    <button onclick="consumeProductAction(true)" class="w-full bg-[#4D805E] text-white py-2.5 rounded-xl font-bold text-xs">🎉 Ja, gegessen / gerettet!</button>
-                    <button onclick="consumeProductAction(false)" class="w-full bg-red-50 text-red-600 py-2.5 rounded-xl font-bold text-xs">🗑️ Leider weggeworfen</button>
-                    <button onclick="closeActionModal()" class="w-full text-gray-400 py-1.5 text-xs font-semibold">Abbrechen</button>
-                </div>
-            </div>
-        </div>
- 
-        <div id="bottom-sheet-overlay" class="fixed inset-0 bg-black/40 z-50 hidden" onclick="closeBottomSheet()"></div>
-        <div id="bottom-sheet" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white rounded-t-3xl z-50 transform translate-y-full transition-transform duration-300 p-5 pb-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-4"></div>
+        <section class="bg-white rounded-xl shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-emerald-700"><i class="fa-solid fa-barcode mr-2"></i>Lebensmittel scannen</h2>
             
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-gray-900">Lebensmittel hinzufügen</h3>
-                <button onclick="toggleScanner()" id="scanner-btn" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1">
-                    <i data-lucide="scan-barcode" class="w-4 h-4"></i> Scanner starten
+            <div id="reader" class="w-full max-w-sm mx-auto mb-4 overflow-hidden rounded-lg"></div>
+            
+            <div class="flex flex-col sm:flex-row gap-2 justify-center">
+                <button onclick="startScanner()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg transition">
+                    Kamera-Scanner starten
+                </button>
+                <button onclick="simulateScan()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Demo-Produkt scannen
                 </button>
             </div>
+        </section>
 
-            <div id="scanner-container" class="hidden w-full overflow-hidden rounded-xl bg-black mb-4 aspect-video relative">
-                <div id="interactive" class="w-full h-full"></div>
+        <section class="bg-white rounded-xl shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-emerald-700"><i class="fa-solid fa-box-tissue mr-2"></i>Mein Kühlschrank</h2>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-gray-500 text-sm">
+                            <th class="pb-2">Status</th>
+                            <th class="pb-2">Produkt</th>
+                            <th class="pb-2">Ablaufdatum</th>
+                            <th class="pb-2 text-right">Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kuehlschrank-liste">
+                        </tbody>
+                </table>
             </div>
+            <p id="leerer-kuehlschrank" class="text-gray-400 text-center py-6 hidden">Dein Kühlschrank ist leer. Scanne ein Produkt!</p>
+        </section>
 
-            <div class="space-y-3">
-                <input id="input-name" type="text" placeholder="Name (z.B. Milch, Spinat)" class="w-full p-3 bg-gray-50 border rounded-xl text-xs font-semibold focus:outline-[#4D805E]">
-                <div class="flex items-center justify-between p-2 bg-gray-50 border rounded-xl">
-                    <span class="text-xs font-semibold text-gray-500 pl-2">Haltbar in Tagen:</span>
-                    <div class="flex items-center gap-3">
-                        <button onclick="changeDays(-1)" class="w-8 h-8 bg-white rounded-lg shadow-xs font-bold text-sm">-</button>
-                        <span id="input-days-display" class="font-bold text-sm w-4 text-center">3</span>
-                        <button onclick="changeDays(1)" class="w-8 h-8 bg-white rounded-lg shadow-xs font-bold text-sm">+</button>
-                    </div>
+        <section class="bg-emerald-50 border border-emerald-200 rounded-xl p-6">
+            <h2 class="text-xl font-semibold mb-4 text-emerald-800"><i class="fa-solid fa-utensils mr-2"></i>Rezept-Vorschläge (Basierend auf Ablaufdatum)</h2>
+            <div id="rezept-container" class="grid gap-4 md:grid-cols-2">
                 </div>
-                <button onclick="submitManualItem()" class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold text-xs mt-2">In den Kühlschrank legen</button>
-            </div>
-        </div>
- 
-        <nav class="fixed bottom-0 max-w-md w-full bg-white border-t border-gray-100 flex justify-around py-3 z-40 rounded-t-2xl shadow-lg">
-            <button onclick="showView('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-1 text-[#4D805E]">
-                <i data-lucide="home" class="w-5 h-5"></i><span class="text-[9px] font-bold uppercase tracking-wider">Home</span>
-            </button>
-            <button onclick="showView('fridge')" id="nav-fridge" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
-                <i data-lucide="fridge" class="w-5 h-5"></i><span class="text-[9px] font-bold uppercase tracking-wider">Inhalt</span>
-            </button>
-            <button onclick="showView('recipes')" id="nav-recipes" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
-                <i data-lucide="chef-hat" class="w-5 h-5"></i><span class="text-[9px] font-bold uppercase tracking-wider">Rezepte</span>
-            </button>
-            <button onclick="showView('profile')" id="nav-profile" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
-                <i data-lucide="user" class="w-5 h-5"></i><span class="text-[9px] font-bold uppercase tracking-wider">Profil</span>
-            </button>
-        </nav>
- 
-    </div>
- 
+        </section>
+
+    </main>
+
     <script>
-        const RECIPES = [
-            { id: 1, title: "Cremige Spinat-Pasta", time: "20 Min", tag: "spinat" },
-            { id: 2, title: "Frischer Beeren-Joghurt", time: "5 Min", tag: "joghurt" },
-            { id: 3, title: "Herzhaftes Omelett", time: "10 Min", tag: "eier" },
-            { id: 4, title: "Bunter Tomatensalat", time: "8 Min", tag: "tomaten" }
-        ];
- 
-        let inventory = [];
-        let stats = { weightSaved: 0.0, mealsCount: 0 };
-        let activeItemId = null;
-        let currentDaysInput = 3;
-        let html5QrcodeScanner = null;
- 
-        window.onload = () => {
-            initData();
-            setGreeting();
-            updateUI();
+        // Demo-Datenbank für gescannte Barcodes
+        const produktDatenbank = {
+            "4000123456789": { name: "Milch", tageBisAblauf: 3 },
+            "4000987654321": { name: "Frischkäse", tageBisAblauf: 1 },
+            "4001122334455": { name: "Tomaten", tageBisAblauf: 6 },
+            "4005566778899": { name: "Naturjoghurt", tageBisAblauf: 12 }
         };
- 
-        function setGreeting() {
-            const hr = new Date().getHours();
-            document.getElementById('greeting-title').innerText = hr < 11 ? "Guten Morgen!" : hr < 18 ? "Guten Tag!" : "Guten Abend!";
-        }
- 
-        function initData() {
-            inventory = JSON.parse(localStorage.getItem('rfw_inv')) || [];
-            stats = JSON.parse(localStorage.getItem('rfw_stats')) || { weightSaved: 0.0, mealsCount: 0 };
-        }
- 
-        function saveData() {
-            localStorage.setItem('rfw_inv', JSON.stringify(inventory));
-            localStorage.setItem('rfw_stats', JSON.stringify(stats));
-        }
- 
-        function updateUI() {
-            inventory.sort((a, b) => a.daysLeft - b.daysLeft);
-            document.getElementById('notif-badge').style.display = inventory.some(i => i.daysLeft <= 1) ? 'block' : 'none';
-            document.getElementById('fridge-count-total').innerText = inventory.length;
- 
-            renderLists();
-            renderRecipes();
-            updateStatsAndGamification();
-            lucide.createIcons();
-        }
- 
-        function getTheme(days) {
-            if (days <= 1) return { bg: 'bg-red-50 border-red-200', text: 'text-red-700', badge: 'bg-red-500 text-white', label: 'Dringend' };
-            if (days <= 3) return { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-800', badge: 'bg-amber-500 text-white', label: 'Bald fällig' };
-            return { bg: 'bg-green-50 border-green-200', text: 'text-green-800', badge: 'bg-green-600 text-white', label: 'Haltbar' };
-        }
- 
-        function createItemHTML(item, theme) {
-            return `
-                <div onclick="openActionModal(${item.id})" class="${theme.bg} border p-3 rounded-xl flex justify-between items-center cursor-pointer hover:scale-[1.01] transition-transform">
-                    <div>
-                        <h4 class="font-bold text-xs text-gray-900">${item.name}</h4>
-                        <p class="text-[10px] opacity-75 font-semibold mt-0.5">Noch ${item.daysLeft} Tage haltbar</p>
-                    </div>
-                    <span class="${theme.badge} text-[9px] font-black px-2 py-1 rounded-md uppercase">${theme.label}</span>
-                </div>
-            `;
+
+        // Das Inventar im Kühlschrank (wird im LocalStorage gespeichert)
+        let kuehlschrank = JSON.parse(localStorage.getItem('kuehlschrank')) || [];
+
+        // Funktion zum Berechnen der verbleibenden Tage
+        function berechneRestTage(ablaufDatumStr) {
+            const heute = new Date();
+            heute.setHours(0,0,0,0);
+            const ablauf = new Date(ablaufDatumStr);
+            ablauf.setHours(0,0,0,0);
+            
+            const unterschiedZeit = ablauf - heute;
+            return Math.ceil(unterschiedZeit / (1000 * 60 * 60 * 24));
         }
 
-        function renderLists() {
-            const dashList = document.getElementById('dashboard-urgent-list');
-            const fridgeList = document.getElementById('full-fridge-list');
+        // Funktion zur Bestimmung der Statusfarbe laut deinen Vorgaben
+        function holeStatusKlasse(tage) {
+            if (tage <= 1) return 'status-weinrot';
+            if (tage >= 2 && tage <= 3) return 'status-rot';
+            if (tage >= 4 && tage <= 8) return 'status-gelb';
+            return 'status-gruen'; // Mehr als 9 Tage
+        }
+
+        // Kühlschrank-Ansicht aktualisieren
+        function updateKuehlschrankAnsicht() {
+            const liste = document.getElementById('kuehlschrank-liste');
+            const leererHinweis = document.getElementById('leerer-kuehlschrank');
+            liste.innerHTML = '';
+
+            // Sortieren nach Ablaufdatum (dringendste zuerst)
+            kuehlschrank.sort((a, b) => new Date(a.ablaufDatum) - new Date(b.ablaufDatum));
+
+            if (kuehlschrank.length === 0) {
+                leererHinweis.classList.remove('hidden');
+            } else {
+                leererHinweis.classList.add('hidden');
+                
+                kuehlschrank.forEach((item, index) => {
+                    const tage = berechneRestTage(item.ablaufDatum);
+                    const statusKlasse = holeStatusKlasse(tage);
+                    
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-gray-100 hover:bg-gray-50 text-sm md:text-base";
+                    tr.innerHTML = `
+                        <td class="py-3 px-1">
+                            <i class="fa-solid fa-circle text-xl ${statusKlasse}"></i>
+                        </td>
+                        <td class="py-3 font-medium">${item.name}</td>
+                        <td class="py-3 text-gray-500">${new Date(item.ablaufDatum).toLocaleDateString('de-DE')} (${tage < 0 ? 'Abgelaufen' : tage + ' Tage'})</td>
+                        <td class="py-3 text-right">
+                            <button onclick="loescheProdukt(${index})" class="text-red-500 hover:text-red-700 p-1">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    liste.appendChild(tr);
+                });
+            }
+            speichereDaten();
+            generiereRezeptVorschlaege();
+        }
+
+        // Produkt hinzufügen
+        function fuegeProduktHinzu(name, tageBisAblauf) {
+            const ablaufDatum = new Date();
+            ablaufDatum.setDate(ablaufDatum.getDate() + tageBisAblauf);
+
+            kuehlschrank.push({
+                name: name,
+                ablaufDatum: ablaufDatum.toISOString().split('T')[0]
+            });
+
+            updateKuehlschrankAnsicht();
+        }
+
+        // Produkt löschen (wenn gegessen oder weggeworfen)
+        function loescheProdukt(index) {
+            kuehlschrank.splice(index, 1);
+            updateKuehlschrankAnsicht();
+        }
+
+        // In LocalStorage speichern
+        function speichereDaten() {
+            localStorage.setItem('kuehlschrank', JSON.stringify(kuehlschrank));
+        }
+
+        // Simulation eines Scans
+        function simulateScan() {
+            const barcodes = Object.keys(produktDatenbank);
+            const zufallsBarcode = barcodes[Math.floor(Math.random() * barcodes.length)];
+            const produkt = produktDatenbank[zufallsBarcode];
             
-            const searchInput = document.getElementById('fridge-search');
-            const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
-            
-            dashList.innerHTML = ''; 
-            fridgeList.innerHTML = '';
- 
-            if (inventory.length === 0) {
-                const emptyState = `<div class="p-6 text-center text-xs font-bold text-gray-400 bg-white border border-dashed rounded-xl">Dein Kühlschrank ist komplett leer! 🛒</div>`;
-                dashList.innerHTML = emptyState; 
-                fridgeList.innerHTML = emptyState;
+            alert(`Gescannt: ${produkt.name} (Haltbar: ${produkt.tageBisAblauf} Tage)`);
+            fuegeProduktHinzu(produkt.name, produkt.tageBisAblauf);
+        }
+
+        // Kochvorschläge basierend auf den am nächsten ablaufenden Zutaten
+        function generiereRezeptVorschlaege() {
+            const container = document.getElementById('rezept-container');
+            container.innerHTML = '';
+
+            if (kuehlschrank.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 italic">Füge Lebensmittel hinzu, um Rezeptvorschläge zu erhalten.</p>';
                 return;
             }
- 
-            let urgentCount = 0;
-            inventory.forEach((item) => {
-                const theme = getTheme(item.daysLeft);
-                const html = createItemHTML(item, theme);
 
-                if (urgentCount < 3 && item.daysLeft <= 3) {
-                    dashList.innerHTML += html;
-                    urgentCount++;
-                }
+            // Hole die zwei am dringendsten ablaufenden Zutaten
+            const dringendeZutaten = kuehlschrank.slice(0, 2).map(i => i.name);
 
-                if (item.name.toLowerCase().includes(searchQuery)) {
-                    fridgeList.innerHTML += html;
-                }
-            });
+            // Einfache Logik für Rezepte
+            let rezepte = [
+                { title: "Reste-Pfanne", beschreibung: `Brate deine ${dringendeZutaten.join(' und ')} zusammen mit etwas Öl und Gewürzen in der Pfanne an.`, icon: "fa-fire-burner" },
+                { title: "Kreativer Auflauf", beschreibung: `Schneide alles klein, gib es in eine Auflaufform und überbacke ${dringendeZutaten.join(' / ')} mit etwas Käse.`, icon: "fa-bowl-food" }
+            ];
 
-            if(dashList.innerHTML === '') {
-                dashList.innerHTML = `<div class="p-4 text-center text-xs font-bold text-green-700 bg-green-50 rounded-xl">Alles sicher! Aktuell nichts dringend. ☀️</div>`;
-            }
-        }
- 
-        function renderRecipes() {
-            const scrollBox = document.getElementById('dashboard-recipe-scroll');
-            const gridBox = document.getElementById('all-recipes-container');
-            scrollBox.innerHTML = ''; 
-            gridBox.innerHTML = '';
- 
-            const activeTags = inventory.map(i => i.tag);
- 
-            RECIPES.forEach(recipe => {
-                const hasIngredient = activeTags.includes(recipe.tag);
-                const matchBadge = hasIngredient 
-                    ? `<span class="bg-green-100 text-green-700 text-[9px] font-bold px-1.5 py-0.5 rounded">Zutaten bereit!</span>`
-                    : `<span class="bg-gray-100 text-gray-400 text-[9px] font-bold px-1.5 py-0.5 rounded">Zutaten fehlen</span>`;
- 
-                scrollBox.innerHTML += `
-                    <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-xs min-w-[140px] flex flex-col justify-between h-24">
-                        <div>
-                            <h5 class="font-bold text-xs text-gray-900 truncate">${recipe.title}</h5>
-                            <p class="text-[10px] text-gray-400 font-semibold flex items-center gap-1 mt-1">🕒 ${recipe.time}</p>
-                        </div>
-                        <div class="mt-2">${matchBadge}</div>
+            rezepte.forEach(rezept => {
+                const div = document.createElement('div');
+                div.className = "bg-white p-4 rounded-lg shadow-sm border border-emerald-100 flex gap-3";
+                div.innerHTML = `
+                    <div class="text-emerald-600 text-2xl mt-1">
+                        <i class="fa-solid ${rezept.icon}"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-emerald-900">${rezept.title}</h3>
+                        <p class="text-sm text-gray-600 mt-1">${rezept.beschreibung}</p>
                     </div>
                 `;
- 
-                gridBox.innerHTML += `
-                    <div class="bg-white p-3.5 rounded-xl border border-gray-100 shadow-xs flex justify-between items-center">
-                        <div class="space-y-1">
-                            <h5 class="font-bold text-xs text-gray-900">${recipe.title}</h5>
-                            <div class="flex gap-2 items-center text-[10px] text-gray-400 font-medium">
-                                <span>🕒 ${recipe.time}</span>
-                                <span>•</span>
-                                <span>Hauptgericht</span>
-                            </div>
-                        </div>
-                        <div>${matchBadge}</div>
-                    </div>
-                `;
+                container.appendChild(div);
             });
         }
- 
-        function updateStatsAndGamification() {
-            document.getElementById('stat-weight-banner').innerText = stats.weightSaved.toFixed(1);
-            document.getElementById('stat-weight-profile').innerText = stats.weightSaved.toFixed(1) + " kg";
-            document.getElementById('stat-meals-profile').innerText = stats.mealsCount;
- 
-            let totalXp = Math.floor((stats.mealsCount * 50) + (stats.weightSaved * 100));
-            let currentLevel = Math.floor(totalXp / 500) + 1;
-            let levelProgress = totalXp % 500;
-            let progressPercent = (levelProgress / 500) * 100;
- 
-            document.getElementById('user-level').innerText = currentLevel;
-            document.getElementById('xp-text').innerText = `${levelProgress} / 500 XP`;
-            document.getElementById('xp-bar').style.width = `${progressPercent}%`;
-        }
- 
-        function openActionModal(id) {
-            const item = inventory.find(i => i.id === id);
-            if (!item) return;
-            activeItemId = id;
-            document.getElementById('modal-product-title').innerText = item.name;
-            document.getElementById('action-modal').classList.remove('hidden');
-        }
- 
-        function closeActionModal() {
-            document.getElementById('action-modal').classList.add('hidden');
-            activeItemId = null;
-        }
- 
-        function consumeProductAction(wasSaved) {
-            if (wasSaved) {
-                stats.weightSaved += 0.4;
-                stats.mealsCount += 1;
-                confetti({ particleCount: 100, spread: 60, origin: { y: 0.7 } });
-            }
-            inventory = inventory.filter(i => i.id !== activeItemId);
-            saveData(); 
-            closeActionModal(); 
-            updateUI();
-        }
- 
-        function openBottomSheet() {
-            currentDaysInput = 3;
-            document.getElementById('input-days-display').innerText = currentDaysInput;
-            document.getElementById('input-name').value = '';
-            document.getElementById('bottom-sheet-overlay').classList.remove('hidden');
-            document.getElementById('bottom-sheet').classList.remove('translate-y-full');
-        }
- 
-        function closeBottomSheet() {
-            stopScanner();
-            document.getElementById('bottom-sheet-overlay').classList.add('hidden');
-            document.getElementById('bottom-sheet').classList.add('translate-y-full');
-        }
- 
-        function changeDays(amount) {
-            currentDaysInput = Math.max(1, currentDaysInput + amount);
-            document.getElementById('input-days-display').innerText = currentDaysInput;
-        }
 
-        // --- SCHÄTZUNGS-DATENBANK FÜR MHD ---
-        function estimateDaysLeft(productName) {
-            const name = productName.toLowerCase();
-            
-            if (name.includes("h-milch") || name.includes("konserve") || name.includes("nudeln")) return 30;
-            if (name.includes("joghurt") || name.includes("quark") || name.includes("käse") || name.includes("cheese")) return 14;
-            if (name.includes("milch") || name.includes("butter") || name.includes("ei")) return 7;
-            if (name.includes("fleisch") || name.includes("fisch") || name.includes("geflügel") || name.includes("hack")) return 2;
-            if (name.includes("salat") || name.includes("spinat") || name.includes("beeren") || name.includes("erdbeer")) return 3;
-            if (name.includes("tomat") || name.includes("gurke") || name.includes("paprika") || name.includes("gemüse")) return 5;
-            if (name.includes("apfel") || name.includes("karotte") || name.includes("zwiebel") || name.includes("brot")) return 10;
-            
-            return 4; // Standardwert für Unbekanntes
-        }
-
-        // --- BARCODE SCANNER LOGIK ---
-        function toggleScanner() {
-            const container = document.getElementById('scanner-container');
-            const btn = document.getElementById('scanner-btn');
-
-            if (container.classList.contains('hidden')) {
-                container.classList.remove('hidden');
-                btn.innerHTML = `<i data-lucide="stop-circle" class="w-4 h-4"></i> Stoppen`;
-                lucide.createIcons();
-                startScanner();
-            } else {
-                stopScanner();
-            }
-        }
-
+        // Echter Kamera-Scanner (Html5Qrcode) initialisieren
         function startScanner() {
-            html5QrcodeScanner = new Html5Qrcode("interactive");
+            const html5QrCode = new Html5Qrcode("reader");
+            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                // Wenn der Barcode in unserer Datenbank existiert
+                if (produktDatenbank[decodedText]) {
+                    const prod = produktDatenbank[decodedText];
+                    fuegeProduktHinzu(prod.name, prod.tageBisAblauf);
+                    alert(`Erfolgreich gescannt: ${prod.name}`);
+                } else {
+                    // Fallback, falls der Barcode unbekannt ist
+                    const name = prompt("Unbekannter Barcode. Wie heißt das Produkt?");
+                    if(name) fuegeProduktHinzu(name, 5);
+                }
+                html5QrCode.stop();
+            };
             const config = { fps: 10, qrbox: { width: 250, height: 150 } };
-
-            html5QrcodeScanner.start(
-                { facingMode: "environment" }, 
-                config,
-                onScanSuccess
-            ).catch(err => {
-                alert("Kamera-Fehler: Bitte Kamerarechte erlauben.");
-                stopScanner();
+            
+            html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
+            .catch(err => {
+                alert("Kamera konnte nicht geöffnet werden. Nutze den Demo-Button.");
+                console.error(err);
             });
         }
 
-        function stopScanner() {
-            const container = document.getElementById('scanner-container');
-            const btn = document.getElementById('scanner-btn');
-            
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.stop().then(() => {
-                    html5QrcodeScanner = null;
-                }).catch(() => {});
-            }
-            
-            container.classList.add('hidden');
-            if(btn) {
-                btn.innerHTML = `<i data-lucide="scan-barcode" class="w-4 h-4"></i> Scanner starten`;
-                lucide.createIcons();
-            }
-        }
-
-        function onScanSuccess(decodedText, decodedResult) {
-            if (navigator.vibrate) navigator.vibrate(100);
-            stopScanner();
-            
-            const nameInput = document.getElementById('input-name');
-            nameInput.value = "Suche Produkt...";
-
-            // API Anfrage an OpenFoodFacts
-            fetch(`https://world.openfoodfacts.org/api/v2/product/${decodedText}.json`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 1 && data.product) {
-                        const productName = data.product.product_name_de || data.product.product_name || "Unbekanntes Produkt";
-                        nameInput.value = productName;
-                        
-                        // MHD-Tage berechnen & UI updaten
-                        const calculatedDays = estimateDaysLeft(productName);
-                        currentDaysInput = calculatedDays;
-                        document.getElementById('input-days-display').innerText = currentDaysInput;
-                        
-                    } else {
-                        nameInput.value = "";
-                        alert("Produkt nicht gefunden! Bitte per Hand benennen.");
-                    }
-                })
-                .catch(err => {
-                    nameInput.value = "";
-                    alert("Netzwerkfehler beim Suchen des Barcodes.");
-                });
-        }
- 
-        function submitManualItem() {
-            const name = document.getElementById('input-name').value.trim();
-            if (!name || name === "Suche Produkt...") return alert("Bitte gib einen Produktnamen ein!");
- 
-            const tag = name.toLowerCase().includes("spinat") ? "spinat" : 
-                        name.toLowerCase().includes("joghurt") ? "joghurt" :
-                        name.toLowerCase().includes("ei") ? "eier" : 
-                        name.toLowerCase().includes("tomat") ? "tomaten" : "andere";
- 
-            inventory.push({ id: Date.now(), name: name, daysLeft: currentDaysInput, tag: tag });
-            saveData(); 
-            updateUI(); 
-            closeBottomSheet();
-        }
- 
-        function showView(viewId) {
-            document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
-            document.getElementById('view-' + viewId).classList.remove('hidden');
- 
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-[#4D805E]');
-                btn.classList.add('text-gray-400');
-            });
-            document.getElementById('nav-' + viewId).classList.add('text-[#4D805E]');
-            document.getElementById('nav-' + viewId).classList.remove('text-gray-400');
- 
-            updateUI();
-        }
+        // Beim Laden der Seite Liste aufrufen
+        updateKuehlschrankAnsicht();
     </script>
 </body>
 </html>
