@@ -48,7 +48,7 @@
                 <div class="font-black text-emerald-800 tracking-tight text-base uppercase flex items-center gap-1.5">
                     <i data-lucide="barcode" class="w-5 h-5"></i> ReFoWa
                 </div>
-                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">v1.4.0 Gamified</div>
+                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">v1.5.0 Gamified</div>
             </div>
             <div class="flex items-center gap-2">
                 <div class="flex items-center gap-1 bg-amber-50 border border-amber-200/60 px-2 py-1 rounded-xl text-xs font-black text-amber-700 shadow-xs">
@@ -409,7 +409,7 @@
                     { name: "Milch", menge: 100, einheit: "ml" },
                     { name: "Zucker & Zimt", menge: 1, einheit: "EL" }
                 ],
-                anleitung: "Das Ei mit der Milch in einem tiefen Teller verquirlen. Die Brotscheiben von beiden Seiten darin wenden, sodass sie sich etwas vollsaugen. In einer Pfanne mit etwas Butter goldbraun von beiden Seiten anbraten. Noch heiß mit Zimt und Zucker bestreuen."
+                anleitung: "Das Ei mit der Milch in einem tiefen teller verquirlen. Die Brotscheiben von beiden Seiten darin wenden, sodass sie sich etwas vollsaugen. In einer Pfanne mit etwas Butter goldbraun von beiden Seiten anbraten. Noch heiß mit Zimt und Zucker bestreuen."
             },
             {
                 id: 9,
@@ -588,6 +588,14 @@
                 this.renderFridgeTab();
             },
 
+            // --- ESSEN RETTEN FUNKTION (+20 XP) ---
+            retteLebensmittel(id, name) {
+                this.state.kuehlschrank = this.state.kuehlschrank.filter(p => p.id !== id);
+                this.addXp(20);
+                this.showToast(`🎉 ${name} erfolgreich gerettet! (+20 XP)`);
+                this.renderFridgeTab();
+            },
+
             // --- CAMERA LIVE-SCAN ---
             openScanModal() {
                 document.getElementById('scan-modal').classList.remove('hidden');
@@ -646,9 +654,14 @@
                                         <p class="text-[10px] font-bold ${item.tage <= 2 ? 'text-red-500' : 'text-gray-400'}">MHD: noch ${item.tage} Tage</p>
                                     </div>
                                 </div>
-                                <button onclick="AppEngine.loescheProdukt(${item.id})" class="p-2 text-gray-400 hover:text-red-500 transition">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
+                                <div class="flex items-center gap-1">
+                                    <button onclick="AppEngine.retteLebensmittel(${item.id}, '${item.name}')" class="flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-black px-2.5 py-1.5 rounded-xl hover:bg-emerald-100 transition shadow-2xs">
+                                        🎉 Gerettet
+                                    </button>
+                                    <button onclick="AppEngine.loescheProdukt(${item.id})" class="p-2 text-gray-400 hover:text-red-500 transition">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
                             </div>
                         `).join('');
                     }
