@@ -288,6 +288,24 @@
     </div>
  
     <script>
+        // Lokale Produktdatenbank inklusive der neuen Lebensmittel
+        const MockProduktDB = {
+            "4008400200123": { name: "Nutella (450g)", cat: "🍫", tage: 30 },
+            "4001234567890": { name: "Bio-Frischmilch", cat: "🥛", tage: 5 },
+            "4260123456789": { name: "Veganes Hack", cat: "🌱", tage: 3 },
+            "4002345678901": { name: "Erdbeer-Joghurt", cat: "🥛", tage: 7 },
+            "4000190001234": { name: "Gouda (gerieben)", cat: "🧀", tage: 12 },
+            "4008413001533": { name: "Frische Eier (6er)", cat: "🥚", tage: 14 },
+            "4311501372551": { name: "Bio-Tomaten (Rispe)", cat: "🍅", tage: 4 },
+            "4001425123456": { name: "Gurke", cat: "🥒", tage: 6 },
+            "4311501456787": { name: "Hähnchenbrustfilet", cat: "🥩", tage: 2 },
+            "4006123456789": { name: "Tiefkühl-Rahmspinat", cat: "🥦", tage: 90 },
+            "4012345789012": { name: "Butter (Molkerei)", cat: "🧈", tage: 20 },
+            "4008402501234": { name: "Toastbrot (Vollkorn)", cat: "🍞", tage: 8 },
+            "4311501654321": { name: "Speisequark (Mager)", cat: "🥛", tage: 9 },
+            "4000300400500": { name: "Äpfel (Bio-Elstar)", cat: "🍎", tage: 10 }
+        };
+
         const RezepteKochbuch = [
             {
                 id: 1,
@@ -459,19 +477,18 @@
                 document.getElementById(`view-${viewId}`).classList.remove('hidden');
                 
                 document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-emerald-800', 'text-gray-400'));
-                document.getElementById(`nav-${viewId}`).classList.replace('text-gray-400', 'text-emerald-800');
+                const targetNav = document.getElementById(`nav-${viewId}`);
+                if (targetNav) targetNav.classList.replace('text-gray-400', 'text-emerald-800');
             },
 
             addXp(amount) {
                 this.state.stats.xp += amount;
-                
                 if (this.state.stats.xp >= 500) {
                     this.state.stats.level += Math.floor(this.state.stats.xp / 500);
                     this.state.stats.xp = this.state.stats.xp % 500;
                     this.showToast(`🎉 LEVEL UP! Du bist jetzt Level ${this.state.stats.level}!`);
                     if(typeof confetti === 'function') confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
                 }
-
                 localStorage.setItem('refowa_xp', this.state.stats.xp);
                 localStorage.setItem('refowa_level', this.state.stats.level);
                 this.loadProfileUi();
@@ -481,302 +498,253 @@
                 const p = this.state.profile;
                 const stats = this.state.stats;
                 
-                document.getElementById('setting-username').value = p.username;
-                document.getElementById('profile-name-title').innerText = p.username;
-                document.getElementById('dashboard-welcome-text').innerText = `Guten Tag, ${p.username}!`;
-                document.getElementById('dashboard-status-preview').innerText = p.status ? `Status: ${p.status}` : '';
-                document.getElementById('profile-avatar-large').innerText = p.avatar;
-                document.getElementById('dashboard-avatar-preview').innerText = p.avatar;
-
+                if(document.getElementById('setting-username')) document.getElementById('setting-username').value = p.username;
+                if(document.getElementById('profile-name-title')) document.getElementById('profile-name-title').innerText = p.username;
+                if(document.getElementById('dashboard-welcome-text')) document.getElementById('dashboard-welcome-text').innerText = `Guten Tag, ${p.username}!`;
+                if(document.getElementById('dashboard-status-preview')) document.getElementById('dashboard-status-preview').innerText = p.status ? `Status: ${p.status}` : '';
+                if(document.getElementById('profile-avatar-large')) document.getElementById('profile-avatar-large').innerText = p.avatar;
+                if(document.getElementById('dashboard-avatar-preview')) document.getElementById('dashboard-avatar-preview').innerText = p.avatar;
+                
                 document.querySelectorAll('.dash-level-text').forEach(el => el.innerText = stats.level);
                 document.querySelectorAll('.dash-xp-text').forEach(el => el.innerText = stats.xp);
                 
-                const progressPercent = (stats.xp / 500) * 100;
-                document.getElementById('profile-xp-bar').style.width = `${progressPercent}%`;
-                document.getElementById('profile-xp-text').innerText = `${stats.xp} / 500 XP`;
+                const xpBar = document.getElementById('profile-xp-bar');
+                if(xpBar) xpBar.style.width = `${(stats.xp / 500) * 100}%`;
+                if(document.getElementById('profile-xp-text')) document.getElementById('profile-xp-text').innerText = `${stats.xp} / 500 XP`;
             },
 
-            renderAvatarSelector() {
-                const grid = document.getElementById('avatar-selector-grid');
-                grid.innerHTML = '';
-                AvailableAvatars.forEach(av => {
-                    const btn = document.createElement('button');
-                    btn.className = `text-2xl p-2 bg-gray-50 border rounded-xl hover:bg-emerald-50 transition ${this.state.profile.avatar === av ? 'border-emerald-800 bg-emerald-50' : 'border-gray-200'}`;
-                    btn.innerText = av;
-                    btn.onclick = () => {
-                        this.state.profile.avatar = av;
-                        localStorage.setItem('refowa_avatar', av);
-                        this.loadProfileUi();
-                        this.renderAvatarSelector();
-                    };
-                    grid.appendChild(btn);
-                });
-            },
+            // --- SCAN- & EINBUCH-LOGIK ---
+            verarbeiteBarcode(code) {
+                let produktName = "";
+                let kategorieIcon = "📦";
+                let haltbarkeitTage = 7;
 
-            saveProfileData() {
-                const newName = document.getElementById('setting-username').value.trim();
-                if(newName) {
-                    this.state.profile.username = newName;
-                    localStorage.setItem('refowa_username', newName);
-                    this.loadProfileUi();
-                    this.showToast("Profil erfolgreich aktualisiert!");
-                }
-            },
-
-            renderFridgeTab() {
-                const search = document.getElementById('fridge-search').value.toLowerCase();
-                const sort = document.getElementById('fridge-sort').value;
-                const listContainer = document.getElementById('full-fridge-list');
-                const dashContainer = document.getElementById('dashboard-expiry-list');
-                
-                let items = [...this.state.kuehlschrank].filter(item => item.name.toLowerCase().includes(search));
-
-                if(sort === 'days') items.sort((a,b) => a.tage - b.tage);
-                if(sort === 'alpha') items.sort((a,b) => a.name.localeCompare(b.name));
-
-                document.getElementById('dash-fridge-count').innerText = this.state.kuehlschrank.length;
-
-                listContainer.innerHTML = '';
-                if(items.length === 0) {
-                    listContainer.innerHTML = `<p class="text-xs text-gray-400 text-center py-4 font-medium">Keine Produkte gefunden.</p>`;
+                if (MockProduktDB[code]) {
+                    produktName = MockProduktDB[code].name;
+                    kategorieIcon = MockProduktDB[code].cat;
+                    haltbarkeitTage = MockProduktDB[code].tage;
                 } else {
-                    items.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = "bg-white p-3 rounded-2xl border border-gray-100 shadow-2xs flex justify-between items-center";
-                        div.innerHTML = `
-                            <div class="flex items-center gap-3">
-                                <div class="text-xl">${item.cat || '📦'}</div>
-                                <div>
-                                    <h4 class="text-xs font-bold text-black">${item.name}</h4>
-                                    <p class="text-[10px] font-semibold ${item.tage <= 2 ? 'text-red-600' : 'text-gray-400'}">MHD: ${item.tage} Tage übrig</p>
-                                </div>
-                            </div>
-                            <button onclick="AppEngine.removeFridgeItem(${item.id})" class="text-gray-300 hover:text-red-600 p-1 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        `;
-                        listContainer.appendChild(div);
-                    });
+                    produktName = `Unbekanntes Produkt (${code.substring(0, 5)}...)`;
+                    kategorieIcon = "🍎";
+                    haltbarkeitTage = 5;
                 }
 
-                // Höchste Priorität auf Dashboard laden
-                dashContainer.innerHTML = '';
-                const criticalItems = [...this.state.kuehlschrank].sort((a,b) => a.tage - b.tage).slice(0, 2);
-                if(criticalItems.length === 0) {
-                    dashContainer.innerHTML = `<p class="text-xs text-gray-400 font-medium">Dein Kühlschrank ist leer.</p>`;
-                } else {
-                    criticalItems.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = "bg-white p-3 rounded-2xl border border-red-100 shadow-2xs flex justify-between items-center bg-gradient-to-r from-white to-red-50/20";
-                        div.innerHTML = `
-                            <div class="flex items-center gap-2.5">
-                                <span class="text-lg">${item.cat || '📦'}</span>
-                                <div>
-                                    <p class="text-xs font-extrabold text-black">${item.name}</p>
-                                    <p class="text-[10px] text-red-600 font-bold">Läuft in ${item.tage} Tagen ab!</p>
-                                </div>
-                            </div>
-                            <button onclick="AppEngine.cookWithItem('${item.name}', ${item.id})" class="bg-red-600 text-white font-bold text-[10px] px-2.5 py-1.5 rounded-xl shadow-xs hover:bg-red-700 transition">Jetzt kochen</button>
-                        `;
-                        dashContainer.appendChild(div);
-                    });
-                }
-                lucide.createIcons();
-            },
-
-            removeFridgeItem(id) {
-                this.state.kuehlschrank = this.state.kuehlschrank.filter(i => i.id !== id);
-                this.renderFridgeTab();
-                this.showToast("Produkt entfernt.");
-            },
-
-            cookWithItem(name, id) {
-                this.addXp(100);
-                this.removeFridgeItem(id);
-                this.showToast(`🧑‍🍳 Produkt verarbeitet! +100 XP`);
-            },
-
-            renderRecipesTab() {
-                const grid = document.getElementById('full-recipes-grid');
-                grid.innerHTML = '';
-                
-                RezepteKochbuch.forEach(rec => {
-                    let zutatenHtml = rec.zutaten.map(z => {
-                        const berechneteMenge = Math.round((z.menge / rec.basisPersonen) * this.state.selectedServings * 10) / 10;
-                        return `<span class="bg-gray-50 border border-gray-100 px-2 py-1 rounded-lg text-[10px] font-semibold text-gray-600">${z.name}: ${berechneteMenge}${z.einheit}</span>`;
-                    }).join('');
-
-                    const div = document.createElement('div');
-                    div.className = "bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs space-y-3";
-                    div.innerHTML = `
-                        <div class="flex justify-between items-start">
-                            <div class="flex items-center gap-2.5">
-                                <span class="text-2xl">${rec.icon}</span>
-                                <div>
-                                    <h3 class="text-xs font-black text-black">${rec.name}</h3>
-                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Rezept für ${this.state.selectedServings} Pers.</p>
-                                </div>
-                            </div>
-                            <button onclick="AppEngine.completeRecipe(${rec.id})" class="bg-emerald-800 text-white font-black text-[10px] px-3 py-1.5 rounded-xl shadow-xs hover:bg-emerald-900 transition flex items-center gap-1">Nachkochen <span class="text-emerald-300">+100 XP</span></button>
-                        </div>
-                        <div class="flex flex-wrap gap-1.5">${zutatenHtml}</div>
-                        <p class="text-[11px] text-gray-500 font-medium leading-relaxed bg-neutral-50 p-2.5 rounded-xl border border-neutral-100/60">${rec.anleitung}</p>
-                    `;
-                    grid.appendChild(div);
-                });
-            },
-
-            changeServings(val) {
-                this.state.selectedServings = parseInt(val) || 2;
-                this.renderRecipesTab();
-            },
-
-            completeRecipe(id) {
-                this.addXp(100);
-                this.showToast("🍳 Rezept erfolgreich gekocht! Guten Appetit!");
-            },
-
-            openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); },
-            closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); },
-            
-            handleFormSubmit(e) {
-                e.preventDefault();
-                const name = document.getElementById('input-name').value;
-                const days = parseInt(document.getElementById('input-days').value);
-                
-                if(name && days) {
-                    this.state.kuehlschrank.push({
-                        id: Date.now(),
-                        name: name,
-                        cat: "📦",
-                        tage: days
-                    });
-                    this.addXp(50);
-                    this.renderFridgeTab();
-                    this.closeAddModal();
-                    e.target.reset();
-                    this.showToast("Produkt erfolgreich eingebucht!");
-                }
-            },
-
-            toggleInfoModal(show) {
-                document.getElementById('info-modal').classList[show ? 'remove' : 'add']('hidden');
-            },
-
-            // --- BARCODE SCANNER LOGIK HIER REPARIERT ---
-            openScanModal() {
-                document.getElementById('scan-modal').classList.remove('hidden');
-                this.startLiveScanner();
-            },
-
-            closeScanModal() {
-                document.getElementById('scan-modal').classList.add('hidden');
-                this.stopLiveScanner();
-            },
-
-            startLiveScanner() {
-                // Falls bereits eine Instanz läuft, erst stoppen
-                if (this.html5QrcodeScanner) {
-                    this.stopLiveScanner();
-                }
-
-                this.html5QrcodeScanner = new Html5Qrcode("interactive-camera-feed");
-                
-                const config = { 
-                    fps: 10, 
-                    qrbox: { width: 250, height: 150 },
-                    aspectRatio: 1.0
+                const neuesProdukt = {
+                    id: Date.now(),
+                    name: produktName,
+                    cat: kategorieIcon,
+                    tage: haltbarkeitTage
                 };
 
-                // Nutze bevorzugt die Rückkamera ('environment')
-                this.html5QrcodeScanner.start(
-                    { facingMode: "environment" }, 
-                    config, 
-                    (decodedText) => {
-                        // Erfolg: Barcode erkannt
-                        this.handleScannedBarcode(decodedText);
-                    },
-                    (errorMessage) => {
-                        // Optional: Fehler/Suche-Logs unterdrücken um Performance zu schonen
-                    }
-                ).catch(err => {
-                    console.error("Kamera-Fehler beim Starten:", err);
-                    this.showToast("Kamera konnte nicht gestartet werden.");
-                });
-            },
-
-            stopLiveScanner() {
-                if (this.html5QrcodeScanner) {
-                    this.html5QrcodeScanner.stop().then(() => {
-                        this.html5QrcodeScanner = null;
-                        document.getElementById('interactive-camera-feed').innerHTML = '';
-                    }).catch(err => {
-                        console.error("Fehler beim Stoppen der Kamera:", err);
-                    });
-                }
-            },
-
-            handleScannedBarcode(barcode) {
-                this.showToast(`Code erkannt: ${barcode}`);
-                
-                // Demo-Logik zum Einbuchen basierend auf dem erkannten Code
-                let name = "Unbekanntes Produkt";
-                let tage = 5;
-                let cat = "📦";
-
-                if (barcode.startsWith("400")) {
-                    name = "Molkerei Frischmilch";
-                    tage = 3;
-                    cat = "🥛";
-                } else if (barcode.startsWith("426")) {
-                    name = "Bio-Salatmix";
-                    tage = 2;
-                    cat = "🥦";
-                }
-
-                this.state.kuehlschrank.push({
-                    id: Date.now(),
-                    name: `${name} (${barcode.slice(-4)})`,
-                    cat: cat,
-                    tage: tage
-                });
-
+                this.state.kuehlschrank.push(neuesProdukt);
                 this.addXp(50);
+                this.showToast(`✅ ${produktName} im Bestand gespeichert! (+50 XP)`);
+                
                 this.renderFridgeTab();
                 this.closeScanModal();
+                this.switchView('fridge');
             },
 
             handleManualBarcodeSubmit() {
                 const input = document.getElementById('manual-barcode-input');
-                if(input.value.trim()) {
-                    this.handleScannedBarcode(input.value.trim());
-                    input.value = '';
+                const code = input.value.trim();
+                if (code) {
+                    this.verarbeiteBarcode(code);
+                    input.value = "";
+                } else {
+                    this.showToast("Bitte gib einen gültigen Code ein.");
                 }
             },
 
             simulateScan() {
-                const mockCodes = ["4001234567890", "4269876543210", "4105556667771"];
-                const randomCode = mockCodes[Math.floor(Math.random() * mockCodes.length)];
-                this.handleScannedBarcode(randomCode);
+                const keys = Object.keys(MockProduktDB);
+                const zufallsCode = keys[Math.floor(Math.random() * keys.length)];
+                this.verarbeiteBarcode(zufallsCode);
+            },
+
+            handleFormSubmit(event) {
+                event.preventDefault();
+                const name = document.getElementById('input-name').value;
+                const tage = parseInt(document.getElementById('input-days').value);
+
+                this.state.kuehlschrank.push({
+                    id: Date.now(),
+                    name: name,
+                    cat: "🍳",
+                    tage: tage
+                });
+
+                this.addXp(50);
+                this.showToast(`✅ ${name} manuell gespeichert!`);
+                this.renderFridgeTab();
+                this.closeAddModal();
+                this.switchView('fridge');
+                event.target.reset();
+            },
+
+            loescheProdukt(id) {
+                this.state.kuehlschrank = this.state.kuehlschrank.filter(p => p.id !== id);
+                this.showToast("🗑️ Produkt entfernt.");
+                this.renderFridgeTab();
+            },
+
+            // --- CAMERA LIVE-SCAN ---
+            openScanModal() {
+                document.getElementById('scan-modal').classList.remove('hidden');
+                
+                this.html5QrcodeScanner = new Html5Qrcode("interactive-camera-feed");
+                this.html5QrcodeScanner.start(
+                    { facingMode: "environment" }, 
+                    { fps: 10, qrbox: { width: 250, height: 150 } },
+                    (decodedText) => {
+                        AppEngine.verarbeiteBarcode(decodedText);
+                    },
+                    (errorMessage) => {
+                        // Kontinuierliche Suche im Videostream
+                    }
+                ).catch(err => {
+                    console.error("Kamera-Fehler: ", err);
+                });
+            },
+
+            closeScanModal() {
+                document.getElementById('scan-modal').classList.add('hidden');
+                if (this.html5QrcodeScanner) {
+                    this.html5QrcodeScanner.stop().then(() => {
+                        this.html5QrcodeScanner = null;
+                    }).catch(err => console.log(err));
+                }
+            },
+
+            openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); },
+            closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); },
+            toggleInfoModal(show) { document.getElementById('info-modal').classList[show ? 'remove' : 'add']('hidden'); },
+
+            // --- RE-RENDERING DER ANSICHTEN ---
+            renderFridgeTab() {
+                const listContainer = document.getElementById('full-fridge-list');
+                const dashExpiryList = document.getElementById('dashboard-expiry-list');
+                const searchVal = document.getElementById('fridge-search')?.value.toLowerCase() || "";
+                const sortBy = document.getElementById('fridge-sort')?.value || "days";
+
+                let items = [...this.state.kuehlschrank].filter(item => item.name.toLowerCase().includes(searchVal));
+                if (sortBy === "alpha") items.sort((a,b) => a.name.localeCompare(b.name));
+                else items.sort((a,b) => a.tage - b.tage);
+
+                if(document.getElementById('dash-fridge-count')) document.getElementById('dash-fridge-count').innerText = this.state.kuehlschrank.length;
+
+                if (listContainer) {
+                    if(items.length === 0) {
+                        listContainer.innerHTML = `<p class="text-xs text-center text-gray-400 py-6 font-bold">Keine Lebensmittel gefunden.</p>`;
+                    } else {
+                        listContainer.innerHTML = items.map(item => `
+                            <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-2xs flex justify-between items-center">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="text-xl bg-gray-50 p-1.5 rounded-xl border">${item.cat}</div>
+                                    <div>
+                                        <p class="text-xs font-black">${item.name}</p>
+                                        <p class="text-[10px] font-bold ${item.tage <= 2 ? 'text-red-500' : 'text-gray-400'}">MHD: noch ${item.tage} Tage</p>
+                                    </div>
+                                </div>
+                                <button onclick="AppEngine.loescheProdukt(${item.id})" class="p-2 text-gray-400 hover:text-red-500 transition">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        `).join('');
+                    }
+                }
+
+                if (dashExpiryList) {
+                    let prioItems = [...this.state.kuehlschrank].filter(item => item.tage <= 3).sort((a,b) => a.tage - b.tage);
+                    if(prioItems.length === 0) {
+                        dashExpiryList.innerHTML = `<p class="text-[11px] text-gray-400 italic font-medium">Aktuell keine ablaufenden Lebensmittel! Super! 🙌</p>`;
+                    } else {
+                        dashExpiryList.innerHTML = prioItems.map(item => `
+                            <div class="bg-red-50/60 border border-red-100 p-2.5 rounded-xl flex justify-between items-center">
+                                <span class="text-xs font-bold text-gray-800">${item.cat} ${item.name}</span>
+                                <span class="text-[10px] font-extrabold px-2 py-0.5 bg-red-100 text-red-700 rounded-md">⚠️ ${item.tage} Tage</span>
+                            </div>
+                        `).join('');
+                    }
+                }
+                lucide.createIcons();
+            },
+
+            renderRecipesTab() {
+                const grid = document.getElementById('full-recipes-grid');
+                if (!grid) return;
+
+                grid.innerHTML = RezepteKochbuch.map(r => {
+                    const faktor = this.state.selectedServings / r.basisPersonen;
+                    const zutatenHtml = r.zutaten.map(z => `
+                        <li class="flex justify-between text-[11px] border-b border-gray-50 py-0.5">
+                            <span class="text-gray-500 font-medium">${z.name}</span>
+                            <span class="font-bold text-gray-800">${(z.menge * faktor).toFixed(z.einheit === "Stk." ? 1 : 0)} ${z.einheit}</span>
+                        </li>
+                    `).join('');
+
+                    return `
+                        <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-2xs space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-black text-sm text-gray-900">${r.icon} ${r.name}</h3>
+                                <button onclick="AppEngine.cookRecipe('${r.name}')" class="bg-emerald-800 text-white font-extrabold text-[10px] px-3 py-1.5 rounded-xl hover:bg-emerald-950 shadow-2xs transition">Nachkochen</button>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-extrabold uppercase text-emerald-800 tracking-wider mb-1">Zutaten für ${this.state.selectedServings} Pers.</p>
+                                <ul class="space-y-0.5">${zutatenHtml}</ul>
+                            </div>
+                            <p class="text-[10px] font-medium text-gray-400 leading-relaxed bg-gray-50 p-2 rounded-xl border border-gray-100">${r.anleitung}</p>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            changeServings(val) {
+                this.state.selectedServings = parseInt(val);
+                this.renderRecipesTab();
+            },
+
+            cookRecipe(name) {
+                this.addXp(100);
+                this.showToast(`🍳 "${name}" gekocht! +100 XP erhalten!`);
+            },
+
+            renderAvatarSelector() {
+                const grid = document.getElementById('avatar-selector-grid');
+                if (!grid) return;
+                grid.innerHTML = AvailableAvatars.map(av => `
+                    <button onclick="AppEngine.selectAvatar('${av}')" class="p-2 bg-gray-50 hover:bg-emerald-50 border rounded-xl text-xl transition active:scale-95">${av}</button>
+                `).join('');
+            },
+
+            selectAvatar(av) {
+                this.state.profile.avatar = av;
+                localStorage.setItem('refowa_avatar', av);
+                this.loadProfileUi();
+                this.showToast("Avatar aktualisiert! 🌟");
+            },
+
+            saveProfileData() {
+                const newName = document.getElementById('setting-username').value.trim();
+                if (newName) {
+                    this.state.profile.username = newName;
+                    localStorage.setItem('refowa_username', newName);
+                    this.loadProfileUi();
+                    this.showToast("Profilname gespeichert! 💾");
+                }
             },
 
             showToast(msg) {
                 const container = document.getElementById('toast-container');
+                if (!container) return;
                 const toast = document.createElement('div');
-                toast.className = "bg-black/90 text-white font-semibold text-xs px-4 py-3 rounded-xl shadow-xl pointer-events-auto flex items-center justify-between transition-all duration-300 opacity-0 translate-y-2";
-                toast.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-white ml-2">✕</button>`;
+                toast.className = "bg-black/95 text-white font-bold text-xs px-4 py-3 rounded-2xl shadow-xl pointer-events-auto flex items-center justify-center text-center border border-white/10";
+                toast.innerText = msg;
                 container.appendChild(toast);
-                
-                setTimeout(() => {
-                    toast.classList.remove('opacity-0', 'translate-y-2');
-                }, 10);
-
-                setTimeout(() => {
-                    toast.classList.add('opacity-0', 'translate-y-2');
-                    setTimeout(() => toast.remove(), 300);
-                }, 3500);
+                setTimeout(() => toast.remove(), 3500);
             }
         };
 
-        // App beim Laden starten
         window.addEventListener('DOMContentLoaded', () => AppEngine.init());
     </script>
 </body>
