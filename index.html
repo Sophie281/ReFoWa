@@ -52,7 +52,7 @@
             </div>
             <div class="flex items-center gap-2">
                 <div class="flex items-center gap-1 bg-amber-50 border border-amber-200/60 px-2 py-1 rounded-xl text-xs font-black text-amber-700 shadow-xs">
-                    <span>🔥</span> <span id="global-streak-counter">0</span> Days
+                    <span>🔥</span> <span id="global-streak-counter">0</span> Flammen
                 </div>
                 <button onclick="AppEngine.showToast('Keine Benachrichtigungen')" class="p-2 bg-white/80 rounded-xl shadow-xs hover:opacity-70 transition relative">
                     <i data-lucide="bell" class="w-4 h-4 text-gray-700"></i>
@@ -73,6 +73,20 @@
                         <p id="dashboard-status-preview" class="text-[11px] text-emerald-600 italic font-medium pt-0.5"></p>
                     </div>
                     <div class="w-12 h-12 bg-emerald-800 text-white rounded-xl flex items-center justify-center text-2xl shadow-md font-bold select-none" id="dashboard-avatar-preview">🍳</div>
+                </div>
+
+                <div class="bg-gradient-to-br from-amber-500 to-orange-600 p-4 rounded-2xl text-white shadow-md space-y-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">🔥</span>
+                        <div>
+                            <p class="text-xs font-extrabold uppercase tracking-wider opacity-90">Tägliche Challenge</p>
+                            <p class="text-sm font-black">Hol dir deine Flamme für heute!</p>
+                        </div>
+                    </div>
+                    <p class="text-[11px] opacity-90 leading-tight">Klicke auf den Button oder koche ein Reste-Rezept nach, um dein tägliches Feuer aktiv zu halten.</p>
+                    <button onclick="AppEngine.collectDailyFlame('Button')" class="w-full bg-white text-orange-700 py-2.5 rounded-xl font-bold text-xs shadow-sm hover:bg-orange-50 transition active:scale-[0.99] flex items-center justify-center gap-1.5">
+                        <i data-lucide="heart-handshake" class="w-4 h-4"></i> Ich habe Essen gerettet!
+                    </button>
                 </div>
 
                 <div class="bg-white p-3.5 rounded-2xl border border-gray-100 shadow-2xs flex justify-between items-center">
@@ -111,7 +125,7 @@
                         <button onclick="AppEngine.switchView('recipes')" class="text-emerald-800 text-xs font-bold hover:underline">Gesamtes Kochbuch</button>
                     </div>
                     <div class="text-xs text-gray-500 font-medium bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs">
-                        Schau im Rezept-Tab vorbei, um deine Reste-Rezepte mit Kochanleitung zu sehen! Kochst du ein Rezept nach, bekommst du **100 XP**! 🧑‍🍳
+                        Schau im Rezept-Tab vorbei, um deine Reste-Rezepte mit Kochanleitung zu sehen! Kochst du ein Rezept nach, bekommst du **100 XP** und deine tägliche Flamme! 🧑‍🍳
                     </div>
                 </div>
             </div>
@@ -288,7 +302,6 @@
     </div>
  
     <script>
-        // Lokale Produktdatenbank inklusive der neuen Lebensmittel
         const MockProduktDB = {
             "4008400200123": { name: "Nutella (450g)", cat: "🍫", tage: 30 },
             "4001234567890": { name: "Bio-Frischmilch", cat: "🥛", tage: 5 },
@@ -345,97 +358,6 @@
                     { name: "Schuss Milch", menge: 20, einheit: "ml" }
                 ],
                 anleitung: "Das Gemüse klein schneiden und in einer Pfanne anbraten. Eier mit der Milch verquirlen, mit Salz und Pfeffer würzen und über das Gemüse gießen. Den Käse darüberstreuen, Hitze reduzieren und mit geschlossenem Deckel stocken lassen."
-            },
-            {
-                id: 4,
-                name: "Ofenfrische Reste-Pizza-Baguettes",
-                icon: "🥖",
-                basisPersonen: 2,
-                zutaten: [
-                    { name: "Altes Brot oder Brötchen", menge: 2, einheit: "Stk." },
-                    { name: "Tomatenmark oder Ketchup", menge: 3, einheit: "EL" },
-                    { name: "Aufschnittreste (Schinken/Salami)", menge: 60, einheit: "g" },
-                    { name: "Käse zum Überbacken", menge: 80, einheit: "g" }
-                ],
-                anleitung: "Die Brötchen oder Brotscheiben mit Tomatenmark bestreichen. Nach Belieben mit klein geschnittenen Aufschnitt- und Gemüseresten belegen. Üppig mit Käse bestreuen und bei 180°C im Ofen backen, bis der Käse goldbraun geschmolzen ist."
-            },
-            {
-                id: 5,
-                name: "Knusprige Bratkartoffel-Pfanne",
-                icon: "🥔",
-                basisPersonen: 2,
-                zutaten: [
-                    { name: "Gekochte Kartoffeln vom Vortag", menge: 400, einheit: "g" },
-                    { name: "Zwiebel", menge: 1, einheit: "Stk." },
-                    { name: "Speiseöl oder Butter", menge: 2, einheit: "EL" },
-                    { name: "Frische Kräuter", menge: 1, einheit: "Bund" }
-                ],
-                anleitung: "Die kalten Kartoffeln in Scheiben schneiden. Öl in einer Pfanne erhitzen und die Kartoffeln von beiden Seiten knusprig anbraten. Erst kurz vor Schluss die gewürfelte Zwiebel hinzugeben, damit sie nicht verbrennt. Mit Salz, Pfeffer und Kräutern servieren."
-            },
-            {
-                id: 6,
-                name: "Kunterbunter Nudelsalat",
-                icon: "🥗",
-                basisPersonen: 2,
-                zutaten: [
-                    { name: "Gekochte Nudeln", menge: 250, einheit: "g" },
-                    { name: "Gewürzgurken oder Gemüse", menge: 100, einheit: "g" },
-                    { name: "Joghurt oder Mayonnaise", menge: 3, einheit: "EL" },
-                    { name: "Senf", menge: 1, einheit: "TL" }
-                ],
-                anleitung: "Nudeln und Gemüse in einer großen Schüssel vermengen. Aus Joghurt, Senf, einem Schluck Gurkenwasser, Salz und Pfeffer ein schnelles Dressing anrühren. Das Dressing unter den Salat heben und vor dem Verzehr im Kühlschrank etwas ziehen lassen."
-            },
-            {
-                id: 7,
-                name: "Überbackener Reistopf",
-                icon: "🍚",
-                basisPersonen: 2,
-                zutaten: [
-                    { name: "Gekochter Reis vom Vortag", menge: 300, einheit: "g" },
-                    { name: "Gemüse- oder Fleischreste", menge: 150, einheit: "g" },
-                    { name: "Schmand oder Crème fraîche", menge: 100, einheit: "g" },
-                    { name: "Geriebener Käse", menge: 60, einheit: "g" }
-                ],
-                anleitung: "Den kalten Reis mit den klein geschnittenen Gemüse- oder Fleischresten in einer Auflaufform mischen. Schmand mit Salz, Pfeffer und Kräutern würzen und unterrühren. Alles glatt streichen, mit Käse bestreuen und im Ofen bei 200°C ca. 15 Minuten goldbraun backen."
-            },
-            {
-                id: 8,
-                name: "Arme Ritter (Süße Brotretter)",
-                icon: "🍞",
-                basisPersonen: 2,
-                zutaten: [
-                    { name: "Altbackenes Weißbrot oder Toast", menge: 4, einheit: "Scheiben" },
-                    { name: "Ei", menge: 1, einheit: "Stk." },
-                    { name: "Milch", menge: 100, einheit: "ml" },
-                    { name: "Zucker & Zimt", menge: 1, einheit: "EL" }
-                ],
-                anleitung: "Das Ei mit der Milch in einem tiefen teller verquirlen. Die Brotscheiben von beiden Seiten darin wenden, sodass sie sich etwas vollsaugen. In einer Pfanne mit etwas Butter goldbraun von beiden Seiten anbraten. Noch heiß mit Zimt und Zucker bestreuen."
-            },
-            {
-                id: 9,
-                name: "Schnelle Reste-Gemüsesuppe",
-                icon: "🍜",
-                basisPersonen: 3,
-                zutaten: [
-                    { name: "Gemüsereste (Möhren, Lauch, etc.)", menge: 400, einheit: "g" },
-                    { name: "Gemüsebrühe (Wasser + Pulver)", menge: 750, einheit: "ml" },
-                    { name: "Zwiebel", menge: 1, einheit: "Stk." },
-                    { name: "Kleine Nudeln oder Reis (optional)", menge: 50, einheit: "g" }
-                ],
-                anleitung: "Die Zwiebel und das restliche Gemüse in kleine Würfel schneiden. In einem Topf kurz mit etwas Öl andünsten, dann mit der heißen Gemüsebrühe aufgießen. Bei mittlerer Hitze ca. 15 Minuten köcheln lassen, bis das Gemüse weich ist. Falls gewünscht, Suppennudeln mitherankochen."
-            },
-            {
-                id: 10,
-                name: "Fruchtiger Reste-Smoothie",
-                icon: "🥤",
-                basisPersonen: 1,
-                zutaten: [
-                    { name: "Reife Früchte (z.B. braune Bananen)", menge: 150, einheit: "g" },
-                    { name: "Joghurt, Quark oder Milch", menge: 150, einheit: "g" },
-                    { name: "Haferflocken für den Biss", menge: 2, einheit: "EL" },
-                    { name: "Honig oder Saft (optional)", menge: 1, einheit: "TL" }
-                ],
-                anleitung: "Die Früchte schälen und grob zerkleidern. Zusammen mit dem Joghurt (oder der Milch) und den Haferflocken in einen Standmixer geben oder mit dem Pürierstab cremig mixen. Bei Bedarf mit einem Spritzer Saft oder Honig abschmecken."
             }
         ];
 
@@ -451,7 +373,7 @@
                 stats: { 
                     xp: parseInt(localStorage.getItem('refowa_xp')) || 120, 
                     level: parseInt(localStorage.getItem('refowa_level')) || 1,
-                    streak: 3 
+                    streak: parseInt(localStorage.getItem('refowa_streak')) || 0 
                 },
                 profile: {
                     username: localStorage.getItem('refowa_username') || "EcoRetter",
@@ -468,8 +390,43 @@
                 this.renderFridgeTab();
                 this.renderRecipesTab();
                 this.showToast("Willkommen zurück bei ReFoWa!");
-                document.getElementById('global-streak-counter').innerText = this.state.stats.streak;
+                this.updateStreakDisplay();
+                this.updateXpDisplay();
                 lucide.createIcons();
+            },
+
+            // NEU: Funktion zur Prüfung und Vergabe der täglichen Flamme
+            collectDailyFlame(source) {
+                const heute = new Date().toDateString();
+                const letzteFlammeDatum = localStorage.getItem('refowa_last_flame_date');
+
+                if (letzteFlammeDatum === heute) {
+                    this.showToast("🔥 Du hast deine Flamme für heute schon gesammelt!");
+                    return;
+                }
+
+                // Flamme erhöhen
+                this.state.stats.streak += 1;
+                localStorage.setItem('refowa_streak', this.state.stats.streak);
+                localStorage.setItem('refowa_last_flame_date', heute);
+
+                // XP Bonus geben
+                this.addXp(source === "Rezept" ? 100 : 50);
+                this.updateStreakDisplay();
+
+                // Effekte
+                confetti({
+                    particleCount: 120,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#f59e0b', '#f97316', '#ef4444']
+                });
+
+                this.showToast(`🔥 Flamme erhalten via ${source}! +1 Tag`);
+            },
+
+            updateStreakDisplay() {
+                document.getElementById('global-streak-counter').innerText = this.state.stats.streak;
             },
 
             switchView(viewId) {
@@ -483,258 +440,32 @@
 
             addXp(amount) {
                 this.state.stats.xp += amount;
-                if (this.state.stats.xp >= 500) {
-                    this.state.stats.level += Math.floor(this.state.stats.xp / 500);
-                    this.state.stats.xp = this.state.stats.xp % 500;
-                    this.showToast(`🎉 LEVEL UP! Du bist jetzt Level ${this.state.stats.level}!`);
-                    if(typeof confetti === 'function') confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+                while (this.state.stats.xp >= 500) {
+                    this.state.stats.xp -= 500;
+                    this.state.stats.level += 1;
+                    this.showToast(`🎉 Level Up! Du bist jetzt Level ${this.state.stats.level}!`);
                 }
                 localStorage.setItem('refowa_xp', this.state.stats.xp);
                 localStorage.setItem('refowa_level', this.state.stats.level);
-                this.loadProfileUi();
+                this.updateXpDisplay();
+            },
+
+            updateXpDisplay() {
+                document.querySelectorAll('.dash-level-text').forEach(el => el.innerText = this.state.stats.level);
+                document.querySelectorAll('.dash-xp-text').forEach(el => el.innerText = this.state.stats.xp);
+                
+                const bar = document.getElementById('profile-xp-bar');
+                if (bar) bar.style.width = `${(this.state.stats.xp / 500) * 100}%`;
+                const text = document.getElementById('profile-xp-text');
+                if (text) text.innerText = `${this.state.stats.xp} / 500 XP`;
             },
 
             loadProfileUi() {
-                const p = this.state.profile;
-                const stats = this.state.stats;
-                
-                if(document.getElementById('setting-username')) document.getElementById('setting-username').value = p.username;
-                if(document.getElementById('profile-name-title')) document.getElementById('profile-name-title').innerText = p.username;
-                if(document.getElementById('dashboard-welcome-text')) document.getElementById('dashboard-welcome-text').innerText = `Guten Tag, ${p.username}!`;
-                if(document.getElementById('dashboard-status-preview')) document.getElementById('dashboard-status-preview').innerText = p.status ? `Status: ${p.status}` : '';
-                if(document.getElementById('profile-avatar-large')) document.getElementById('profile-avatar-large').innerText = p.avatar;
-                if(document.getElementById('dashboard-avatar-preview')) document.getElementById('dashboard-avatar-preview').innerText = p.avatar;
-                
-                document.querySelectorAll('.dash-level-text').forEach(el => el.innerText = stats.level);
-                document.querySelectorAll('.dash-xp-text').forEach(el => el.innerText = stats.xp);
-                
-                const xpBar = document.getElementById('profile-xp-bar');
-                if(xpBar) xpBar.style.width = `${(stats.xp / 500) * 100}%`;
-                if(document.getElementById('profile-xp-text')) document.getElementById('profile-xp-text').innerText = `${stats.xp} / 500 XP`;
-            },
-
-            // --- SCAN- & EINBUCH-LOGIK ---
-            verarbeiteBarcode(code) {
-                let produktName = "";
-                let kategorieIcon = "📦";
-                let haltbarkeitTage = 7;
-
-                if (MockProduktDB[code]) {
-                    produktName = MockProduktDB[code].name;
-                    kategorieIcon = MockProduktDB[code].cat;
-                    haltbarkeitTage = MockProduktDB[code].tage;
-                } else {
-                    produktName = `Unbekanntes Produkt (${code.substring(0, 5)}...)`;
-                    kategorieIcon = "🍎";
-                    haltbarkeitTage = 5;
-                }
-
-                const neuesProdukt = {
-                    id: Date.now(),
-                    name: produktName,
-                    cat: kategorieIcon,
-                    tage: haltbarkeitTage
-                };
-
-                this.state.kuehlschrank.push(neuesProdukt);
-                this.addXp(50);
-                this.showToast(`✅ ${produktName} im Bestand gespeichert! (+50 XP)`);
-                
-                this.renderFridgeTab();
-                this.closeScanModal();
-                this.switchView('fridge');
-            },
-
-            handleManualBarcodeSubmit() {
-                const input = document.getElementById('manual-barcode-input');
-                const code = input.value.trim();
-                if (code) {
-                    this.verarbeiteBarcode(code);
-                    input.value = "";
-                } else {
-                    this.showToast("Bitte gib einen gültigen Code ein.");
-                }
-            },
-
-            simulateScan() {
-                const keys = Object.keys(MockProduktDB);
-                const zufallsCode = keys[Math.floor(Math.random() * keys.length)];
-                this.verarbeiteBarcode(zufallsCode);
-            },
-
-            handleFormSubmit(event) {
-                event.preventDefault();
-                const name = document.getElementById('input-name').value;
-                const tage = parseInt(document.getElementById('input-days').value);
-
-                this.state.kuehlschrank.push({
-                    id: Date.now(),
-                    name: name,
-                    cat: "🍳",
-                    tage: tage
-                });
-
-                this.addXp(50);
-                this.showToast(`✅ ${name} manuell gespeichert!`);
-                this.renderFridgeTab();
-                this.closeAddModal();
-                this.switchView('fridge');
-                event.target.reset();
-            },
-
-            loescheProdukt(id) {
-                this.state.kuehlschrank = this.state.kuehlschrank.filter(p => p.id !== id);
-                this.showToast("🗑️ Produkt entfernt.");
-                this.renderFridgeTab();
-            },
-
-            // --- ESSEN RETTEN FUNKTION (+20 XP) ---
-            retteLebensmittel(id, name) {
-                this.state.kuehlschrank = this.state.kuehlschrank.filter(p => p.id !== id);
-                this.addXp(20);
-                this.showToast(`🎉 ${name} erfolgreich gerettet! (+20 XP)`);
-                this.renderFridgeTab();
-            },
-
-            // --- CAMERA LIVE-SCAN ---
-            openScanModal() {
-                document.getElementById('scan-modal').classList.remove('hidden');
-                
-                this.html5QrcodeScanner = new Html5Qrcode("interactive-camera-feed");
-                this.html5QrcodeScanner.start(
-                    { facingMode: "environment" }, 
-                    { fps: 10, qrbox: { width: 250, height: 150 } },
-                    (decodedText) => {
-                        AppEngine.verarbeiteBarcode(decodedText);
-                    },
-                    (errorMessage) => {
-                        // Kontinuierliche Suche im Videostream
-                    }
-                ).catch(err => {
-                    console.error("Kamera-Fehler: ", err);
-                });
-            },
-
-            closeScanModal() {
-                document.getElementById('scan-modal').classList.add('hidden');
-                if (this.html5QrcodeScanner) {
-                    this.html5QrcodeScanner.stop().then(() => {
-                        this.html5QrcodeScanner = null;
-                    }).catch(err => console.log(err));
-                }
-            },
-
-            openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); },
-            closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); },
-            toggleInfoModal(show) { document.getElementById('info-modal').classList[show ? 'remove' : 'add']('hidden'); },
-
-            // --- RE-RENDERING DER ANSICHTEN ---
-            renderFridgeTab() {
-                const listContainer = document.getElementById('full-fridge-list');
-                const dashExpiryList = document.getElementById('dashboard-expiry-list');
-                const searchVal = document.getElementById('fridge-search')?.value.toLowerCase() || "";
-                const sortBy = document.getElementById('fridge-sort')?.value || "days";
-
-                let items = [...this.state.kuehlschrank].filter(item => item.name.toLowerCase().includes(searchVal));
-                if (sortBy === "alpha") items.sort((a,b) => a.name.localeCompare(b.name));
-                else items.sort((a,b) => a.tage - b.tage);
-
-                if(document.getElementById('dash-fridge-count')) document.getElementById('dash-fridge-count').innerText = this.state.kuehlschrank.length;
-
-                if (listContainer) {
-                    if(items.length === 0) {
-                        listContainer.innerHTML = `<p class="text-xs text-center text-gray-400 py-6 font-bold">Keine Lebensmittel gefunden.</p>`;
-                    } else {
-                        listContainer.innerHTML = items.map(item => `
-                            <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-2xs flex justify-between items-center">
-                                <div class="flex items-center gap-2.5">
-                                    <div class="text-xl bg-gray-50 p-1.5 rounded-xl border">${item.cat}</div>
-                                    <div>
-                                        <p class="text-xs font-black">${item.name}</p>
-                                        <p class="text-[10px] font-bold ${item.tage <= 2 ? 'text-red-500' : 'text-gray-400'}">MHD: noch ${item.tage} Tage</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <button onclick="AppEngine.retteLebensmittel(${item.id}, '${item.name}')" class="flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-black px-2.5 py-1.5 rounded-xl hover:bg-emerald-100 transition shadow-2xs">
-                                        🎉 Gerettet
-                                    </button>
-                                    <button onclick="AppEngine.loescheProdukt(${item.id})" class="p-2 text-gray-400 hover:text-red-500 transition">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
-                }
-
-                if (dashExpiryList) {
-                    let prioItems = [...this.state.kuehlschrank].filter(item => item.tage <= 3).sort((a,b) => a.tage - b.tage);
-                    if(prioItems.length === 0) {
-                        dashExpiryList.innerHTML = `<p class="text-[11px] text-gray-400 italic font-medium">Aktuell keine ablaufenden Lebensmittel! Super! 🙌</p>`;
-                    } else {
-                        dashExpiryList.innerHTML = prioItems.map(item => `
-                            <div class="bg-red-50/60 border border-red-100 p-2.5 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-bold text-gray-800">${item.cat} ${item.name}</span>
-                                <span class="text-[10px] font-extrabold px-2 py-0.5 bg-red-100 text-red-700 rounded-md">⚠️ ${item.tage} Tage</span>
-                            </div>
-                        `).join('');
-                    }
-                }
-                lucide.createIcons();
-            },
-
-            renderRecipesTab() {
-                const grid = document.getElementById('full-recipes-grid');
-                if (!grid) return;
-
-                grid.innerHTML = RezepteKochbuch.map(r => {
-                    const faktor = this.state.selectedServings / r.basisPersonen;
-                    const zutatenHtml = r.zutaten.map(z => `
-                        <li class="flex justify-between text-[11px] border-b border-gray-50 py-0.5">
-                            <span class="text-gray-500 font-medium">${z.name}</span>
-                            <span class="font-bold text-gray-800">${(z.menge * faktor).toFixed(z.einheit === "Stk." ? 1 : 0)} ${z.einheit}</span>
-                        </li>
-                    `).join('');
-
-                    return `
-                        <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-2xs space-y-3">
-                            <div class="flex justify-between items-center">
-                                <h3 class="font-black text-sm text-gray-900">${r.icon} ${r.name}</h3>
-                                <button onclick="AppEngine.cookRecipe('${r.name}')" class="bg-emerald-800 text-white font-extrabold text-[10px] px-3 py-1.5 rounded-xl hover:bg-emerald-950 shadow-2xs transition">Nachkochen</button>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-extrabold uppercase text-emerald-800 tracking-wider mb-1">Zutaten für ${this.state.selectedServings} Pers.</p>
-                                <ul class="space-y-0.5">${zutatenHtml}</ul>
-                            </div>
-                            <p class="text-[10px] font-medium text-gray-400 leading-relaxed bg-gray-50 p-2 rounded-xl border border-gray-100">${r.anleitung}</p>
-                        </div>
-                    `;
-                }).join('');
-            },
-
-            changeServings(val) {
-                this.state.selectedServings = parseInt(val);
-                this.renderRecipesTab();
-            },
-
-            cookRecipe(name) {
-                this.addXp(100);
-                this.showToast(`🍳 "${name}" gekocht! +100 XP erhalten!`);
-            },
-
-            renderAvatarSelector() {
-                const grid = document.getElementById('avatar-selector-grid');
-                if (!grid) return;
-                grid.innerHTML = AvailableAvatars.map(av => `
-                    <button onclick="AppEngine.selectAvatar('${av}')" class="p-2 bg-gray-50 hover:bg-emerald-50 border rounded-xl text-xl transition active:scale-95">${av}</button>
-                `).join('');
-            },
-
-            selectAvatar(av) {
-                this.state.profile.avatar = av;
-                localStorage.setItem('refowa_avatar', av);
-                this.loadProfileUi();
-                this.showToast("Avatar aktualisiert! 🌟");
+                document.getElementById('dashboard-welcome-text').innerText = `Hallo, ${this.state.profile.username}!`;
+                document.getElementById('profile-name-title').innerText = this.state.state?.profile?.username || this.state.profile.username;
+                document.getElementById('setting-username').value = this.state.profile.username;
+                document.getElementById('dashboard-avatar-preview').innerText = this.state.profile.avatar;
+                document.getElementById('profile-avatar-large').innerText = this.state.profile.avatar;
             },
 
             saveProfileData() {
@@ -743,22 +474,193 @@
                     this.state.profile.username = newName;
                     localStorage.setItem('refowa_username', newName);
                     this.loadProfileUi();
-                    this.showToast("Profilname gespeichert! 💾");
+                    this.showToast("Profil aktualisiert!");
+                }
+            },
+
+            renderAvatarSelector() {
+                const grid = document.getElementById('avatar-selector-grid');
+                grid.innerHTML = '';
+                AvailableAvatars.forEach(av => {
+                    const btn = document.createElement('button');
+                    btn.className = "text-xl p-2 bg-gray-50 hover:bg-emerald-50 rounded-xl border border-gray-100 transition active:scale-95";
+                    btn.innerText = av;
+                    btn.onclick = () => {
+                        this.state.profile.avatar = av;
+                        localStorage.setItem('refowa_avatar', av);
+                        this.loadProfileUi();
+                        this.showToast("Avatar geändert! " + av);
+                    };
+                    grid.appendChild(btn);
+                });
+            },
+
+            changeServings(val) {
+                this.state.selectedServings = parseInt(val);
+                this.renderRecipesTab();
+            },
+
+            renderFridgeTab() {
+                const list = document.getElementById('full-fridge-list');
+                const dashList = document.getElementById('dashboard-expiry-list');
+                const countEl = document.getElementById('dash-fridge-count');
+                
+                if (!list) return;
+                list.innerHTML = '';
+                if (dashList) dashList.innerHTML = '';
+
+                let items = [...this.state.kuehlschrank];
+                
+                // Sortierung
+                const sort = document.getElementById('fridge-sort').value;
+                if (sort === 'days') items.sort((a,b) => a.tage - b.tage);
+                if (sort === 'alpha') items.sort((a,b) => a.name.localeCompare(b.name));
+
+                // Suche
+                const q = document.getElementById('fridge-search').value.toLowerCase();
+                if (q) items = items.filter(i => i.name.toLowerCase().includes(q));
+
+                if (countEl) countEl.innerText = this.state.kuehlschrank.length;
+
+                items.forEach(item => {
+                    const itemHtml = `
+                        <div class="bg-white p-3.5 rounded-2xl border border-gray-100 shadow-2xs flex justify-between items-center transition hover:border-gray-200">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl bg-gray-50 w-10 h-10 rounded-xl flex items-center justify-center">${item.cat || '📦'}</span>
+                                <div>
+                                    <h4 class="text-xs font-black text-gray-900">${item.name}</h4>
+                                    <p class="text-[10px] font-bold ${item.tage <= 2 ? 'text-red-500' : 'text-gray-400'}">MHD: noch ${item.tage} Tage</p>
+                                </div>
+                            </div>
+                            <button onclick="AppEngine.removeFridgeItem(${item.id})" class="text-gray-300 hover:text-red-500 p-2 transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    `;
+                    list.insertAdjacentHTML('beforeend', itemHtml);
+
+                    // Prio-Liste fürs Dashboard
+                    if (item.tage <= 3 && dashList) {
+                        dashList.insertAdjacentHTML('beforeend', itemHtml);
+                    }
+                });
+                
+                lucide.createIcons();
+            },
+
+            removeFridgeItem(id) {
+                this.state.kuehlschrank = this.state.kuehlschrank.filter(i => i.id !== id);
+                this.renderFridgeTab();
+                this.showToast("Eintrag entfernt.");
+            },
+
+            renderRecipesTab() {
+                const grid = document.getElementById('full-recipes-grid');
+                if (!grid) return;
+                grid.innerHTML = '';
+
+                RezepteKochbuch.forEach(rec => {
+                    let zutatenHtml = '';
+                    rec.zutaten.forEach(z => {
+                        const berechneteMenge = ((z.menge / rec.basisPersonen) * this.state.selectedServings).toFixed(0);
+                        zutatenHtml += `<li class="text-[11px] text-gray-600 font-medium">• <strong>${berechneteMenge} ${z.einheit}</strong> ${z.name}</li>`;
+                    });
+
+                    const card = `
+                        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs space-y-3">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="text-2xl">${rec.icon}</span>
+                                    <h3 class="text-sm font-black text-gray-900 leading-tight">${rec.name}</h3>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50/60 p-2.5 rounded-xl border border-gray-100/50">
+                                <p class="text-[10px] font-extrabold uppercase text-gray-400 tracking-wider mb-1">Zutaten für ${this.state.selectedServings} Personen:</p>
+                                <ul class="grid grid-cols-2 gap-x-2 gap-y-0.5">${zutatenHtml}</ul>
+                            </div>
+                            <p class="text-[11px] text-gray-500 font-medium leading-relaxed bg-amber-50/40 p-2.5 rounded-xl border border-amber-100/30">${rec.anleitung}</p>
+                            
+                            <button onclick="AppEngine.collectDailyFlame('Rezept')" class="w-full bg-emerald-800 text-white py-2 rounded-xl font-bold text-xs hover:bg-emerald-900 shadow-2xs flex items-center justify-center gap-1.5 transition active:scale-[0.99]">
+                                <i data-lucide="cooking-pot" class="w-4 h-4"></i> Rezept nachkochen (+100 XP & 🔥)
+                            </button>
+                        </div>
+                    `;
+                    grid.insertAdjacentHTML('beforeend', card);
+                });
+                lucide.createIcons();
+            },
+
+            openScanModal() { document.getElementById('scan-modal').classList.remove('hidden'); },
+            closeScanModal() { document.getElementById('scan-modal').classList.add('hidden'); },
+            openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); },
+            closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); },
+            toggleInfoModal(show) { document.getElementById('info-modal').classList.toggle('hidden', !show); },
+
+            handleFormSubmit(e) {
+                e.preventDefault();
+                const name = document.getElementById('input-name').value;
+                const days = parseInt(document.getElementById('input-days').value);
+                
+                this.state.kuehlschrank.push({
+                    id: Date.now(),
+                    name: name,
+                    cat: "📦",
+                    tage: days
+                });
+
+                this.addXp(50);
+                this.renderFridgeTab();
+                this.closeAddModal();
+                e.target.reset();
+                this.showToast("Erfolgreich hinzugefügt!");
+            },
+
+            simulateScan() {
+                const keys = Object.keys(MockProduktDB);
+                const randomCode = keys[Math.floor(Math.random() * keys.length)];
+                document.getElementById('manual-barcode-input').value = randomCode;
+                this.handleManualBarcodeSubmit();
+            },
+
+            handleManualBarcodeSubmit() {
+                const code = document.getElementById('manual-barcode-input').value.trim();
+                if (MockProduktDB[code]) {
+                    const prod = MockProduktDB[code];
+                    this.state.kuehlschrank.push({
+                        id: Date.now(),
+                        name: prod.name,
+                        cat: prod.cat,
+                        tage: prod.tage
+                    });
+                    this.addXp(50);
+                    this.renderFridgeTab();
+                    this.closeScanModal();
+                    document.getElementById('manual-barcode-input').value = '';
+                    this.showToast(`Gescant: ${prod.name}!`);
+                } else {
+                    this.showToast("Produkt-Code unbekannt!");
                 }
             },
 
             showToast(msg) {
                 const container = document.getElementById('toast-container');
-                if (!container) return;
                 const toast = document.createElement('div');
-                toast.className = "bg-black/95 text-white font-bold text-xs px-4 py-3 rounded-2xl shadow-xl pointer-events-auto flex items-center justify-center text-center border border-white/10";
+                toast.className = "bg-black/90 text-white text-xs font-bold px-4 py-3 rounded-xl shadow-xl border border-white/10 text-center pointer-events-auto transition-all transform scale-90 opacity-0 duration-300";
                 toast.innerText = msg;
                 container.appendChild(toast);
-                setTimeout(() => toast.remove(), 3500);
+                
+                setTimeout(() => {
+                    toast.classList.remove('scale-90', 'opacity-0');
+                }, 10);
+
+                setTimeout(() => {
+                    toast.classList.add('scale-90', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, 2800);
             }
         };
 
-        window.addEventListener('DOMContentLoaded', () => AppEngine.init());
+        window.onload = () => AppEngine.init();
     </script>
 </body>
 </html>
