@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/html5-qrcode"></script>
  
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: #EAE5DB;
@@ -513,156 +513,101 @@
                 });
             },
 
-            // NEU: Produkt löschen ohne XP
-            deleteProduct(id) {
-                this.state.kuehlschrank = this.state.kuehlschrank.filter(p => p.id !== id);
-                this.renderFridgeTab();
-                this.showToast("Produkt entfernt.");
-            },
-
-            // NEU: Produkt als gerettet markieren (+20 XP)
-            saveProductXp(id, name) {
-                this.state.kuehlschrank = this.state.kuehlschrank.filter(p => p.id !== id);
-                this.addXp(20);
-                this.renderFridgeTab();
-                
-                confetti({
-                    particleCount: 60,
-                    spread: 40,
-                    origin: { y: 0.8 },
-                    colors: ['#10b981', '#34d399']
-                });
-                
-                this.showToast(`🌱 ${name} gerettet! +20 XP`);
-            },
-
             renderFridgeTab() {
-                const searchVal = document.getElementById('fridge-search')?.value.toLowerCase() || "";
-                const sortVal = document.getElementById('fridge-sort')?.value || "days";
-                
-                let list = [...this.state.kuehlschrank];
-                
-                if (searchVal) {
-                    list = list.filter(p => p.name.toLowerCase().includes(searchVal));
-                }
+                const searchVal = document.getElementById('fridge-search').value.toLowerCase();
+                const sortVal = document.getElementById('fridge-sort').value;
+                const fullList = document.getElementById('full-fridge-list');
+                const dashList = document.getElementById('dashboard-expiry-list');
+                const countSpan = document.getElementById('dash-fridge-count');
+
+                let filtered = this.state.kuehlschrank.filter(p => p.name.toLowerCase().includes(searchVal));
                 
                 if (sortVal === "days") {
-                    list.sort((a, b) => a.tage - b.tage);
+                    filtered.sort((a, b) => a.tage - b.tage);
                 } else {
-                    list.sort((a, b) => a.name.localeCompare(b.name));
-                }
-                
-                // Dashboard Update
-                document.getElementById('dash-fridge-count').innerText = this.state.kuehlschrank.length;
-                
-                const dashList = document.getElementById('dashboard-expiry-list');
-                dashList.innerHTML = '';
-                const urgentItems = [...this.state.kuehlschrank].sort((a,b) => a.tage - b.tage).slice(0, 3);
-                
-                if(urgentItems.length === 0) {
-                    dashList.innerHTML = `<p class="text-xs text-gray-400 italic font-medium p-2">Dein Kühlschrank ist leer.</p>`;
+                    filtered.sort((a, b) => a.name.localeCompare(b.name));
                 }
 
-                urgentItems.forEach(p => {
-                    const div = document.createElement('div');
-                    div.className = "bg-white p-3 rounded-xl border border-gray-100 shadow-2xs flex justify-between items-center";
-                    let colorClass = p.tage <= 2 ? "text-red-600 bg-red-50 border-red-100" : "text-amber-600 bg-amber-50 border-amber-100";
-                    div.innerHTML = `
-                        <div class="flex items-center gap-2.5">
-                            <span class="text-xl">${p.cat || '📦'}</span>
-                            <div>
-                                <p class="text-xs font-bold text-gray-800">${p.name}</p>
-                                <p class="text-[10px] text-gray-400 font-semibold">MHD-Alarm</p>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-black px-2 py-0.5 rounded-md border ${colorClass}">${p.tage} Tage übrig</span>
-                    `;
-                    dashList.appendChild(div);
+                countSpan.innerText = this.state.kuehlschrank.length;
+
+                // Render Hauptliste
+                fullList.innerHTML = filtered.length ? '' : '<p class="text-xs text-gray-400 text-center py-4">Keine Produkte gefunden.</p>';
+                filtered.forEach(p => {
+                    fullList.appendChild(this.createProductRow(p, true));
                 });
 
-                // Hauptliste im Bestand-Tab
-                const fullList = document.getElementById('full-fridge-list');
-                fullList.innerHTML = '';
-                
-                if (list.length === 0) {
-                    fullList.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-6 font-medium">Keine Produkte gefunden.</p>`;
-                    return;
-                }
-
-                list.forEach(p => {
-                    const div = document.createElement('div');
-                    div.className = "bg-white p-3 rounded-xl border border-gray-100 shadow-2xs flex justify-between items-center";
-                    let colorClass = p.tage <= 2 ? "text-red-600 bg-red-50" : "text-emerald-700 bg-emerald-50";
-                    
-                    // AKTUALISIERT: Interaktions-Buttons hinzugefügt
-                    div.innerHTML = `
-                        <div class="flex items-center gap-2.5 flex-1 min-w-0">
-                            <span class="text-xl flex-shrink-0">${p.cat || '📦'}</span>
-                            <div class="truncate pr-2">
-                                <p class="text-xs font-bold text-gray-800 truncate">${p.name}</p>
-                                <p class="text-[10px] font-semibold text-gray-400">${p.tage} Tage haltbar</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 flex-shrink-0">
-                            <button onclick="AppEngine.saveProductXp(${p.id}, '${p.name.replace(/'/g, "\\'")}')" class="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-xs transition flex items-center justify-center" title="Essen gerettet (+20 XP)">
-                                <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                            </button>
-                            <button onclick="AppEngine.deleteProduct(${p.id})" class="p-2 bg-red-50 text-red-600 border border-red-100 rounded-lg hover:bg-red-100 transition flex items-center justify-center" title="Löschen">
-                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                            </button>
-                        </div>
-                    `;
-                    fullList.appendChild(div);
+                // Render Dashboard Prio-Liste (Sortiert nach Ablaufdatum)
+                let prioList = [...this.state.kuehlschrank].sort((a, b) => a.tage - b.tage).slice(0, 3);
+                dashList.innerHTML = prioList.length ? '' : '<p class="text-xs text-gray-400 py-1">Dein Kühlschrank ist leer.</p>';
+                prioList.forEach(p => {
+                    dashList.appendChild(this.createProductRow(p, false));
                 });
+            },
+
+            createProductRow(p, showDelete) {
+                const div = document.createElement('div');
+                div.className = "bg-white p-3 rounded-xl border border-gray-100 shadow-2xs flex justify-between items-center";
                 
-                lucide.createIcons();
+                const colorClass = p.tage <= 3 ? "text-red-600 bg-red-50 border-red-100" : "text-emerald-700 bg-emerald-50 border-emerald-100";
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xl">${p.cat || '📦'}</span>
+                        <div>
+                            <p class="text-xs font-bold text-gray-800">${p.name}</p>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded-md border font-extrabold ${colorClass}">MHD: ${p.tage} Tage</span>
+                        </div>
+                    </div>
+                `;
+
+                if (showDelete) {
+                    const btn = document.createElement('button');
+                    btn.className = "text-gray-300 hover:text-red-500 p-1 transition";
+                    btn.innerHTML = `<i data-lucide="trash-2" class="w-4 h-4"></i>`;
+                    btn.onclick = () => {
+                        this.state.kuehlschrank = this.state.kuehlschrank.filter(item => item.id !== p.id);
+                        this.renderFridgeTab();
+                        this.showToast("Produkt entfernt!");
+                    };
+                    div.appendChild(btn);
+                    setTimeout(() => lucide.createIcons(), 10);
+                }
+                return div;
             },
 
             renderRecipesTab() {
                 const grid = document.getElementById('full-recipes-grid');
                 grid.innerHTML = '';
-                
-                RezepteKochbuch.forEach(rez => {
-                    const div = document.createElement('div');
-                    div.className = "bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs space-y-3";
-                    
-                    let zutatenHtml = rez.zutaten.map(z => {
-                        let berechneteMenge = (z.menge / rez.basisPersonen) * this.state.selectedServings;
-                        return `<li class="flex justify-between border-b border-gray-50 pb-1">
-                            <span>${z.name}</span>
-                            <span class="font-bold text-gray-900">${berechneteMenge % 1 === 0 ? berechneteMenge : berechneteMenge.toFixed(1)} ${z.einheit}</span>
-                        </li>`;
+
+                RezepteKochbuch.forEach(r => {
+                    const factor = this.state.selectedServings / r.basisPersonen;
+                    const zutatenHtml = r.zutaten.map(z => {
+                        return `<li class="text-[11px] text-gray-600">▪ ${(z.menge * factor).toFixed(5).replace(/\.?0+$/, '')} ${z.einheit} ${z.name}</li>`;
                     }).join('');
 
-                    div.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <span class="text-3xl p-2 bg-amber-50 rounded-xl">${rez.icon}</span>
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs space-y-3";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-2 border-b pb-2">
+                            <span class="text-2xl">${r.icon}</span>
                             <div>
-                                <h3 class="text-sm font-black text-gray-900">${rez.name}</h3>
-                                <p class="text-[10px] text-emerald-800 font-bold">Ideal zur Resteverwertung</p>
+                                <h3 class="text-xs font-black text-gray-900">${r.name}</h3>
+                                <p class="text-[10px] text-emerald-800 font-bold">Für ${this.state.selectedServings} ${this.state.selectedServings === 1 ? 'Person' : 'Personen'}</p>
                             </div>
                         </div>
-                        <div class="space-y-1">
-                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Zutaten für ${this.state.selectedServings} Pers.</h4>
-                            <ul class="text-[11px] font-medium text-gray-600 space-y-1 bg-gray-50/50 p-2 rounded-xl">
-                                ${zutatenHtml}
-                            </ul>
-                        </div>
-                        <div class="space-y-1">
-                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Zubereitung</h4>
-                            <p class="text-[11px] font-medium text-gray-500 leading-relaxed">${rez.anleitung}</p>
-                        </div>
-                        <button onclick="AppEngine.kochRezept('${rez.name.replace(/'/g, "\\'")}')" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white py-2 rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5">
-                            <i data-lucide="cooking-pot" class="w-4 h-4"></i> Ich habe das nachgekocht! (+100 XP)
+                        <ul class="space-y-0.5">${zutatenHtml}</ul>
+                        <p class="text-[11px] text-gray-500 leading-tight bg-gray-50 p-2.5 rounded-xl border border-gray-100 font-medium">${r.anleitung}</p>
+                        <button onclick="AppEngine.kochRezept('${r.name}')" class="w-full bg-emerald-800 text-white py-2 rounded-xl text-xs font-bold hover:bg-emerald-900 transition flex items-center justify-center gap-1">
+                            <i data-lucide="cooking-pot" class="w-4 h-4"></i> Rezept nachgekocht!
                         </button>
                     `;
-                    grid.appendChild(div);
+                    grid.appendChild(card);
                 });
-                lucide.createIcons();
+                setTimeout(() => lucide.createIcons(), 10);
             },
 
             changeServings(val) {
-                this.state.selectedServings = parseInt(val) || 2;
+                this.state.selectedServings = parseInt(val);
                 this.renderRecipesTab();
             },
 
@@ -673,114 +618,118 @@
 
             closeScanModal() {
                 document.getElementById('scan-modal').classList.add('hidden');
-                if (this.html5QrcodeScanner) {
-                    this.html5QrcodeScanner.clear().catch(err => console.error(err));
-                }
+                this.stopLiveScanner();
             },
 
-            openAddModal() {
-                document.getElementById('add-modal').classList.remove('hidden');
-            },
-
-            closeAddModal() {
-                document.getElementById('add-modal').classList.add('hidden');
-            },
-
-            toggleInfoModal(show) {
-                document.getElementById('info-modal').classList.toggle('hidden', !show);
-            },
-
-            handleFormSubmit(e) {
-                e.preventDefault();
-                const name = document.getElementById('input-name').value;
-                const days = parseInt(document.getElementById('input-days').value);
+            startLiveScanner() {
+                // Kamera Feed Setup via Html5Qrcode
+                this.html5QrcodeScanner = new Html5Qrcode("interactive-camera-feed");
+                const config = { fps: 10, qrbox: { width: 250, height: 150 } };
                 
-                if(name && days) {
-                    this.state.kuehlschrank.push({
-                        id: Date.now(),
-                        name: name,
-                        cat: "📦",
-                        tage: days
+                this.html5QrcodeScanner.start(
+                    { facingMode: "environment" }, 
+                    config,
+                    (decodedText) => {
+                        this.handleBarcodeDetected(decodedText);
+                        this.closeScanModal();
+                    },
+                    () => { /* Ignoriere Scanfehler im Loop */ }
+                ).catch(() => {
+                    console.log("Kamera konnte nicht gestartet werden (evtl. Demo-Modus).");
+                });
+            },
+
+            stopLiveScanner() {
+                if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning) {
+                    this.html5QrcodeScanner.stop().then(() => {
+                        this.html5QrcodeScanner = null;
                     });
-                    this.addXp(50);
-                    this.renderFridgeTab();
-                    this.closeAddModal();
-                    this.showToast(`➕ ${name} eingebucht! +50 XP`);
-                    e.target.reset();
                 }
             },
 
             handleManualBarcodeSubmit() {
-                const code = document.getElementById('manual-barcode-input').value.trim();
-                if(code) {
-                    this.processScannedCode(code);
-                    document.getElementById('manual-barcode-input').value = "";
+                const input = document.getElementById('manual-barcode-input');
+                if (input.value.trim()) {
+                    this.handleBarcodeDetected(input.value.trim());
+                    input.value = '';
+                    this.closeScanModal();
                 }
             },
 
             simulateScan() {
                 const keys = Object.keys(MockProduktDB);
                 const randomKey = keys[Math.floor(Math.random() * keys.length)];
-                this.processScannedCode(randomKey);
+                this.handleBarcodeDetected(randomKey);
+                this.closeScanModal();
             },
 
-            processScannedCode(code) {
+            handleBarcodeDetected(code) {
                 if (MockProduktDB[code]) {
                     const prod = MockProduktDB[code];
-                    this.state.kuehlschrank.push({
-                        id: Date.now(),
-                        name: prod.name,
-                        cat: prod.cat,
-                        tage: prod.tage
-                    });
+                    this.addNewProduct(prod.name, prod.tage, prod.cat);
+                    this.showToast(`✅ Gefunden: ${prod.name}`);
                     this.addXp(50);
-                    this.renderFridgeTab();
-                    this.closeScanModal();
-                    this.showToast(`✨ ${prod.name} gescannt! +50 XP`);
                 } else {
-                    this.showToast("Unbekannter Code. Nutze die manuelle Buchung!");
+                    this.showToast("❌ Barcode unbekannt. Nutze die manuelle Buchung.");
                 }
             },
 
-            startLiveScanner() {
-                setTimeout(() => {
-                    this.html5QrcodeScanner = new Html5Qrcode("interactive-camera-feed");
-                    const config = { fps: 10, qrbox: { width: 250, height: 150 } };
-                    
-                    this.html5QrcodeScanner.start(
-                        { facingMode: "environment" }, 
-                        config,
-                        (decodedText) => {
-                            this.processScannedCode(decodedText);
-                        },
-                        (errorMessage) => { /* Kontinuierlicher Scan-Fehler stummschalten */ }
-                    ).catch(err => {
-                        console.error("Kamerafehler:", err);
-                    });
-                }, 300);
+            openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); },
+            closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); },
+
+            handleFormSubmit(e) {
+                e.preventDefault();
+                const name = document.getElementById('input-name').value.trim();
+                const days = parseInt(document.getElementById('input-days').value);
+                
+                if (name && days) {
+                    this.addNewProduct(name, days, "📦");
+                    this.addXp(50);
+                    this.closeAddModal();
+                    e.target.reset();
+                    this.showToast("Produkt manuell hinzugefügt!");
+                }
+            },
+
+            addNewProduct(name, days, cat) {
+                this.state.kuehlschrank.push({
+                    id: Date.now(),
+                    name: name,
+                    tage: days,
+                    cat: cat
+                });
+                this.renderFridgeTab();
+            },
+
+            toggleInfoModal(show) {
+                document.getElementById('info-modal').classList.toggle('hidden', !show);
             },
 
             showToast(msg) {
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
-                toast.className = "bg-neutral-900/95 backdrop-blur-md text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg pointer-events-auto transition-all duration-300 opacity-0 translate-y-2 flex items-center gap-2 border border-white/10";
-                toast.innerHTML = `<span>💡</span> <span>${msg}</span>`;
+                toast.className = "bg-black/90 text-white text-xs font-bold px-4 py-3 rounded-xl shadow-lg transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto flex items-center justify-between";
+                toast.innerText = msg;
                 
                 container.appendChild(toast);
+                
+                // Animation rein
                 setTimeout(() => {
-                    toast.classList.replace('opacity-0', 'opacity-100');
-                    toast.classList.replace('translate-y-2', 'translate-y-0');
-                }, 10);
+                    toast.classList.remove('translate-y-2', 'opacity-0');
+                }, 50);
 
+                // Auto-delete
                 setTimeout(() => {
-                    toast.classList.replace('opacity-100', 'opacity-0');
-                    toast.classList.replace('translate-y-0', 'translate-y-2');
+                    toast.classList.add('opacity-0', 'translate-y-2');
                     setTimeout(() => toast.remove(), 300);
                 }, 3000);
             }
         };
 
-        window.onload = () => AppEngine.init();
+        // App beim Laden starten
+        window.addEventListener('DOMContentLoaded', () => {
+            AppEngine.init();
+        });
     </script>
 </body>
 </html>
