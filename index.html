@@ -421,6 +421,30 @@
                 this.showToast(`🔥 Flamme erhalten via ${source}! +1 Tag`);
             },
 
+            kochRezept(rezeptName) {
+                // Funktion um beim Kochen XP und Flamme hinzuzufügen
+                this.addXp(100);
+                
+                // Tägliche Flamme triggern
+                const heute = new Date().toDateString();
+                const letzteFlammeDatum = localStorage.getItem('refowa_last_flame_date');
+                if (letzteFlammeDatum !== heute) {
+                    this.state.stats.streak += 1;
+                    localStorage.setItem('refowa_streak', this.state.stats.streak);
+                    localStorage.setItem('refowa_last_flame_date', heute);
+                    this.updateStreakDisplay();
+                }
+
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#10b981', '#f59e0b', '#3b82f6']
+                });
+
+                this.showToast(`🧑‍🍳 "${rezeptName}" gekocht! +100 XP erarbeitet!`);
+            },
+
             updateStreakDisplay() {
                 document.getElementById('global-streak-counter').innerText = this.state.stats.streak;
             },
@@ -458,7 +482,7 @@
 
             loadProfileUi() {
                 document.getElementById('dashboard-welcome-text').innerText = `Hallo, ${this.state.profile.username}!`;
-                document.getElementById('profile-name-title').innerText = this.state.state?.profile?.username || this.state.profile.username;
+                document.getElementById('profile-name-title').innerText = this.state.profile.username;
                 document.getElementById('setting-username').value = this.state.profile.username;
                 document.getElementById('dashboard-avatar-preview').innerText = this.state.profile.avatar;
                 document.getElementById('profile-avatar-large').innerText = this.state.profile.avatar;
@@ -496,12 +520,91 @@
                 this.renderRecipesTab();
             },
 
+            showToast(message) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = "bg-neutral-900 text-white text-xs font-bold px-4 py-3 rounded-xl shadow-lg pointer-events-auto transition-all duration-300 opacity-0 translate-y-2";
+                toast.innerText = message;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.classList.remove('opacity-0', 'translate-y-2');
+                }, 50);
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            },
+
+            openScanModal() { document.getElementById('scan-modal').classList.remove('hidden'); },
+            closeScanModal() { document.getElementById('scan-modal').classList.add('hidden'); },
+            openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); },
+            closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); },
+            toggleInfoModal(show) { document.getElementById('info-modal').classList.toggle('hidden', !show); },
+
             renderFridgeTab() {
-                // ... Restliche Logik bleibt unverändert
+                const container = document.getElementById('full-fridge-list');
+                const dashContainer = document.getElementById('dashboard-expiry-list');
+                const countEl = document.getElementById('dash-fridge-count');
+                
+                if (!container) return;
+                container.innerHTML = '';
+                if (dashContainer) dashContainer.innerHTML = '';
+
+                countEl.innerText = this.state.kuehlschrank.length;
+
+                this.state.kuehlschrank.forEach(item => {
+                    const itemHtml = `
+                        <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-2xs flex justify-between items-center">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-xl">${item.cat}</span>
+                                <div>
+                                    <p class="text-xs font-black">${item.name}</p>
+                                    <p class="text-[10px] text-red-600 font-bold">MHD: noch ${item.tage} Tage</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', itemHtml);
+                    if (dashContainer && item.tage <= 4) {
+                        dashContainer.insertAdjacentHTML('beforeend', itemHtml);
+                    }
+                });
+            },
+
+            renderRecipesTab() {
+                const grid = document.getElementById('full-recipes-grid');
+                if (!grid) return;
+                grid.innerHTML = '';
+
+                const servingsFactor = this.state.selectedServings;
+
+                RezepteKochbuch.forEach(rezept => {
+                    const zutatenListe = rezept.zutaten.map(z => {
+                        const berechneteMenge = (z.menge / rezept.basisPersonen) * servingsFactor;
+                        return `<li class="text-[11px] text-gray-600 font-medium">• ${berechneteMenge} ${z.einheit} ${z.name}</li>`;
+                    }).join('');
+
+                    const card = `
+                        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs space-y-3">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-2xl">${rezept.icon}</span>
+                                <h3 class="font-black text-sm text-gray-900">${rezept.name}</h3>
+                            </div>
+                            <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-100/60">
+                                <p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1">Zutaten</p>
+                                <ul class="space-y-0.5">${zutatenListe}</ul>
+                            </div>
+                            <p class="text-[11px] text-gray-500 leading-relaxed font-medium bg-emerald-50/40 p-2.5 rounded-xl border border-emerald-100/20">${rezept.anleitung}</p>
+                            <button onclick="AppEngine.kochRezept('${rezept.name}')" class="w-full bg-emerald-800 text-white py-2 rounded-xl font-bold text-xs shadow-xs hover:bg-emerald-950 transition active:scale-[0.99] flex items-center justify-center gap-1">
+                                🍳 Rezept kochen (+100 XP)
+                            </button>
+                        </div>
+                    `;
+                    grid.insertAdjacentHTML('beforeend', card);
+                });
             }
         };
 
-        // Init App
         window.onload = () => AppEngine.init();
     </script>
 </body>
