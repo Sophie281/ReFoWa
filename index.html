@@ -422,10 +422,8 @@
             },
 
             kochRezept(rezeptName) {
-                // Funktion um beim Kochen XP und Flamme hinzuzufügen
                 this.addXp(100);
                 
-                // Tägliche Flamme triggern
                 const heute = new Date().toDateString();
                 const letzteFlammeDatum = localStorage.getItem('refowa_last_flame_date');
                 if (letzteFlammeDatum !== heute) {
@@ -509,99 +507,276 @@
                         this.state.profile.avatar = av;
                         localStorage.setItem('refowa_avatar', av);
                         this.loadProfileUi();
-                        this.showToast("Avatar geändert! " + av);
+                        this.showToast("Avatar geändert!");
                     };
                     grid.appendChild(btn);
                 });
             },
 
-            changeServings(val) {
-                this.state.selectedServings = parseInt(val);
-                this.renderRecipesTab();
+            // NEU: Produkt löschen ohne XP
+            deleteProduct(id) {
+                this.state.kuehlschrank = this.state.kuehlschrank.filter(p => p.id !== id);
+                this.renderFridgeTab();
+                this.showToast("Produkt entfernt.");
             },
 
-            showToast(message) {
-                const container = document.getElementById('toast-container');
-                const toast = document.createElement('div');
-                toast.className = "bg-neutral-900 text-white text-xs font-bold px-4 py-3 rounded-xl shadow-lg pointer-events-auto transition-all duration-300 opacity-0 translate-y-2";
-                toast.innerText = message;
-                container.appendChild(toast);
-                setTimeout(() => {
-                    toast.classList.remove('opacity-0', 'translate-y-2');
-                }, 50);
-                setTimeout(() => {
-                    toast.classList.add('opacity-0', 'translate-y-2');
-                    setTimeout(() => toast.remove(), 300);
-                }, 3000);
+            // NEU: Produkt als gerettet markieren (+20 XP)
+            saveProductXp(id, name) {
+                this.state.kuehlschrank = this.state.kuehlschrank.filter(p => p.id !== id);
+                this.addXp(20);
+                this.renderFridgeTab();
+                
+                confetti({
+                    particleCount: 60,
+                    spread: 40,
+                    origin: { y: 0.8 },
+                    colors: ['#10b981', '#34d399']
+                });
+                
+                this.showToast(`🌱 ${name} gerettet! +20 XP`);
             },
-
-            openScanModal() { document.getElementById('scan-modal').classList.remove('hidden'); },
-            closeScanModal() { document.getElementById('scan-modal').classList.add('hidden'); },
-            openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); },
-            closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); },
-            toggleInfoModal(show) { document.getElementById('info-modal').classList.toggle('hidden', !show); },
 
             renderFridgeTab() {
-                const container = document.getElementById('full-fridge-list');
-                const dashContainer = document.getElementById('dashboard-expiry-list');
-                const countEl = document.getElementById('dash-fridge-count');
+                const searchVal = document.getElementById('fridge-search')?.value.toLowerCase() || "";
+                const sortVal = document.getElementById('fridge-sort')?.value || "days";
                 
-                if (!container) return;
-                container.innerHTML = '';
-                if (dashContainer) dashContainer.innerHTML = '';
+                let list = [...this.state.kuehlschrank];
+                
+                if (searchVal) {
+                    list = list.filter(p => p.name.toLowerCase().includes(searchVal));
+                }
+                
+                if (sortVal === "days") {
+                    list.sort((a, b) => a.tage - b.tage);
+                } else {
+                    list.sort((a, b) => a.name.localeCompare(b.name));
+                }
+                
+                // Dashboard Update
+                document.getElementById('dash-fridge-count').innerText = this.state.kuehlschrank.length;
+                
+                const dashList = document.getElementById('dashboard-expiry-list');
+                dashList.innerHTML = '';
+                const urgentItems = [...this.state.kuehlschrank].sort((a,b) => a.tage - b.tage).slice(0, 3);
+                
+                if(urgentItems.length === 0) {
+                    dashList.innerHTML = `<p class="text-xs text-gray-400 italic font-medium p-2">Dein Kühlschrank ist leer.</p>`;
+                }
 
-                countEl.innerText = this.state.kuehlschrank.length;
-
-                this.state.kuehlschrank.forEach(item => {
-                    const itemHtml = `
-                        <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-2xs flex justify-between items-center">
-                            <div class="flex items-center gap-2.5">
-                                <span class="text-xl">${item.cat}</span>
-                                <div>
-                                    <p class="text-xs font-black">${item.name}</p>
-                                    <p class="text-[10px] text-red-600 font-bold">MHD: noch ${item.tage} Tage</p>
-                                </div>
+                urgentItems.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = "bg-white p-3 rounded-xl border border-gray-100 shadow-2xs flex justify-between items-center";
+                    let colorClass = p.tage <= 2 ? "text-red-600 bg-red-50 border-red-100" : "text-amber-600 bg-amber-50 border-amber-100";
+                    div.innerHTML = `
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-xl">${p.cat || '📦'}</span>
+                            <div>
+                                <p class="text-xs font-bold text-gray-800">${p.name}</p>
+                                <p class="text-[10px] text-gray-400 font-semibold">MHD-Alarm</p>
                             </div>
                         </div>
+                        <span class="text-[10px] font-black px-2 py-0.5 rounded-md border ${colorClass}">${p.tage} Tage übrig</span>
                     `;
-                    container.insertAdjacentHTML('beforeend', itemHtml);
-                    if (dashContainer && item.tage <= 4) {
-                        dashContainer.insertAdjacentHTML('beforeend', itemHtml);
-                    }
+                    dashList.appendChild(div);
                 });
+
+                // Hauptliste im Bestand-Tab
+                const fullList = document.getElementById('full-fridge-list');
+                fullList.innerHTML = '';
+                
+                if (list.length === 0) {
+                    fullList.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-6 font-medium">Keine Produkte gefunden.</p>`;
+                    return;
+                }
+
+                list.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = "bg-white p-3 rounded-xl border border-gray-100 shadow-2xs flex justify-between items-center";
+                    let colorClass = p.tage <= 2 ? "text-red-600 bg-red-50" : "text-emerald-700 bg-emerald-50";
+                    
+                    // AKTUALISIERT: Interaktions-Buttons hinzugefügt
+                    div.innerHTML = `
+                        <div class="flex items-center gap-2.5 flex-1 min-w-0">
+                            <span class="text-xl flex-shrink-0">${p.cat || '📦'}</span>
+                            <div class="truncate pr-2">
+                                <p class="text-xs font-bold text-gray-800 truncate">${p.name}</p>
+                                <p class="text-[10px] font-semibold text-gray-400">${p.tage} Tage haltbar</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <button onclick="AppEngine.saveProductXp(${p.id}, '${p.name.replace(/'/g, "\\'")}')" class="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-xs transition flex items-center justify-center" title="Essen gerettet (+20 XP)">
+                                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="AppEngine.deleteProduct(${p.id})" class="p-2 bg-red-50 text-red-600 border border-red-100 rounded-lg hover:bg-red-100 transition flex items-center justify-center" title="Löschen">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    `;
+                    fullList.appendChild(div);
+                });
+                
+                lucide.createIcons();
             },
 
             renderRecipesTab() {
                 const grid = document.getElementById('full-recipes-grid');
-                if (!grid) return;
                 grid.innerHTML = '';
-
-                const servingsFactor = this.state.selectedServings;
-
-                RezepteKochbuch.forEach(rezept => {
-                    const zutatenListe = rezept.zutaten.map(z => {
-                        const berechneteMenge = (z.menge / rezept.basisPersonen) * servingsFactor;
-                        return `<li class="text-[11px] text-gray-600 font-medium">• ${berechneteMenge} ${z.einheit} ${z.name}</li>`;
+                
+                RezepteKochbuch.forEach(rez => {
+                    const div = document.createElement('div');
+                    div.className = "bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs space-y-3";
+                    
+                    let zutatenHtml = rez.zutaten.map(z => {
+                        let berechneteMenge = (z.menge / rez.basisPersonen) * this.state.selectedServings;
+                        return `<li class="flex justify-between border-b border-gray-50 pb-1">
+                            <span>${z.name}</span>
+                            <span class="font-bold text-gray-900">${berechneteMenge % 1 === 0 ? berechneteMenge : berechneteMenge.toFixed(1)} ${z.einheit}</span>
+                        </li>`;
                     }).join('');
 
-                    const card = `
-                        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs space-y-3">
-                            <div class="flex items-center gap-2.5">
-                                <span class="text-2xl">${rezept.icon}</span>
-                                <h3 class="font-black text-sm text-gray-900">${rezept.name}</h3>
+                    div.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl p-2 bg-amber-50 rounded-xl">${rez.icon}</span>
+                            <div>
+                                <h3 class="text-sm font-black text-gray-900">${rez.name}</h3>
+                                <p class="text-[10px] text-emerald-800 font-bold">Ideal zur Resteverwertung</p>
                             </div>
-                            <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-100/60">
-                                <p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1">Zutaten</p>
-                                <ul class="space-y-0.5">${zutatenListe}</ul>
-                            </div>
-                            <p class="text-[11px] text-gray-500 leading-relaxed font-medium bg-emerald-50/40 p-2.5 rounded-xl border border-emerald-100/20">${rezept.anleitung}</p>
-                            <button onclick="AppEngine.kochRezept('${rezept.name}')" class="w-full bg-emerald-800 text-white py-2 rounded-xl font-bold text-xs shadow-xs hover:bg-emerald-950 transition active:scale-[0.99] flex items-center justify-center gap-1">
-                                🍳 Rezept kochen (+100 XP)
-                            </button>
                         </div>
+                        <div class="space-y-1">
+                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Zutaten für ${this.state.selectedServings} Pers.</h4>
+                            <ul class="text-[11px] font-medium text-gray-600 space-y-1 bg-gray-50/50 p-2 rounded-xl">
+                                ${zutatenHtml}
+                            </ul>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Zubereitung</h4>
+                            <p class="text-[11px] font-medium text-gray-500 leading-relaxed">${rez.anleitung}</p>
+                        </div>
+                        <button onclick="AppEngine.kochRezept('${rez.name.replace(/'/g, "\\'")}')" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white py-2 rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="cooking-pot" class="w-4 h-4"></i> Ich habe das nachgekocht! (+100 XP)
+                        </button>
                     `;
-                    grid.insertAdjacentHTML('beforeend', card);
+                    grid.appendChild(div);
                 });
+                lucide.createIcons();
+            },
+
+            changeServings(val) {
+                this.state.selectedServings = parseInt(val) || 2;
+                this.renderRecipesTab();
+            },
+
+            openScanModal() {
+                document.getElementById('scan-modal').classList.remove('hidden');
+                this.startLiveScanner();
+            },
+
+            closeScanModal() {
+                document.getElementById('scan-modal').classList.add('hidden');
+                if (this.html5QrcodeScanner) {
+                    this.html5QrcodeScanner.clear().catch(err => console.error(err));
+                }
+            },
+
+            openAddModal() {
+                document.getElementById('add-modal').classList.remove('hidden');
+            },
+
+            closeAddModal() {
+                document.getElementById('add-modal').classList.add('hidden');
+            },
+
+            toggleInfoModal(show) {
+                document.getElementById('info-modal').classList.toggle('hidden', !show);
+            },
+
+            handleFormSubmit(e) {
+                e.preventDefault();
+                const name = document.getElementById('input-name').value;
+                const days = parseInt(document.getElementById('input-days').value);
+                
+                if(name && days) {
+                    this.state.kuehlschrank.push({
+                        id: Date.now(),
+                        name: name,
+                        cat: "📦",
+                        tage: days
+                    });
+                    this.addXp(50);
+                    this.renderFridgeTab();
+                    this.closeAddModal();
+                    this.showToast(`➕ ${name} eingebucht! +50 XP`);
+                    e.target.reset();
+                }
+            },
+
+            handleManualBarcodeSubmit() {
+                const code = document.getElementById('manual-barcode-input').value.trim();
+                if(code) {
+                    this.processScannedCode(code);
+                    document.getElementById('manual-barcode-input').value = "";
+                }
+            },
+
+            simulateScan() {
+                const keys = Object.keys(MockProduktDB);
+                const randomKey = keys[Math.floor(Math.random() * keys.length)];
+                this.processScannedCode(randomKey);
+            },
+
+            processScannedCode(code) {
+                if (MockProduktDB[code]) {
+                    const prod = MockProduktDB[code];
+                    this.state.kuehlschrank.push({
+                        id: Date.now(),
+                        name: prod.name,
+                        cat: prod.cat,
+                        tage: prod.tage
+                    });
+                    this.addXp(50);
+                    this.renderFridgeTab();
+                    this.closeScanModal();
+                    this.showToast(`✨ ${prod.name} gescannt! +50 XP`);
+                } else {
+                    this.showToast("Unbekannter Code. Nutze die manuelle Buchung!");
+                }
+            },
+
+            startLiveScanner() {
+                setTimeout(() => {
+                    this.html5QrcodeScanner = new Html5Qrcode("interactive-camera-feed");
+                    const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+                    
+                    this.html5QrcodeScanner.start(
+                        { facingMode: "environment" }, 
+                        config,
+                        (decodedText) => {
+                            this.processScannedCode(decodedText);
+                        },
+                        (errorMessage) => { /* Kontinuierlicher Scan-Fehler stummschalten */ }
+                    ).catch(err => {
+                        console.error("Kamerafehler:", err);
+                    });
+                }, 300);
+            },
+
+            showToast(msg) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = "bg-neutral-900/95 backdrop-blur-md text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg pointer-events-auto transition-all duration-300 opacity-0 translate-y-2 flex items-center gap-2 border border-white/10";
+                toast.innerHTML = `<span>💡</span> <span>${msg}</span>`;
+                
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.classList.replace('opacity-0', 'opacity-100');
+                    toast.classList.replace('translate-y-2', 'translate-y-0');
+                }, 10);
+
+                setTimeout(() => {
+                    toast.classList.replace('opacity-100', 'opacity-0');
+                    toast.classList.replace('translate-y-0', 'translate-y-2');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
             }
         };
 
