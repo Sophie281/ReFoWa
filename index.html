@@ -38,7 +38,34 @@
 </head>
 <body class="text-[#2C2520] min-h-screen antialiased">
  
-    <div class="max-w-md mx-auto min-h-screen flex flex-col relative bg-[#F4F1EA] shadow-2xl pb-24 border-x border-gray-200/30">
+    <!-- Startbildschirm -->
+    <div id="view-splash" class="max-w-md mx-auto min-h-screen flex flex-col justify-between items-center p-6 bg-[#F4F1EA] shadow-2xl relative page-view border-x border-gray-200/30">
+        <div class="w-full flex justify-end pt-2">
+            <span class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">v1.8.0 Pro</span>
+        </div>
+        
+        <div class="flex flex-col items-center text-center space-y-6 my-auto">
+            <div class="w-24 h-24 bg-emerald-800 text-white rounded-3xl flex items-center justify-center text-5xl shadow-xl font-bold select-none">
+                🌱
+            </div>
+            <div class="space-y-2">
+                <h1 class="text-4xl font-black text-emerald-900 tracking-tight">ReFoWa</h1>
+                <p class="text-xs text-gray-500 font-semibold max-w-xs leading-relaxed">
+                    Dein smarter Begleiter gegen Lebensmittelverschwendung. Scanne Produkte, verwalte den Kühlschrank und koche leckere Reste-Rezepte.
+                </p>
+            </div>
+        </div>
+
+        <div class="w-full pb-8">
+            <button onclick="AppEngine.enterApp()" class="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white p-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.99]">
+                <span>Wer Essen rettet, rettet Leben.</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Haupt-App (initial versteckt) -->
+    <div id="main-app-container" class="max-w-md mx-auto min-h-screen flex flex-col relative bg-[#F4F1EA] shadow-2xl pb-24 border-x border-gray-200/30 hidden">
         
         <header class="p-5 pb-3 flex justify-between items-center bg-[#F4F1EA]/95 sticky top-0 z-30 backdrop-blur-md border-b border-gray-200/10">
             <button onclick="AppEngine.toggleInfoModal(true)" class="p-2 bg-white/80 rounded-xl shadow-xs hover:opacity-70 transition">
@@ -48,7 +75,7 @@
                 <div class="font-black text-emerald-800 tracking-tight text-base uppercase flex items-center gap-1.5">
                     <i data-lucide="barcode" class="w-5 h-5"></i> ReFoWa
                 </div>
-                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">v1.6.0 Pro</div>
+                <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-0.5">v1.8.0 Pro</div>
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="AppEngine.showToast('Keine Benachrichtigungen')" class="p-2 bg-white/80 rounded-xl shadow-xs hover:opacity-70 transition relative">
@@ -63,8 +90,8 @@
                 <div class="flex justify-between items-start pt-1">
                     <div class="space-y-1 flex-1 pr-2">
                         <h1 class="text-3xl font-black tracking-tight text-black leading-none" id="dashboard-welcome-text">Guten Tag!</h1>
-                        <p class="text-xs font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg inline-block my-1 shadow-2xs">
-                            🌱 „Wer Essen rettet, rettet Leben!“
+                        <p class="text-xs font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg inline-block my-1 shadow-2xs" id="dashboard-rank-badge">
+                            🌱 Retter-Neuling
                         </p>
                         <p class="text-[11px] font-semibold text-gray-500 pt-0.5">Scanne Produkte, um Lebensmittel aktiv vor der Tonne zu retten.</p>
                     </div>
@@ -181,6 +208,13 @@
                             <p id="profile-xp-text" class="text-[10px] text-gray-400 font-bold uppercase tracking-wider pt-0.5">0 / 500 XP</p>
                         </div>
                     </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs space-y-3">
+                    <h3 class="text-sm font-black text-black uppercase tracking-wider border-b pb-2 flex items-center gap-1.5">
+                        <i data-lucide="award" class="w-4 h-4 text-emerald-800"></i> Retter-Titel & Ränge
+                    </h3>
+                    <div id="ranks-overview-list" class="space-y-2 pt-1 text-xs"></div>
                 </div>
 
                 <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs space-y-4">
@@ -301,6 +335,14 @@
             "4000300400500": { name: "Äpfel (Bio-Elstar)", cat: "🍎", tage: 10 }
         };
 
+        const RankTitles = [
+            { level: 1, title: "🌱 Retter-Neuling" },
+            { level: 2, title: "🔍 Gemüse-Detektiv" },
+            { level: 3, title: "🍳 Reste-Profi" },
+            { level: 5, title: "⚡ Kühlschrank-Champion" },
+            { level: 10, title: "👑 Lebensmittel-Legende" }
+        ];
+
         const RezepteKochbuch = [
             {
                 id: 1,
@@ -366,13 +408,32 @@
             },
 
             init() {
+                // Beim Start nur Icons laden, App wartet auf Klick vom Splashscreen
+                lucide.createIcons();
+            },
+
+            enterApp() {
+                document.getElementById('view-splash').classList.add('hidden');
+                document.getElementById('main-app-container').classList.remove('hidden');
+                
                 this.loadProfileUi();
                 this.renderAvatarSelector();
+                this.renderRanksList();
                 this.renderFridgeTab();
                 this.renderRecipesTab();
                 this.showToast("Willkommen zurück bei ReFoWa!");
                 this.updateXpDisplay();
                 lucide.createIcons();
+            },
+
+            getRankTitle(level) {
+                let currentTitle = RankTitles[0].title;
+                for (let r of RankTitles) {
+                    if (level >= r.level) {
+                        currentTitle = r.title;
+                    }
+                }
+                return currentTitle;
             },
 
             kochRezept(rezeptName) {
@@ -404,7 +465,9 @@
             },
 
             switchView(viewId) {
-                document.querySelectorAll('.page-view').forEach(view => view.classList.add('hidden'));
+                document.querySelectorAll('.page-view').forEach(view => {
+                    if (view.id !== 'view-splash') view.classList.add('hidden');
+                });
                 document.getElementById(`view-${viewId}`).classList.remove('hidden');
                 
                 document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-emerald-800', 'text-gray-400'));
@@ -413,25 +476,59 @@
             },
 
             addXp(amount) {
+                const oldLevel = this.state.stats.level;
                 this.state.stats.xp += amount;
                 while (this.state.stats.xp >= 500) {
                     this.state.stats.xp -= 500;
                     this.state.stats.level += 1;
-                    this.showToast(`🎉 Level Up! Du bist jetzt Level ${this.state.stats.level}!`);
                 }
+                
                 localStorage.setItem('refowa_xp', this.state.stats.xp);
                 localStorage.setItem('refowa_level', this.state.stats.level);
                 this.updateXpDisplay();
+
+                if (this.state.stats.level > oldLevel) {
+                    const newRank = this.getRankTitle(this.state.stats.level);
+                    confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
+                    this.showToast(`🎉 Level Up! Du bist jetzt Level ${this.state.stats.level} (${newRank})!`);
+                }
             },
 
             updateXpDisplay() {
+                const currentRank = this.getRankTitle(this.state.stats.level);
+
                 document.querySelectorAll('.dash-level-text').forEach(el => el.innerText = this.state.stats.level);
                 document.querySelectorAll('.dash-xp-text').forEach(el => el.innerText = this.state.stats.xp);
+                
+                const rankBadge = document.getElementById('dashboard-rank-badge');
+                if (rankBadge) rankBadge.innerText = currentRank;
+
+                const profileRank = document.getElementById('profile-rank-title');
+                if (profileRank) profileRank.innerText = currentRank;
                 
                 const bar = document.getElementById('profile-xp-bar');
                 if (bar) bar.style.width = `${(this.state.stats.xp / 500) * 100}%`;
                 const text = document.getElementById('profile-xp-text');
                 if (text) text.innerText = `${this.state.stats.xp} / 500 XP`;
+
+                this.renderRanksList();
+            },
+
+            renderRanksList() {
+                const container = document.getElementById('ranks-overview-list');
+                if (!container) return;
+                container.innerHTML = '';
+
+                RankTitles.forEach(r => {
+                    const isUnlocked = this.state.stats.level >= r.level;
+                    const row = document.createElement('div');
+                    row.className = `flex justify-between items-center p-2 rounded-xl border ${isUnlocked ? 'bg-emerald-50/50 border-emerald-100 text-emerald-900 font-bold' : 'bg-gray-50 border-gray-100 text-gray-400'}`;
+                    row.innerHTML = `
+                        <span>${r.title}</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-lg ${isUnlocked ? 'bg-emerald-800 text-white font-bold' : 'bg-gray-200 text-gray-600'}">Ab Level ${r.level}</span>
+                    `;
+                    container.appendChild(row);
+                });
             },
 
             loadProfileUi() {
@@ -684,5 +781,3 @@
     </script>
 </body>
 </html>
- 
-      
