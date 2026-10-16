@@ -62,7 +62,7 @@ animation: float 4s ease-in-out infinite;
 <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
 <span class="text-[10px] text-emerald-900 font-extrabold tracking-wider uppercase">100% Bio & Reste-frei</span>
 </div>
-<span class="text-[10px] text-emerald-800/60 font-bold tracking-widest uppercase bg-white/50 px-3 py-1.5 rounded-full border border-emerald-900/5">v1.9.1 Nature</span>
+<span class="text-[10px] text-emerald-800/60 font-bold tracking-widest uppercase bg-white/50 px-3 py-1.5 rounded-full border border-emerald-900/5">v1.9.2 Nature</span>
 </div>
 
 <div class="flex flex-col items-center text-center space-y-5 my-auto z-10 w-full px-2">
@@ -86,7 +86,6 @@ Save Food!
 <h1 class="text-5xl font-black text-[#1E3B1A] tracking-tight drop-shadow-xs">ReFoWa</h1>
 <div class="absolute -right-6 -top-3 text-xl">🌱</div>
 </div>
-<!-- Hier wurde der Text wie gewünscht ersetzt -->
 <p class="text-xs text-[#3A4F3C] font-extrabold max-w-[280px] leading-relaxed mx-auto bg-white/75 backdrop-blur-xs py-3 px-4 rounded-2xl border border-emerald-900/10 shadow-xs">
 Wer Essen rettet, rettet Leben!
 </p>
@@ -130,7 +129,7 @@ Wer Essen rettet, rettet Leben!
 <div class="font-black text-[#1E3B1A] tracking-tight text-base uppercase flex items-center gap-1.5">
 <span class="text-lg">🌿</span> ReFoWa
 </div>
-<div class="text-[10px] text-emerald-800/60 font-bold tracking-widest uppercase mt-0.5">v1.9.1 Nature</div>
+<div class="text-[10px] text-emerald-800/60 font-bold tracking-widest uppercase mt-0.5">v1.9.2 Nature</div>
 </div>
 <div class="flex items-center gap-2">
 <button onclick="AppEngine.showToast('Keine neuen Benachrichtigungen')" class="p-2 bg-white/90 rounded-xl shadow-xs hover:bg-emerald-50 transition relative border border-emerald-950/5">
@@ -144,6 +143,7 @@ Wer Essen rettet, rettet Leben!
 <div id="view-dashboard" class="page-view space-y-6">
 <div class="flex justify-between items-start pt-1">
 <div class="space-y-1 flex-1 pr-2">
+<!-- Hier wird der Name live angezeigt -->
 <h1 class="text-3xl font-black tracking-tight text-[#1E3B1A] leading-none" id="dashboard-welcome-text">Guten Tag!</h1>
 <p class="text-xs font-extrabold text-[#2D5A27] bg-[#E8F0E6] border border-[#CDE1C9] px-2.5 py-1 rounded-lg inline-block my-1 shadow-2xs" id="dashboard-rank-badge">
 🌱 Retter-Neuling
@@ -835,13 +835,19 @@ setTimeout(() => toast.remove(), 3000);
 },
 
 loadProfileUi() {
+// Aktualisiere Name auf dem Dashboard ("Guten Tag, [Name]!")
+document.getElementById('dashboard-welcome-text').innerText = `Guten Tag, ${this.state.profile.username}!`;
+
+// Aktualisiere Name im Profil
 document.getElementById('profile-name-title').innerText = this.state.profile.username;
 document.getElementById('setting-username').value = this.state.profile.username;
 
+// Aktualisiere Avatar & Farbe (Profil)
 const profileAvatarBox = document.getElementById('profile-avatar-large');
 profileAvatarBox.className = `w-20 h-20 rounded-2xl relative overflow-hidden border border-[#CDE1C9] grid items-center justify-items-center text-4xl shadow-sm ${this.state.profile.avatarBg}`;
 profileAvatarBox.innerText = this.state.profile.avatar;
 
+// Aktualisiere Avatar & Farbe (Dashboard)
 const dashAvatarBox = document.getElementById('dashboard-avatar-preview');
 dashAvatarBox.className = `w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-md font-bold select-none border border-emerald-400/30 ${this.state.profile.avatarBg}`;
 dashAvatarBox.innerText = this.state.profile.avatar;
