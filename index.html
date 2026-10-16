@@ -7,6 +7,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/canvas-confetti.browser.min.js"></script>
+<!-- HTML5-QRCode Bibliothek für den Barcodescanner -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
@@ -49,25 +51,21 @@ animation: float 4s ease-in-out infinite;
 </head>
 <body>
 
-<!-- Startbildschirm (Natur & Lebensmittel Redesign) -->
+<!-- Startbildschirm -->
 <div id="view-splash" class="max-w-md mx-auto min-h-screen flex flex-col justify-between items-center p-6 bg-gradient-to-b from-[#F7F5EE] via-[#EFECE3] to-[#E3DEC9] shadow-2xl relative page-view border-x border-emerald-950/10 overflow-hidden">
-<!-- Organische Hintergrund-Farbkleckse (Blur) -->
 <div class="absolute -top-16 -right-16 w-56 h-56 bg-emerald-300/30 rounded-full blur-3xl pointer-events-none"></div>
 <div class="absolute top-1/3 -left-20 w-64 h-64 bg-amber-200/40 rounded-full blur-3xl pointer-events-none"></div>
 <div class="absolute -bottom-16 -right-10 w-48 h-48 bg-lime-300/20 rounded-full blur-3xl pointer-events-none"></div>
 
-<!-- Top-Bar -->
 <div class="w-full flex justify-between items-center pt-2 z-10">
-<div class="flex items-center gap-1.5 bg-white/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-emerald-800/10 shadow-xs">
+<div class="flex items-center gap-1.5 bg-white/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-emerald-800/10 shadow-xs">
 <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
 <span class="text-[10px] text-emerald-900 font-extrabold tracking-wider uppercase">100% Bio & Reste-frei</span>
 </div>
 <span class="text-[10px] text-emerald-800/60 font-bold tracking-widest uppercase bg-white/50 px-3 py-1.5 rounded-full border border-emerald-900/5">v1.8.0 Nature</span>
 </div>
 
-<!-- Zentrum / Hero -->
 <div class="flex flex-col items-center text-center space-y-5 my-auto z-10 w-full px-2">
-<!-- Slogan-Banner oben im Hero -->
 <div class="inline-flex items-center gap-1.5 bg-emerald-900/5 border border-emerald-900/10 px-3.5 py-1.5 rounded-full">
 <span class="text-xs">✨</span>
 <span class="text-[11px] font-black text-[#2D5A27] tracking-wide">Wer Essen rettet, rettet Leben.</span>
@@ -78,7 +76,6 @@ animation: float 4s ease-in-out infinite;
 <div class="w-32 h-32 bg-gradient-to-br from-[#2D5A27] to-[#1E3B1A] text-white rounded-[2.5rem] flex items-center justify-center text-6xl shadow-2xl font-bold select-none animate-float border-2 border-emerald-500/30 relative">
 🥑
 </div>
-<!-- Kleine schwebende Badge am Icon -->
 <div class="absolute -bottom-2 -right-2 bg-amber-500 text-white text-[10px] font-black px-2.5 py-1 rounded-xl shadow-md border border-white">
 Save Food!
 </div>
@@ -94,7 +91,6 @@ Schütze die Natur, rette genießbare Lebensmittel vor der Tonne und zaubere kö
 </p>
 </div>
 
-<!-- Feature-Chips (Natur & Food) -->
 <div class="grid grid-cols-3 gap-2 w-full pt-1">
 <div class="bg-white/70 backdrop-blur-xs p-2.5 rounded-2xl border border-emerald-900/5 text-center flex flex-col items-center justify-center gap-1 shadow-2xs">
 <span class="text-base">🍅</span>
@@ -111,7 +107,6 @@ Schütze die Natur, rette genießbare Lebensmittel vor der Tonne und zaubere kö
 </div>
 </div>
 
-<!-- Footer / CTA -->
 <div class="w-full pb-4 z-10 space-y-3">
 <button onclick="AppEngine.enterApp()" class="w-full bg-gradient-to-r from-[#2D5A27] via-[#3B6E32] to-[#244820] hover:from-[#1E3B1A] hover:to-[#2D5A27] text-white p-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-3 shadow-xl shadow-emerald-950/20 transition-all active:scale-[0.98] group border border-emerald-400/20">
 <span>Auf gerettet, fertig, los!</span>
@@ -123,7 +118,7 @@ Schütze die Natur, rette genießbare Lebensmittel vor der Tonne und zaubere kö
 </div>
 </div>
 
-<!-- Haupt-App (initial versteckt) -->
+<!-- Haupt-App -->
 <div id="main-app-container" class="max-w-md mx-auto min-h-screen flex flex-col relative bg-[#F7F5EE] shadow-2xl pb-24 border-x border-emerald-950/10 hidden">
 
 <header class="p-5 pb-3 flex justify-between items-center bg-[#F7F5EE]/95 sticky top-0 z-30 backdrop-blur-md border-b border-emerald-950/5">
@@ -301,6 +296,7 @@ Wähle im Rezept-Tab passende Gerichte aus deinen Resten. Jedes gekochte Gericht
 </div>
 </main>
 
+<!-- Scanner Modal -->
 <div id="scan-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-5">
 <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
 <div class="flex justify-between items-center">
@@ -310,15 +306,15 @@ Wähle im Rezept-Tab passende Gerichte aus deinen Resten. Jedes gekochte Gericht
 <button onclick="AppEngine.closeScanModal()" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
 </div>
 
-<div class="w-full h-44 bg-zinc-900 rounded-2xl relative overflow-hidden border-2 border-[#2D5A27] flex items-center justify-center">
+<div class="w-full h-48 bg-zinc-900 rounded-2xl relative overflow-hidden border-2 border-[#2D5A27] flex items-center justify-center">
 <div id="interactive-camera-feed" class="w-full h-full"></div>
-<div class="absolute inset-x-0 h-0.5 bg-red-500 shadow-[0_0_8px_#ef4444] scanner-laser top-0 pointer-events-none"></div>
+<div class="absolute inset-x-0 h-0.5 bg-red-500 shadow-[0_0_8px_#ef4444] scanner-laser top-0 pointer-events-none z-20"></div>
 </div>
 
 <div class="pt-2 border-t border-gray-100">
 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Oder Barcode-Nummer eingeben</label>
 <div class="flex gap-2">
-<input type="text" id="manual-barcode-input" placeholder="z.B. 4008400200123" class="flex-1 p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold text-xs focus:outline-none focus:border-[#2D5A27]">
+<input type="text" id="manual-barcode-input" placeholder="z.B. 4311501418567" class="flex-1 p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold text-xs focus:outline-none focus:border-[#2D5A27]">
 <button onclick="AppEngine.handleManualBarcodeSubmit()" class="bg-[#2D5A27] text-white px-4 rounded-xl font-bold text-xs hover:bg-[#1E3B1A] transition">Hinzufügen</button>
 </div>
 </div>
@@ -330,6 +326,7 @@ Wähle im Rezept-Tab passende Gerichte aus deinen Resten. Jedes gekochte Gericht
 </div>
 </div>
 
+<!-- Manuelles Einbuchen Modal -->
 <div id="add-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
 <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
 <div class="flex justify-between items-start">
@@ -350,6 +347,7 @@ Wähle im Rezept-Tab passende Gerichte aus deinen Resten. Jedes gekochte Gericht
 </div>
 </div>
 
+<!-- Info Modal -->
 <div id="info-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-5">
 <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-3 shadow-2xl">
 <h3 class="text-lg font-black text-[#1E3B1A] flex items-center gap-2"><i data-lucide="info" class="text-[#2D5A27]"></i> Über ReFoWa</h3>
@@ -391,7 +389,8 @@ const MockProduktDB = {
 "4012345789012": { name: "Butter (Molkerei)", cat: "🧈", tage: 20 },
 "4008402501234": { name: "Toastbrot (Vollkorn)", cat: "🍞", tage: 8 },
 "4311501654321": { name: "Speisequark (Mager)", cat: "🥛", tage: 9 },
-"4000300400500": { name: "Äpfel (Bio-Elstar)", cat: "🍎", tage: 10 }
+"4000300400500": { name: "Äpfel (Bio-Elstar)", cat: "🍎", tage: 10 },
+"4311501418567": { name: "Sprite", cat: "🥤", tage: 60 }
 };
 
 const RankTitles = [
@@ -447,7 +446,7 @@ anleitung: "Das Gemüse klein schneiden und in einer Pfanne anbraten. Eier mit d
 const AvailableAvatars = ["🍳", "🧑‍🍳", "🌱", "🦊", "🥑", "🍕", "🐼", "🚀"];
 
 const AppEngine = {
-html5QrcodeScanner: null,
+html5QrCode: null,
 state: {
 kuehlschrank: [
 { id: 1, name: "Magerquark (500g)", cat: "🥛", tage: 2 },
@@ -484,6 +483,84 @@ this.updateXpDisplay();
 lucide.createIcons();
 },
 
+openScanModal() {
+document.getElementById('scan-modal').classList.remove('hidden');
+setTimeout(() => {
+if (!this.html5QrCode) {
+this.html5QrCode = new Html5Qrcode("interactive-camera-feed");
+}
+this.html5QrCode.start(
+{ facingMode: "environment" },
+{ fps: 10, qrbox: { width: 220, height: 120 } },
+(decodedText) => {
+this.processScannedCode(decodedText);
+},
+(errorMessage) => {}
+).catch(err => {
+console.warn("Kamera konnte nicht gestartet werden:", err);
+this.showToast("Kamera-Zugriff blockiert oder nicht verfügbar.");
+});
+}, 300);
+},
+
+closeScanModal() {
+if (this.html5QrCode && this.html5QrCode.isScanning) {
+this.html5QrCode.stop().then(() => {
+document.getElementById('scan-modal').classList.add('hidden');
+}).catch(err => {
+console.error("Fehler beim Stoppen der Kamera:", err);
+document.getElementById('scan-modal').classList.add('hidden');
+});
+} else {
+document.getElementById('scan-modal').classList.add('hidden');
+}
+},
+
+processScannedCode(code) {
+this.closeScanModal();
+const cleanCode = code.replace(/\s+/g, '').trim();
+
+if (MockProduktDB[cleanCode]) {
+const p = MockProduktDB[cleanCode];
+this.state.kuehlschrank.push({
+id: Date.now(),
+name: p.name,
+cat: p.cat,
+tage: p.tage
+});
+this.addXp(50);
+this.renderFridgeTab();
+this.showToast(`🎉 "${p.name}" erfolgreich hinzugefügt! (+50 XP)`);
+} else {
+this.state.kuehlschrank.push({
+id: Date.now(),
+name: `Produkt #${cleanCode.slice(-4)}`,
+cat: "📦",
+tage: 7
+});
+this.addXp(50);
+this.renderFridgeTab();
+this.showToast(`📦 Unbekannter Barcode eingebucht! (+50 XP)`);
+}
+},
+
+simulateScan() {
+const keys = Object.keys(MockProduktDB);
+const randomKey = keys[Math.floor(Math.random() * keys.length)];
+this.processScannedCode(randomKey);
+},
+
+handleManualBarcodeSubmit() {
+const input = document.getElementById('manual-barcode-input');
+const val = input.value.trim();
+if (!val) {
+this.showToast("Bitte gib eine Barcode-Nummer ein.");
+return;
+}
+input.value = "";
+this.processScannedCode(val);
+},
+
 getRankTitle(level) {
 let currentTitle = RankTitles[0].title;
 for (let r of RankTitles) {
@@ -496,14 +573,12 @@ return currentTitle;
 
 kochRezept(rezeptName) {
 this.addXp(100);
-
 confetti({
 particleCount: 150,
 spread: 80,
 origin: { y: 0.6 },
 colors: ['#2D5A27', '#E67E22', '#27AE60']
 });
-
 this.showToast(`🧑‍🍳 "${rezeptName}" gekocht! +100 XP erarbeitet!`);
 },
 
@@ -511,14 +586,12 @@ verwerteItem(id, name) {
 this.state.kuehlschrank = this.state.kuehlschrank.filter(i => i.id !== id);
 this.addXp(30);
 this.renderFridgeTab();
-
 confetti({
 particleCount: 80,
 spread: 60,
 origin: { y: 0.6 },
 colors: ['#2D5A27', '#3498DB']
 });
-
 this.showToast(`🎉 "${name}" erfolgreich gerettet! +30 XP`);
 },
 
@@ -677,24 +750,21 @@ zutatenHtml += `<li class="text-xs text-gray-700 font-medium">• ${adjustedAmou
 });
 
 card.innerHTML = `
-<div class="flex items-center gap-3">
-<div class="w-12 h-12 bg-[#E8F0E6] rounded-2xl flex items-center justify-center text-2xl border border-[#CDE1C9]">${recipe.icon}</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="text-2xl">${recipe.icon}</span>
 <div>
-<h3 class="text-sm font-black text-gray-900">${recipe.name}</h3>
-<p class="text-[10px] font-bold text-gray-400">Für ${this.state.selectedServings} Person(en)</p>
+<h4 class="text-xs font-black text-gray-900">${recipe.name}</h4>
+<p class="text-[10px] text-gray-500 font-bold">Basis für ${this.state.selectedServings} Person(en)</p>
 </div>
 </div>
-<div class="bg-gray-50 p-3 rounded-2xl border border-gray-100 space-y-1">
-<p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Benötigte Zutaten:</p>
-<ul class="space-y-0.5">${zutatenHtml}</ul>
+<button onclick="AppEngine.kochRezept('${recipe.name}')" class="bg-[#2D5A27] text-white px-3 py-1.5 rounded-xl font-bold text-[10px] hover:bg-[#1E3B1A] transition shadow-xs">Kochen (+100 XP)</button>
 </div>
-<div class="space-y-1">
-<p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Zubereitung:</p>
-<p class="text-xs text-gray-600 leading-relaxed">${recipe.anleitung}</p>
+<div class="bg-gray-50 p-2.5 rounded-2xl border border-gray-100">
+<p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1">Benötigte Zutaten:</p>
+<ul class="grid grid-cols-2 gap-1">${zutatenHtml}</ul>
 </div>
-<button onclick="AppEngine.kochRezept('${recipe.name}')" class="w-full bg-[#2D5A27] text-white p-3 rounded-xl font-bold text-xs shadow-md hover:bg-[#1E3B1A] transition flex items-center justify-center gap-2">
-<i data-lucide="chef-hat" class="w-4 h-4"></i> Rezept gekocht (+100 XP)
-</button>
+<p class="text-[11px] text-gray-600 leading-relaxed font-medium">${recipe.anleitung}</p>
 `;
 grid.appendChild(card);
 });
@@ -706,15 +776,48 @@ this.state.selectedServings = parseInt(val);
 this.renderRecipesTab();
 },
 
+openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); },
+closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); },
+
+handleFormSubmit(e) {
+e.preventDefault();
+const name = document.getElementById('input-name').value;
+const days = parseInt(document.getElementById('input-days').value);
+
+this.state.kuehlschrank.push({
+id: Date.now(),
+name: name,
+cat: "📦",
+tage: days
+});
+
+this.closeAddModal();
+e.target.reset();
+this.renderFridgeTab();
+this.addXp(50);
+this.showToast(`"${name}" erfolgreich eingebucht! (+50 XP)`);
+},
+
+toggleInfoModal(show) {
+const modal = document.getElementById('info-modal');
+if (show) modal.classList.remove('hidden');
+else modal.classList.add('hidden');
+},
+
+showToast(message) {
+const container = document.getElementById('toast-container');
+const toast = document.createElement('div');
+toast.className = "bg-[#1E3B1A] text-white px-4 py-3 rounded-2xl text-xs font-bold shadow-xl border border-emerald-500/30 text-center animate-bounce";
+toast.innerText = message;
+container.appendChild(toast);
+setTimeout(() => toast.remove(), 3000);
+},
+
 loadProfileUi() {
 document.getElementById('profile-name-title').innerText = this.state.profile.username;
+document.getElementById('setting-username').value = this.state.profile.username;
 document.getElementById('profile-avatar-large').innerText = this.state.profile.avatar;
-const nameInput = document.getElementById('setting-username');
-if (nameInput) nameInput.value = this.state.profile.username;
-const welcomeText = document.getElementById('dashboard-welcome-text');
-if (welcomeText) welcomeText.innerText = `Guten Tag, ${this.state.profile.username}!`;
-const avatarPreview = document.getElementById('dashboard-avatar-preview');
-if (avatarPreview) avatarPreview.innerText = this.state.profile.avatar;
+document.getElementById('dashboard-avatar-preview').innerText = this.state.profile.avatar;
 },
 
 renderAvatarSelector() {
@@ -723,14 +826,14 @@ if (!grid) return;
 grid.innerHTML = '';
 AvailableAvatars.forEach(av => {
 const btn = document.createElement('button');
-btn.type = 'button';
-btn.className = `w-full h-10 rounded-xl text-lg flex items-center justify-center border transition ${this.state.profile.avatar === av ? 'bg-[#E8F0E6] border-[#2D5A27] scale-105' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}`;
+btn.type = "button";
+btn.className = `p-2.5 rounded-xl text-xl border transition ${this.state.profile.avatar === av ? 'bg-[#E8F0E6] border-[#2D5A27] shadow-xs' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}`;
 btn.innerText = av;
 btn.onclick = () => {
 this.state.profile.avatar = av;
 localStorage.setItem('refowa_avatar', av);
-this.renderAvatarSelector();
 this.loadProfileUi();
+this.renderAvatarSelector();
 this.showToast("Avatar aktualisiert!");
 };
 grid.appendChild(btn);
@@ -743,103 +846,12 @@ if (newName) {
 this.state.profile.username = newName;
 localStorage.setItem('refowa_username', newName);
 this.loadProfileUi();
-this.showToast("Profil erfolgreich gespeichert!");
+this.showToast("Profil-Name gespeichert!");
 }
-},
-
-openScanModal() {
-document.getElementById('scan-modal').classList.remove('hidden');
-},
-
-closeScanModal() {
-document.getElementById('scan-modal').classList.add('hidden');
-if (this.html5QrcodeScanner) {
-try { this.html5QrcodeScanner.clear(); } catch(e) {}
-}
-},
-
-simulateScan() {
-const keys = Object.keys(MockProduktDB);
-const randomKey = keys[Math.floor(Math.random() * keys.length)];
-const prod = MockProduktDB[randomKey];
-this.state.kuehlschrank.push({
-id: Date.now(),
-name: prod.name,
-cat: prod.cat,
-tage: prod.tage
-});
-this.closeScanModal();
-this.renderFridgeTab();
-this.addXp(50);
-this.showToast(`Scann erfolgreich: "${prod.name}" (+50 XP)`);
-},
-
-handleManualBarcodeSubmit() {
-const val = document.getElementById('manual-barcode-input').value.trim();
-if (!val) return;
-const prod = MockProduktDB[val] || { name: "Unbekanntes Produkt", cat: "📦", tage: 7 };
-this.state.kuehlschrank.push({
-id: Date.now(),
-name: prod.name,
-cat: prod.cat,
-tage: prod.tage
-});
-document.getElementById('manual-barcode-input').value = '';
-this.closeScanModal();
-this.renderFridgeTab();
-this.addXp(50);
-this.showToast(`Hinzugefügt: "${prod.name}" (+50 XP)`);
-},
-
-openAddModal() {
-document.getElementById('add-modal').classList.remove('hidden');
-},
-
-closeAddModal() {
-document.getElementById('add-modal').classList.add('hidden');
-},
-
-handleFormSubmit(e) {
-e.preventDefault();
-const name = document.getElementById('input-name').value;
-const days = parseInt(document.getElementById('input-days').value);
-this.state.kuehlschrank.push({
-id: Date.now(),
-name: name,
-cat: "🛒",
-tage: days
-});
-document.getElementById('input-name').value = '';
-document.getElementById('input-days').value = '';
-this.closeAddModal();
-this.renderFridgeTab();
-this.addXp(50);
-this.showToast(`Manuell eingebucht: "${name}" (+50 XP)`);
-},
-
-toggleInfoModal(show) {
-const modal = document.getElementById('info-modal');
-if (show) modal.classList.remove('hidden');
-else modal.classList.add('hidden');
-},
-
-showToast(msg) {
-const container = document.getElementById('toast-container');
-if (!container) return;
-const toast = document.createElement('div');
-toast.className = "bg-[#1E3B1A] text-white px-4 py-3 rounded-2xl shadow-xl text-xs font-bold pointer-events-auto flex items-center justify-between border border-emerald-800 transition-all animate-fade-in";
-toast.innerHTML = `<span>${msg}</span>`;
-container.appendChild(toast);
-setTimeout(() => {
-toast.style.opacity = '0';
-setTimeout(() => toast.remove(), 300);
-}, 3000);
 }
 };
 
-window.onload = () => {
-AppEngine.init();
-};
+window.onload = () => AppEngine.init();
 </script>
 </body>
 </html>
