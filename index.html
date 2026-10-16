@@ -572,7 +572,7 @@ return currentTitle;
 },
 
 kochRezept(rezeptName) {
-this.addXp(100);
+this.addXp(100); // 100 XP für den Kochen-Button
 confetti({
 particleCount: 150,
 spread: 80,
@@ -584,7 +584,7 @@ this.showToast(`🧑‍🍳 "${rezeptName}" gekocht! +100 XP erarbeitet!`);
 
 verwerteItem(id, name) {
 this.state.kuehlschrank = this.state.kuehlschrank.filter(i => i.id !== id);
-this.addXp(30);
+this.addXp(50); // 50 XP für den Gerettet-Button
 this.renderFridgeTab();
 confetti({
 particleCount: 80,
@@ -592,7 +592,7 @@ spread: 60,
 origin: { y: 0.6 },
 colors: ['#2D5A27', '#3498DB']
 });
-this.showToast(`🎉 "${name}" erfolgreich gerettet! +30 XP`);
+this.showToast(`🎉 "${name}" erfolgreich gerettet! +50 XP`);
 },
 
 switchView(viewId) {
